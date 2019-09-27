@@ -33,7 +33,7 @@ data class State(val total: Int = 0)
 
 data class AddAction(val number: Int)
 
-class CalculatorMiddleware: Middleware<State> by middleware(State(), {
+class CalculatorMiddleware: Middleware<State, Unit> by middleware(State(), {
 
     perform("addition")
         .on<AddAction>()
