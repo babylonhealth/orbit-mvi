@@ -54,14 +54,14 @@ internal class OrbitSpek : Spek({
                     perform("something")
                             .on<Int>()
                             .withReducer { currentState, event ->
-                                State(currentState.id + event).also { latch.countDown() }
+                                State(currentState.id + event)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -82,14 +82,14 @@ internal class OrbitSpek : Spek({
                     perform("something")
                             .on<Int>()
                             .withReducer { currentState ->
-                                State(currentState.id + 22).also { latch.countDown() }
+                                State(currentState.id + 22)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -111,14 +111,14 @@ internal class OrbitSpek : Spek({
                             .on<Int>()
                             .transform { this.map { it.action * 2 } }
                             .withReducer { currentState, event ->
-                                State(currentState.id + event).also { latch.countDown() }
+                                State(currentState.id + event)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -140,14 +140,14 @@ internal class OrbitSpek : Spek({
                             .on<Int>()
                             .transform { this.map { it.action * 2 } }
                             .withReducer { currentState ->
-                                State(currentState.id + 22).also { latch.countDown() }
+                                State(currentState.id + 22)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -170,14 +170,14 @@ internal class OrbitSpek : Spek({
                             .transform { this.map { it.action * 2 } }
                             .transform { this.map { it * 2 } }
                             .withReducer { currentState, event ->
-                                State(currentState.id + event).also { latch.countDown() }
+                                State(currentState.id + event)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -242,14 +242,14 @@ internal class OrbitSpek : Spek({
                             .on<IntModified>()
                             .transform { this.map { it.action.value * 2 } }
                             .withReducer { currentState, event ->
-                                State(currentState.id + event).also { latch.countDown() }
+                                State(currentState.id + event)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -272,21 +272,21 @@ internal class OrbitSpek : Spek({
                             .on<Int>()
                             .transform { this.map { it.action * 2 } }
                             .withReducer { _, event ->
-                                State(event).also { latch.countDown() }
+                                State(event)
                             }
 
                     perform("something")
                             .on<Int>()
                             .transform { this.map { it.action + 2 } }
                             .withReducer { _, event ->
-                                State(event).also { latch.countDown() }
+                                State(event)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
@@ -314,28 +314,28 @@ internal class OrbitSpek : Spek({
                             .on<One>()
                             .withReducer { _, _ ->
                                 println("one ${Thread.currentThread().name}")
-                                State(1).also { latch.countDown() }
+                                State(1)
                             }
 
                     perform("two")
                             .on<Two>()
                             .withReducer { _, _ ->
                                 println("two ${Thread.currentThread().name}")
-                                State(2).also { latch.countDown() }
+                                State(2)
                             }
 
                     perform("three")
                             .on<Three>()
                             .withReducer { _, _ ->
                                 println("three ${Thread.currentThread().name}")
-                                State(3).also { latch.countDown() }
+                                State(3)
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
 
             When("sending actions") {
-                emittedValues = orbitContainer.orbit.test().values()
+                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
                 for (i in 0 until 99) {
                     val value = (i % 3)
                     expectedOutput.add(State(value + 1))
