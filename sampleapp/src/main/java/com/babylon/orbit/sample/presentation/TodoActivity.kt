@@ -7,7 +7,11 @@ import androidx.appcompat.app.AppCompatDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.babylon.orbit.sample.R
 import com.babylon.orbit.sample.domain.user.UserProfile
-import com.babylon.orbit.sample.presentation.ui.*
+import com.babylon.orbit.sample.presentation.ui.LogoItem
+import com.babylon.orbit.sample.presentation.ui.SpaceItemDecoration
+import com.babylon.orbit.sample.presentation.ui.ToDoItem
+import com.babylon.orbit.sample.presentation.ui.show
+import com.babylon.orbit.sample.presentation.ui.throttledClick
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder

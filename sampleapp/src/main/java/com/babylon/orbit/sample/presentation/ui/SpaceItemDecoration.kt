@@ -19,32 +19,13 @@ class SpaceItemDecoration(
 
         if (position == -1) return
 
-        getItemOffsetsDefaultBehaviour(outRect, isFirstItem, isLastItem)
+        assignItemOffsets(outRect, isFirstItem, isLastItem)
     }
 
-    private fun getItemOffsetsDefaultBehaviour(outRect: Rect, isFirstItem: Boolean, isLastItem: Boolean) {
-        outRect.left = if (isHorizontal) {
-            if (isFirstItem) horizontalSpacing else horizontalSpacing / 2
-        } else {
-            horizontalSpacing
-        }
-
-        outRect.right = if (isHorizontal) {
-            if (isLastItem) horizontalSpacing else horizontalSpacing / 2
-        } else {
-            horizontalSpacing
-        }
-
-        outRect.top = if (!isHorizontal) {
-            if (isFirstItem) verticalSpacing else verticalSpacing / 2
-        } else {
-            verticalSpacing
-        }
-
-        outRect.bottom = if (!isHorizontal) {
-            if (isLastItem) verticalSpacing else verticalSpacing / 2
-        } else {
-            verticalSpacing
-        }
+    private fun assignItemOffsets(outRect: Rect, isFirstItem: Boolean, isLastItem: Boolean) {
+        outRect.left = if (!isHorizontal || isFirstItem) horizontalSpacing else horizontalSpacing / 2
+        outRect.right = if (!isHorizontal || isLastItem) horizontalSpacing else horizontalSpacing / 2
+        outRect.top = if (isHorizontal || isFirstItem) verticalSpacing else verticalSpacing / 2
+        outRect.bottom = if (isHorizontal || isLastItem) verticalSpacing else verticalSpacing / 2
     }
 }
