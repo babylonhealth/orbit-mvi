@@ -24,7 +24,6 @@ jobs:
         java-version: 1.8
 
     - name: Unit tests
-      uses: actions/upload-artifact@master
       run: ./gradlew test
 
     - name: Upload test artifacts
