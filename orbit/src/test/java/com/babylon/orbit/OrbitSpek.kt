@@ -274,14 +274,14 @@ internal class OrbitSpek : Spek({
                     perform("something")
                             .on<Int>()
                             .transform { this.map { it.action * 2 } }
-                            .withReducer { currentState, event ->
+                            .withReducer { _, event ->
                                 State(event).also { latch.countDown() }
                             }
 
                     perform("something")
                             .on<Int>()
                             .transform { this.map { it.action + 2 } }
-                            .withReducer { currentState, event ->
+                            .withReducer { _, event ->
                                 State(event).also { latch.countDown() }
                             }
                 }
