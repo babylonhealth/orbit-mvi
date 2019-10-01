@@ -43,7 +43,7 @@ object Versions {
     // Testing
     const val spek = "2.0.7"
     const val junitPlatform = "1.5.2"
-    const val assertk = "0.19"
+    const val assertJ = "2.9.1"
     const val mockitoKotlin = "2.1.0"
 }
 
@@ -80,7 +80,7 @@ object ProjectDependencies {
     const val spekDsl = "org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}"
     const val spekRunner = "org.spekframework.spek2:spek-runner-junit5:${Versions.spek}"
     const val junitPlatformConsole = "org.junit.platform:junit-platform-console:${Versions.junitPlatform}"
-    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}"
+    const val assertJ = "org.assertj:assertj-core:${Versions.assertJ}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
 }
 
@@ -93,7 +93,7 @@ object GroupedDependencies {
     val spekTestsImplementation = listOf(
         ProjectDependencies.kotlinReflect,
         ProjectDependencies.spekDsl,
-        ProjectDependencies.assertk,
+        ProjectDependencies.assertJ,
         ProjectDependencies.mockitoKotlin
     )
 

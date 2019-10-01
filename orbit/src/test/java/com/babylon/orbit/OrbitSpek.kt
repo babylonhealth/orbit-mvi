@@ -16,10 +16,7 @@
 
 package com.babylon.orbit
 
-import assertk.assertThat
-import assertk.assertions.containsExactly
-import assertk.assertions.containsOnly
-import assertk.assertions.isEqualTo
+import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import java.util.concurrent.CountDownLatch

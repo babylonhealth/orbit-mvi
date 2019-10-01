@@ -1,13 +1,12 @@
 package com.babylon.orbit.sample
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import com.babylon.orbit.sample.domain.todo.Todo
 import com.babylon.orbit.sample.domain.todo.TodoStatus
 import com.babylon.orbit.sample.presentation.ScreenState
 import com.babylon.orbit.sample.presentation.TodoScreenAction
 import com.babylon.orbit.sample.presentation.TodoScreenReducer
 import com.babylon.orbit.sample.presentation.TodoScreenState
+import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import java.io.IOException
