@@ -16,7 +16,7 @@
 
 package com.babylon.orbit
 
-import org.assertj.core.api.Assertions.assertThat
+import io.reactivex.observers.TestObserver
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import java.util.concurrent.CountDownLatch
@@ -27,7 +27,7 @@ internal class OrbitSpek : Spek({
         Scenario("no flows") {
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with no flows") {
                 middleware = createTestMiddleware {}
@@ -35,11 +35,11 @@ internal class OrbitSpek : Spek({
             }
 
             When("connecting to the middleware") {
-                emittedValues = orbitContainer.orbit.test().values()
+                testObserver = orbitContainer.orbit.test()
             }
 
             Then("emits the initial state") {
-                assertThat(emittedValues).containsExactly(middleware.initialState)
+                testObserver.assertValueSequence(listOf(middleware.initialState))
             }
         }
 
@@ -47,7 +47,7 @@ internal class OrbitSpek : Spek({
             val latch by memoized { CountDownLatch(1) }
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with one reducer flow") {
                 middleware = createTestMiddleware {
@@ -61,13 +61,13 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct end state") {
-                assertThat(emittedValues).containsExactly(State(42), State(47))
+                testObserver.assertValueSequence(listOf(State(42), State(47)))
             }
         }
 
@@ -75,7 +75,7 @@ internal class OrbitSpek : Spek({
             val latch by memoized { CountDownLatch(1) }
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with a simple reducer flow") {
                 middleware = createTestMiddleware {
@@ -89,13 +89,13 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct end state") {
-                assertThat(emittedValues).containsExactly(State(42), State(64))
+                testObserver.assertValueSequence(listOf(State(42), State(64)))
             }
         }
 
@@ -103,7 +103,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with a transformer and reducer") {
                 middleware = createTestMiddleware {
@@ -118,13 +118,13 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct end state") {
-                assertThat(emittedValues).containsExactly(State(42), State(52))
+                testObserver.assertValueSequence(listOf(State(42), State(52)))
             }
         }
 
@@ -132,7 +132,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with a transformer and simple reducer") {
                 middleware = createTestMiddleware {
@@ -147,13 +147,13 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct end state") {
-                assertThat(emittedValues).containsExactly(State(42), State(64))
+                testObserver.assertValueSequence(listOf(State(42), State(64)))
             }
         }
 
@@ -161,7 +161,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with two transformers and a reducer") {
                 middleware = createTestMiddleware {
@@ -177,13 +177,13 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct end state") {
-                assertThat(emittedValues).containsExactly(State(42), State(62))
+                testObserver.assertValueSequence(listOf(State(42), State(62)))
             }
         }
 
@@ -191,7 +191,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with two transformer flows") {
                 middleware = createTestMiddleware {
@@ -213,13 +213,13 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.test().values()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("emits just the initial state after connecting") {
-                assertThat(emittedValues).containsExactly(State(42))
+                testObserver.assertValueSequence(listOf(State(42)))
             }
         }
 
@@ -229,7 +229,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with a transformer loopback flow and transform/reduce flow") {
                 middleware = createTestMiddleware {
@@ -249,14 +249,14 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct end state") {
-                println(emittedValues)
-                assertThat(emittedValues).containsExactly(State(42), State(62))
+                println(testObserver)
+                testObserver.assertValueSequence(listOf(State(42), State(62)))
             }
         }
 
@@ -264,7 +264,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(2)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
 
             Given("A middleware with two transform/reduce flows") {
                 middleware = createTestMiddleware {
@@ -286,14 +286,14 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 orbitContainer.inputRelay.accept(5)
                 latch.await()
             }
 
             Then("produces a correct series of states") {
-                println(emittedValues)
-                assertThat(emittedValues).containsOnly(State(42), State(10), State(7))
+                println(testObserver)
+                testObserver.assertValueSet(listOf(State(42), State(10), State(7)))
             }
         }
         Scenario("a flow with three transformers with reducers") {
@@ -305,7 +305,7 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(99)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
+            lateinit var testObserver: TestObserver<State>
             val expectedOutput = mutableListOf(State(0))
 
             Given("A middleware with three transform/reduce flows") {
@@ -335,7 +335,7 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending actions") {
-                emittedValues = orbitContainer.orbit.doOnNext { latch.countDown() }.test().values()
+                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
                 for (i in 0 until 99) {
                     val value = (i % 3)
                     expectedOutput.add(State(value + 1))
@@ -354,9 +354,9 @@ internal class OrbitSpek : Spek({
             }
 
             Then("produces a correct series of states") {
-                println(emittedValues)
+                println(testObserver)
                 println(expectedOutput)
-                assertThat(emittedValues).isEqualTo(expectedOutput)
+                testObserver.assertValueSequence(expectedOutput)
             }
         }
 
@@ -365,8 +365,8 @@ internal class OrbitSpek : Spek({
             val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
-            lateinit var emittedValues: List<State>
-            lateinit var sideEffects: List<String>
+            lateinit var testObserver: TestObserver<State>
+            lateinit var sideEffects: TestObserver<String>
 
             Given("A middleware with multiple side effects within one flow") {
                 middleware = createTestMiddleware(State(1)) {
@@ -398,19 +398,19 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending actions") {
-                emittedValues = orbitContainer.orbit.test().values()
-                sideEffects = orbitContainer.sideEffect.test().values()
+                testObserver = orbitContainer.orbit.test()
+                sideEffects = orbitContainer.sideEffect.test()
 
                 orbitContainer.inputRelay.accept(Unit)
                 latch.await()
             }
 
             Then("produces a correct series of states") {
-                assertThat(emittedValues).containsExactly(State(1))
+                testObserver.assertValueSequence(listOf(State(1)))
             }
 
             Then("produces a correct series of side effects") {
-                assertThat(sideEffects).containsExactly("1", "2", "three")
+                sideEffects.assertValueSequence(listOf("1", "2", "three"))
             }
         }
     }
