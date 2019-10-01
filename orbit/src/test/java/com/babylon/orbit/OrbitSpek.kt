@@ -44,7 +44,6 @@ internal class OrbitSpek : Spek({
         }
 
         Scenario("a flow that reduces an action") {
-            val latch by memoized { CountDownLatch(1) }
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -61,18 +60,17 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct end state") {
+                testObserver.awaitCount(2)
                 testObserver.assertValueSequence(listOf(State(42), State(47)))
             }
         }
 
         Scenario("a flow that reduces an action using a simple reducer") {
-            val latch by memoized { CountDownLatch(1) }
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -89,18 +87,17 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct end state") {
+                testObserver.awaitCount(2)
                 testObserver.assertValueSequence(listOf(State(42), State(64)))
             }
         }
 
         Scenario("a flow with a transformer and reducer") {
-            val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -118,18 +115,17 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct end state") {
+                testObserver.awaitCount(2)
                 testObserver.assertValueSequence(listOf(State(42), State(52)))
             }
         }
 
         Scenario("a flow with a transformer and simple reducer") {
-            val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -147,18 +143,17 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct end state") {
+                testObserver.awaitCount(2)
                 testObserver.assertValueSequence(listOf(State(42), State(64)))
             }
         }
 
         Scenario("a flow with two transformers and a reducer") {
-            val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -177,12 +172,12 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct end state") {
+                testObserver.awaitCount(2)
                 testObserver.assertValueSequence(listOf(State(42), State(62)))
             }
         }
@@ -226,7 +221,6 @@ internal class OrbitSpek : Spek({
         Scenario("a flow with a transformer loopback and a flow with a transformer and reducer") {
             data class IntModified(val value: Int)
 
-            val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -249,19 +243,18 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct end state") {
-                println(testObserver)
+                testObserver.awaitCount(2)
+                println(testObserver.values())
                 testObserver.assertValueSequence(listOf(State(42), State(62)))
             }
         }
 
         Scenario("a flow with two transformers with reducers") {
-            val latch = CountDownLatch(2)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -286,12 +279,12 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending an action") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 orbitContainer.inputRelay.accept(5)
-                latch.await()
             }
 
             Then("produces a correct series of states") {
+                testObserver.awaitCount(3)
                 println(testObserver)
                 testObserver.assertValueSet(listOf(State(42), State(10), State(7)))
             }
@@ -302,7 +295,6 @@ internal class OrbitSpek : Spek({
             class Two
             class Three
 
-            val latch = CountDownLatch(99)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -335,7 +327,7 @@ internal class OrbitSpek : Spek({
             }
 
             When("sending actions") {
-                testObserver = orbitContainer.orbit.doOnNext { latch.countDown() }.test()
+                testObserver = orbitContainer.orbit.test()
                 for (i in 0 until 99) {
                     val value = (i % 3)
                     expectedOutput.add(State(value + 1))
@@ -349,20 +341,17 @@ internal class OrbitSpek : Spek({
                             }
                     )
                 }
-
-                latch.await()
             }
 
             Then("produces a correct series of states") {
-                println(testObserver)
+                testObserver.awaitCount(100)
+                println(testObserver.values())
                 println(expectedOutput)
                 testObserver.assertValueSequence(expectedOutput)
             }
         }
 
         Scenario("a flow with side effects") {
-
-            val latch = CountDownLatch(1)
             lateinit var middleware: Middleware<State, String>
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
@@ -390,9 +379,8 @@ internal class OrbitSpek : Spek({
                             }
                             .sideEffect { relay, string ->
                                 relay.post(string)
-                                latch.countDown()
                             }
-                            .ignoringEvents()
+                            .withReducer { state -> state.copy(id = state.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -402,11 +390,12 @@ internal class OrbitSpek : Spek({
                 sideEffects = orbitContainer.sideEffect.test()
 
                 orbitContainer.inputRelay.accept(Unit)
-                latch.await()
+
+                testObserver.awaitCount(2)
             }
 
             Then("produces a correct series of states") {
-                testObserver.assertValueSequence(listOf(State(1)))
+                testObserver.assertValueSequence(listOf(State(1), State(2)))
             }
 
             Then("produces a correct series of side effects") {
@@ -424,3 +413,5 @@ private fun createTestMiddleware(
 }
 
 private data class State(val id: Int)
+
+private const val AWAIT_TIMEOUT = 10000L
