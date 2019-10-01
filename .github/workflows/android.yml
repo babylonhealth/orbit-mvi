@@ -26,6 +26,9 @@ jobs:
     - name: Unit tests
       uses: actions/upload-artifact@master
       run: ./gradlew test
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@master
       with:
         name: test-results
         path: orbit/build/report/tests/test/*
