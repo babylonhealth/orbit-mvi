@@ -275,14 +275,14 @@ internal class OrbitSpek : Spek({
                             .on<Int>()
                             .transform { this.map { it.action * 2 } }
                             .withReducer { currentState, event ->
-                                State(currentState.id + event).also { latch.countDown() }
+                                State(event).also { latch.countDown() }
                             }
 
                     perform("something")
                             .on<Int>()
                             .transform { this.map { it.action + 2 } }
                             .withReducer { currentState, event ->
-                                State(currentState.id + event).also { latch.countDown() }
+                                State(event).also { latch.countDown() }
                             }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
@@ -296,7 +296,7 @@ internal class OrbitSpek : Spek({
 
             Then("produces a correct series of states") {
                 println(emittedValues)
-                assertThat(emittedValues).containsOnly(State(42), State(52), State(59))
+                assertThat(emittedValues).containsOnly(State(42), State(10), State(7))
             }
         }
         Scenario("a flow with three transformers with reducers") {

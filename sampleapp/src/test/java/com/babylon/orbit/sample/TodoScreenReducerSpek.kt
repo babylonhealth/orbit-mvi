@@ -95,7 +95,6 @@ class TodoScreenReducerSpek : Spek({
 
         Scenario("a state with a selected todo event") {
             lateinit var todoScreenState: TodoScreenState
-            lateinit var event: TodoScreenAction.TodoSelected
             val todoId = 2
 
             Given("a state with a selected todo event") {
