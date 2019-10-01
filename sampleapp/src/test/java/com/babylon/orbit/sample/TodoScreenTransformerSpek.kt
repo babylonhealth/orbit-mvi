@@ -11,18 +11,17 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Observable
 import org.spekframework.spek2.Spek
-import org.spekframework.spek2.lifecycle.CachingMode
 import org.spekframework.spek2.style.gherkin.Feature
 
 class TodoScreenTransformerSpek : Spek({
 
-    val mockGetTodoUseCase by memoized(mode = CachingMode.EACH_GROUP) { mock<GetTodoUseCase>() }
-    val mockAnalyticsManager by memoized(mode = CachingMode.EACH_GROUP) { mock<AnalyticsManager>() }
-    val transformer by memoized(mode = CachingMode.EACH_GROUP) {
-        TodoScreenTransformer(mockGetTodoUseCase, mock(), mock(), mockAnalyticsManager)
-    }
-
     Feature("Todo transformers") {
+        val mockGetTodoUseCase by memoized { mock<GetTodoUseCase>() }
+        val mockAnalyticsManager by memoized { mock<AnalyticsManager>() }
+        val transformer by memoized {
+            TodoScreenTransformer(mockGetTodoUseCase, mock(), mock(), mockAnalyticsManager)
+        }
+
         listOf(
                 LifecycleAction.Created,
                 TodoScreenAction.RetryAction
