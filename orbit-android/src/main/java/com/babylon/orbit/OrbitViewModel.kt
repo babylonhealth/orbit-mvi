@@ -16,9 +16,9 @@
 
 package com.babylon.orbit
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
-import com.uber.autodispose.autoDispose
+import com.uber.autodispose.android.lifecycle.autoDispose
 import io.reactivex.Observable
 
 abstract class OrbitViewModel<STATE : Any, EFFECT : Any>(
@@ -42,21 +42,21 @@ abstract class OrbitViewModel<STATE : Any, EFFECT : Any>(
      * For example onStart -> onStop, onResume -> onPause, onCreate -> onDestroy.
      */
     fun connect(
-        scoper: AndroidLifecycleScopeProvider,
+        lifecycleOwner: LifecycleOwner,
         actions: Observable<out Any>,
         stateConsumer: (STATE) -> Unit,
         eventConsumer: (EFFECT) -> Unit = {}
     ) {
 
         container.orbit
-            .autoDispose(scoper)
+            .autoDispose(lifecycleOwner)
             .subscribe(stateConsumer)
 
-        actions.autoDispose(scoper)
+        actions.autoDispose(lifecycleOwner)
             .subscribe(container.inputRelay::onNext)
 
         container.sideEffect
-            .autoDispose(scoper)
+            .autoDispose(lifecycleOwner)
             .subscribe(eventConsumer)
     }
 
