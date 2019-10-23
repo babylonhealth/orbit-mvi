@@ -46,7 +46,7 @@ class CalculatorViewModel: OrbitViewModel<State, Unit> (State(), {
     perform("addition")
         .on<AddAction>()
         .withReducer {
-            state.copy(inputState.total + action.number)
+            state.copy(currentState.total + event.number)
         }
 })
 ```

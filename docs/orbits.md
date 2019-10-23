@@ -72,7 +72,7 @@ OrbitViewModel<State, Unit>(State(), {
     perform("addition")
         .on<AddAction>()
         .withReducer {
-            state.copy(inputState.total + action.number)
+            state.copy(currentState.total + event.number)
         }
 })
 ```
@@ -103,7 +103,7 @@ OrbitViewModel<State, Unit>(State(), {
     perform("reduce add random number")
         .on<GetRandomNumberUseCaseEvent>()
         .withReducer {
-            state.copy(inputState.total + action.number)
+            state.copy(currentState.total + event.number)
         }
 })
 ```
