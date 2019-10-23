@@ -66,7 +66,6 @@ dependencies {
     implementation(ProjectDependencies.androidRxBindings)
 
     implementation(ProjectDependencies.rxJava2)
-    implementation(ProjectDependencies.rxRelay)
     implementation(ProjectDependencies.rxKotlin)
     implementation(ProjectDependencies.rxAndroid)
     implementation(ProjectDependencies.autodispose)

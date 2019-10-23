@@ -23,7 +23,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TodoActivity : AppCompatActivity() {
 
-    private val viewModel by viewModel<TodoActivityViewModel>()
+    private val viewModel by viewModel<TodoViewModel>()
     private val scopeProvider: AndroidLifecycleScopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
 
     private val actionPublisher = PublishSubject.create<TodoScreenAction>()

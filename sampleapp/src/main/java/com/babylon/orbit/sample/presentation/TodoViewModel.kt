@@ -1,13 +1,12 @@
 package com.babylon.orbit.sample.presentation
 
 import com.babylon.orbit.LifecycleAction
-import com.babylon.orbit.Middleware
-import com.babylon.orbit.middleware
+import com.babylon.orbit.OrbitViewModel
 
-class TodoMiddleware(
+class TodoViewModel(
     private val transformers: TodoScreenTransformer,
     private val reducers: TodoScreenReducer
-) : Middleware<TodoScreenState, TodoScreenAction> by middleware(TodoScreenState(), {
+) : OrbitViewModel<TodoScreenState, Unit>(TodoScreenState(), {
 
     perform("load the todos")
         .on(

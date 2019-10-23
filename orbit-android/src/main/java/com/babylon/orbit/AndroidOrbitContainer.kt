@@ -19,17 +19,17 @@ package com.babylon.orbit
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-class AndroidOrbitContainer<STATE : Any, EVENT : Any> private constructor(
-    private val delegate: BaseOrbitContainer<STATE, EVENT>
-) : OrbitContainer<STATE, EVENT> by delegate {
+class AndroidOrbitContainer<STATE : Any, EFFECT : Any> private constructor(
+    private val delegate: BaseOrbitContainer<STATE, EFFECT>
+) : OrbitContainer<STATE, EFFECT> by delegate {
 
-    constructor(middleware: Middleware<STATE, EVENT>) : this(BaseOrbitContainer(middleware))
+    constructor(middleware: Middleware<STATE, EFFECT>) : this(BaseOrbitContainer(middleware))
 
     val state: STATE
         get() = delegate.state.blockingGet()
 
     override val orbit: Observable<STATE> = delegate.orbit.observeOn(AndroidSchedulers.mainThread())
 
-    override val sideEffect: Observable<EVENT> =
+    override val sideEffect: Observable<EFFECT> =
         delegate.sideEffect.observeOn(AndroidSchedulers.mainThread())
 }

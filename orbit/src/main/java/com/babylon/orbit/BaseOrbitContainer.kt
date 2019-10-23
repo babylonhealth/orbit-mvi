@@ -16,22 +16,22 @@
 
 package com.babylon.orbit
 
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observables.ConnectableObservable
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.subjects.PublishSubject
 
-class BaseOrbitContainer<STATE : Any, EVENT : Any>(
-    middleware: Middleware<STATE, EVENT>
-) : OrbitContainer<STATE, EVENT> {
+class BaseOrbitContainer<STATE : Any, EFFECT : Any>(
+    middleware: Middleware<STATE, EFFECT>
+) : OrbitContainer<STATE, EFFECT> {
     var state: Single<STATE>
         private set
 
-    override val inputRelay: PublishRelay<Any> = PublishRelay.create()
+    override val inputRelay: PublishSubject<Any> = PublishSubject.create()
     override val orbit: ConnectableObservable<STATE>
-    override val sideEffect: Observable<EVENT> = middleware.sideEffect
+    override val sideEffect: Observable<EFFECT> = middleware.sideEffect
 
     private val disposables = CompositeDisposable()
 

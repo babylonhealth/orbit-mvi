@@ -126,7 +126,7 @@ open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: ST
         fun <T : Any> loopBack(mapper: EventReceiver<EVENT>.() -> T) {
             this@OrbitsBuilder.orbits += { upstream, inputRelay ->
                 upstreamTransformer(upstream)
-                    .doOnNext { action -> inputRelay.accept(EventReceiver(action).mapper()) }
+                    .doOnNext { action -> inputRelay.onNext(EventReceiver(action).mapper()) }
                     .map {
                         { state: STATE -> state }
                     }
