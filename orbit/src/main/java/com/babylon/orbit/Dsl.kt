@@ -78,8 +78,8 @@ open class OrbitsBuilder<STATE : Any, SIDE_EFFECT : Any>(private val initialStat
             }
 
         private fun sideEffectInternal(sideEffect: (ActionState<STATE, ACTION>) -> Unit) =
-            this@OrbitsBuilder.Transformer { rawActions ->
-                upstreamTransformer(rawActions.observeOn(Schedulers.io()))
+            this@OrbitsBuilder.FirstTransformer { rawActions ->
+                upstreamTransformer(rawActions)
                     .doOnNext {
                         sideEffect(it)
                     }
@@ -92,6 +92,15 @@ open class OrbitsBuilder<STATE : Any, SIDE_EFFECT : Any>(private val initialStat
                         { state: STATE ->
                             ReducerReceiver(state, it.action).reducer()
                         }
+                    }
+            }
+        }
+
+        fun ignoringEvents() {
+            this@OrbitsBuilder.orbits += { upstream, _ ->
+                upstreamTransformer(upstream)
+                    .map {
+                        { state: STATE -> state }
                     }
             }
         }

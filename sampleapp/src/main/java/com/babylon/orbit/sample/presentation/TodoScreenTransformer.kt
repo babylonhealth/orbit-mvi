@@ -1,7 +1,6 @@
 package com.babylon.orbit.sample.presentation
 
 import com.babylon.orbit.ActionState
-import com.babylon.orbit.sample.domain.analytics.AnalyticsManager
 import com.babylon.orbit.sample.domain.todo.GetTodoUseCase
 import com.babylon.orbit.sample.domain.user.GetUserProfileSwitchesUseCase
 import com.babylon.orbit.sample.domain.user.GetUserProfileUseCase
