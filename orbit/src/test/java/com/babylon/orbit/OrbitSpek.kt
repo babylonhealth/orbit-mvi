@@ -305,7 +305,7 @@ internal class OrbitSpek : Spek({
                         .postSideEffect {
                             "${inputState.id + action}"
                         }
-                        .withReducer { currentState.copy(id =currentState.id + 1) }
+                        .withReducer { currentState.copy(id = currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -342,7 +342,7 @@ internal class OrbitSpek : Spek({
                         .postSideEffect {
                             event.toString()
                         }
-                        .withReducer { currentState.copy(id =currentState.id + 1) }
+                        .withReducer { currentState.copy(id = currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -379,7 +379,7 @@ internal class OrbitSpek : Spek({
                         .sideEffect {
                             sideEffectList.add("${inputState.id + action}")
                         }
-                        .withReducer { currentState.copy(id =currentState.id + 1) }
+                        .withReducer { currentState.copy(id = currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -421,7 +421,7 @@ internal class OrbitSpek : Spek({
                         .sideEffect {
                             sideEffectList.add(event.toString())
                         }
-                        .withReducer { currentState.copy(id =currentState.id + 1) }
+                        .withReducer { currentState.copy(id = currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
