@@ -8,9 +8,7 @@ the glue between small, distinct functions.
 perform("add random number")
     .on<AddRandomNumberButtonPressed>()
     .transform { this.compose(getRandomNumberUseCase) }
-    .withReducer {
-        state.copy(currentState.total + event.number)
-    }
+    .withReducer { state.copy(currentState.total + event.number) }
 ```
 
 We can break an orbit into its constituent parts to be able to understand it
@@ -70,9 +68,7 @@ transformations beforehand:
 ``` kotlin
 perform("addition")
     .on<AddAction>()
-    .withReducer {
-        state.copy(currentState.total + event.number)
-    }
+    .withReducer { state.copy(currentState.total + event.number) }
 ```
 
 ### Ignored events
@@ -97,9 +93,7 @@ perform("add random number")
 
 perform("reduce add random number")
     .on<GetRandomNumberUseCaseEvent>()
-    .withReducer {
-        state.copy(currentState.total + event.number)
-    }
+    .withReducer { state.copy(currentState.total + event.number) }
 ```
 
 Loopbacks allow you to create feedback loops where events coming from one orbit
@@ -138,23 +132,27 @@ OrbitViewModel<State, SideEffect>(State(), {
             Timber.log(inputState)
             Timber.log(action)
         }
+        .ignoringEvents()
 
     perform("side effect after transformation")
         .on<OtherAction>()
         .transform { this.compose(getRandomNumberUseCase) }
         .sideEffect { Timber.log(event) }
+        .ignoringEvents()
 
     perform("add random number")
         .on<YetAnotherAction>()
         .transform { this.compose(getRandomNumberUseCase) }
         .postSideEffect { SideEffect.Toast(event.toString()) }
         .postSideEffect { SideEffect.Navigate(Screen.Home) }
+        .ignoringEvents()
 
     perform("post side effect straight on the incoming action")
         .on<NthAction>()
         .postSideEffect { SideEffect.Toast(inputState.toString()) }
         .postSideEffect { SideEffect.Toast(action.toString()) }
         .postSideEffect { SideEffect.Navigate(Screen.Home) }
+        .ignoringEvents()
 })
 ```
 
