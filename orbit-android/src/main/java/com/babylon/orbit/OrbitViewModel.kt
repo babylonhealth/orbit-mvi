@@ -21,16 +21,16 @@ import androidx.lifecycle.ViewModel
 import com.uber.autodispose.android.lifecycle.autoDispose
 import io.reactivex.Observable
 
-abstract class OrbitViewModel<STATE : Any, EFFECT : Any>(
-    middleware: Middleware<STATE, EFFECT>
+abstract class OrbitViewModel<STATE : Any, SIDE_EFFECT : Any>(
+    middleware: Middleware<STATE, SIDE_EFFECT>
 ) : ViewModel() {
 
     constructor(
         initialState: STATE,
-        init: OrbitsBuilder<STATE, EFFECT>.() -> Unit
+        init: OrbitsBuilder<STATE, SIDE_EFFECT>.() -> Unit
     ) : this(middleware(initialState, init))
 
-    private val container: AndroidOrbitContainer<STATE, EFFECT> = AndroidOrbitContainer(middleware)
+    private val container: AndroidOrbitContainer<STATE, SIDE_EFFECT> = AndroidOrbitContainer(middleware)
 
     val state: STATE
         get() = container.state
@@ -45,7 +45,7 @@ abstract class OrbitViewModel<STATE : Any, EFFECT : Any>(
         lifecycleOwner: LifecycleOwner,
         actions: Observable<out Any>,
         stateConsumer: (STATE) -> Unit,
-        eventConsumer: (EFFECT) -> Unit = {}
+        sideEffectConsumer: (SIDE_EFFECT) -> Unit = {}
     ) {
 
         container.orbit
@@ -57,7 +57,7 @@ abstract class OrbitViewModel<STATE : Any, EFFECT : Any>(
 
         container.sideEffect
             .autoDispose(lifecycleOwner)
-            .subscribe(eventConsumer)
+            .subscribe(sideEffectConsumer)
     }
 
     override fun onCleared() {

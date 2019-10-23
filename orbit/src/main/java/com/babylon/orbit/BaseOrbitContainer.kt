@@ -23,15 +23,15 @@ import io.reactivex.observables.ConnectableObservable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.PublishSubject
 
-class BaseOrbitContainer<STATE : Any, EFFECT : Any>(
-    middleware: Middleware<STATE, EFFECT>
-) : OrbitContainer<STATE, EFFECT> {
+class BaseOrbitContainer<STATE : Any, SIDE_EFFECT : Any>(
+    middleware: Middleware<STATE, SIDE_EFFECT>
+) : OrbitContainer<STATE, SIDE_EFFECT> {
     var state: Single<STATE>
         private set
 
     override val inputRelay: PublishSubject<Any> = PublishSubject.create()
     override val orbit: ConnectableObservable<STATE>
-    override val sideEffect: Observable<EFFECT> = middleware.sideEffect
+    override val sideEffect: Observable<SIDE_EFFECT> = middleware.sideEffect
 
     private val disposables = CompositeDisposable()
 

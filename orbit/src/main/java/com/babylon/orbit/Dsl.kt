@@ -16,25 +16,25 @@ What do we want to log:
 @DslMarker
 annotation class OrbitDsl
 
-fun <STATE : Any, EFFECT : Any> middleware(
+fun <STATE : Any, SIDE_EFFECT : Any> middleware(
     initialState: STATE,
-    init: OrbitsBuilder<STATE, EFFECT>.() -> Unit
-): Middleware<STATE, EFFECT> {
+    init: OrbitsBuilder<STATE, SIDE_EFFECT>.() -> Unit
+): Middleware<STATE, SIDE_EFFECT> {
 
-    return OrbitsBuilder<STATE, EFFECT>(initialState).apply {
+    return OrbitsBuilder<STATE, SIDE_EFFECT>(initialState).apply {
         init(this)
     }.build()
 }
 
 @OrbitDsl
-open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: STATE) {
+open class OrbitsBuilder<STATE : Any, SIDE_EFFECT : Any>(private val initialState: STATE) {
     // Since this caches unconsumed events we restrict it to one subscriber at a time
-    protected val sideEffectSubject: Subject<EFFECT> = UnicastWorkSubject.create()
+    protected val sideEffectSubject: Subject<SIDE_EFFECT> = UnicastWorkSubject.create()
 
     private val orbits = mutableListOf<TransformerFunction<STATE>>()
 
     @Suppress("unused") // Used for the nice extension function highlight
-    fun OrbitsBuilder<STATE, EFFECT>.perform(description: String) = ActionFilter(description)
+    fun OrbitsBuilder<STATE, SIDE_EFFECT>.perform(description: String) = ActionFilter(description)
 
     inline fun <reified ACTION : Any> ActionFilter.on() =
         this@OrbitsBuilder.FirstTransformer<ACTION> { it.ofActionType() }
@@ -65,7 +65,7 @@ open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: ST
                 transformer(upstreamTransformer(rawActions.observeOn(Schedulers.io())))
             }
 
-        fun postSideEffect(sideEffect: ActionState<STATE, ACTION>.() -> EFFECT) =
+        fun postSideEffect(sideEffect: ActionState<STATE, ACTION>.() -> SIDE_EFFECT) =
             sideEffectInternal {
                 this@OrbitsBuilder.sideEffectSubject.onNext(
                     it.sideEffect()
@@ -105,7 +105,7 @@ open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: ST
                 transformer(upstreamTransformer(rawActions))
             }
 
-        fun postSideEffect(sideEffect: EventReceiver<EVENT>.() -> EFFECT) =
+        fun postSideEffect(sideEffect: EventReceiver<EVENT>.() -> SIDE_EFFECT) =
             sideEffectInternal {
                 this@OrbitsBuilder.sideEffectSubject.onNext(EventReceiver(it).sideEffect())
             }
@@ -154,10 +154,10 @@ open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: ST
         }
     }
 
-    fun build() = object : Middleware<STATE, EFFECT> {
+    fun build() = object : Middleware<STATE, SIDE_EFFECT> {
         override val initialState: STATE = this@OrbitsBuilder.initialState
         override val orbits: List<TransformerFunction<STATE>> = this@OrbitsBuilder.orbits
-        override val sideEffect: Observable<EFFECT> = sideEffectSubject.hide()
+        override val sideEffect: Observable<SIDE_EFFECT> = sideEffectSubject.hide()
     }
 }
 
