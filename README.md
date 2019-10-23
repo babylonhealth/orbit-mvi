@@ -41,12 +41,12 @@ data class State(val total: Int = 0)
 
 data class AddAction(val number: Int)
 
-class CalculatorMiddleware: Middleware<State, Unit> by middleware(State(), {
+class CalculatorViewModel: OrbitViewModel<State, Unit> (State(), {
 
     perform("addition")
         .on<AddAction>()
-        .withReducer { state, action ->
-            state.copy(state.total + action.number)
+        .withReducer {
+            state.copy(inputState.total + action.number)
         }
 })
 ```
