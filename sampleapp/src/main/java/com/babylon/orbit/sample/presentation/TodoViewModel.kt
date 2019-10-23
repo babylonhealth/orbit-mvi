@@ -5,7 +5,8 @@ import com.babylon.orbit.OrbitViewModel
 
 class TodoViewModel(
     private val transformers: TodoScreenTransformer,
-    private val reducers: TodoScreenReducer
+    private val reducers: TodoScreenReducer,
+    private val sideEffects: TodoScreenSideEffect
 ) : OrbitViewModel<TodoScreenState, Unit>(TodoScreenState(), {
 
     perform("load the todos")
@@ -18,7 +19,7 @@ class TodoViewModel(
 
     perform("track analytics for selected todo")
         .on<TodoScreenAction.TodoSelected>()
-        .transform { transformers.trackSelectedTodo(this) }
+        .sideEffect { sideEffects.trackSelectedTodo(action) }
         .ignoringEvents()
 
     perform("load the selected todo")

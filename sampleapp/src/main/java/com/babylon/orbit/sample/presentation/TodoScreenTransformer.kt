@@ -11,15 +11,11 @@ import io.reactivex.Observable
 class TodoScreenTransformer(
     private val todoUseCase: GetTodoUseCase,
     private val getUserProfileSwitchesUseCase: GetUserProfileSwitchesUseCase,
-    private val getUserProfileUseCase: GetUserProfileUseCase,
-    private val analyticsManager: AnalyticsManager
+    private val getUserProfileUseCase: GetUserProfileUseCase
 ) {
 
     internal fun loadTodos(actions: Observable<ActionState<TodoScreenState, Any>>) =
         actions.switchMap { todoUseCase.getTodoList() }
-
-    internal fun trackSelectedTodo(actions: Observable<ActionState<TodoScreenState, TodoScreenAction.TodoSelected>>) =
-        actions.doOnNext { analyticsManager.trackAnalytics(it.action.todoId.toString()) }
 
     internal fun loadUserProfileSwitches(actions: Observable<ActionState<TodoScreenState, TodoScreenAction.TodoUserSelected>>) =
         actions.switchMap { actionState ->
