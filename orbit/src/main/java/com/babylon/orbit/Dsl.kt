@@ -123,10 +123,10 @@ open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: ST
                     }
             }
 
-        fun <T : Any> loopBack(mapper: (EVENT) -> T) {
+        fun <T : Any> loopBack(mapper: EventReceiver<EVENT>.() -> T) {
             this@OrbitsBuilder.orbits += { upstream, inputRelay ->
                 upstreamTransformer(upstream)
-                    .doOnNext { action -> inputRelay.accept(mapper(action)) }
+                    .doOnNext { action -> inputRelay.accept(EventReceiver(action).mapper()) }
                     .map {
                         { state: STATE -> state }
                     }
@@ -161,7 +161,7 @@ open class OrbitsBuilder<STATE : Any, EFFECT : Any>(private val initialState: ST
     }
 }
 
-class ReducerReceiver<out STATE : Any, out EVENT : Any>(
+class ReducerReceiver<STATE : Any, EVENT : Any>(
     val currentState: STATE,
     val event: EVENT
 )

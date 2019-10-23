@@ -176,7 +176,7 @@ internal class OrbitSpek : Spek({
                     perform("something")
                         .on<Int>()
                         .transform { map { it.action * 2 } }
-                        .loopBack { IntModified(it) }
+                        .loopBack { IntModified(event) }
 
                     perform("something")
                         .on<IntModified>()
@@ -204,7 +204,7 @@ internal class OrbitSpek : Spek({
             lateinit var orbitContainer: BaseOrbitContainer<State, String>
             lateinit var testObserver: TestObserver<State>
 
-            fun myReducer(event: Int): State{
+            fun myReducer(event: Int): State {
                 return State(event)
             }
 
