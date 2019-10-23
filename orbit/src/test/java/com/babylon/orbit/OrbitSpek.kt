@@ -305,7 +305,7 @@ internal class OrbitSpek : Spek({
                         .postSideEffect {
                             "${inputState.id + action}"
                         }
-                        .ignoringEvents()
+                        .withReducer { currentState.copy(id =currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -316,14 +316,14 @@ internal class OrbitSpek : Spek({
 
                 orbitContainer.inputRelay.onNext(5)
 
-                testObserver.awaitCount(1)
+                testObserver.awaitCount(2)
             }
 
             Then("produces a correct series of states") {
-                testObserver.assertValueSequence(listOf(State(1)))
+                testObserver.assertValueSequence(listOf(State(1), State(2)))
             }
 
-            Then("posts a correct series of side effects") {
+            And("posts a correct series of side effects") {
                 sideEffects.assertValueSequence(listOf("6"))
             }
         }
@@ -342,7 +342,7 @@ internal class OrbitSpek : Spek({
                         .postSideEffect {
                             event.toString()
                         }
-                        .ignoringEvents()
+                        .withReducer { currentState.copy(id =currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -353,14 +353,14 @@ internal class OrbitSpek : Spek({
 
                 orbitContainer.inputRelay.onNext(5)
 
-                testObserver.awaitCount(1)
+                testObserver.awaitCount(2)
             }
 
             Then("produces a correct series of states") {
-                testObserver.assertValueSequence(listOf(State(1)))
+                testObserver.assertValueSequence(listOf(State(1), State(2)))
             }
 
-            Then("posts a correct series of side effects") {
+            And("posts a correct series of side effects") {
                 sideEffects.assertValueSequence(listOf("10"))
             }
         }
@@ -379,7 +379,7 @@ internal class OrbitSpek : Spek({
                         .sideEffect {
                             sideEffectList.add("${inputState.id + action}")
                         }
-                        .ignoringEvents()
+                        .withReducer { currentState.copy(id =currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -390,18 +390,18 @@ internal class OrbitSpek : Spek({
 
                 orbitContainer.inputRelay.onNext(5)
 
-                testObserver.awaitCount(1)
+                testObserver.awaitCount(2)
             }
 
             Then("produces a correct series of states") {
-                testObserver.assertValueSequence(listOf(State(1)))
+                testObserver.assertValueSequence(listOf(State(1), State(2)))
             }
 
-            Then("posts no side effects") {
+            And("posts no side effects") {
                 sideEffects.assertNoValues()
             }
 
-            Then("the side effect is executed") {
+            And("the side effect is executed") {
                 assertThat(sideEffectList).containsExactly("6")
             }
         }
@@ -421,7 +421,7 @@ internal class OrbitSpek : Spek({
                         .sideEffect {
                             sideEffectList.add(event.toString())
                         }
-                        .ignoringEvents()
+                        .withReducer { currentState.copy(id =currentState.id + 1) }
                 }
                 orbitContainer = BaseOrbitContainer(middleware)
             }
@@ -432,18 +432,18 @@ internal class OrbitSpek : Spek({
 
                 orbitContainer.inputRelay.onNext(5)
 
-                testObserver.awaitCount(1)
+                testObserver.awaitCount(2)
             }
 
             Then("produces a correct series of states") {
-                testObserver.assertValueSequence(listOf(State(1)))
+                testObserver.assertValueSequence(listOf(State(1), State(2)))
             }
 
-            Then("posts no side effects") {
+            And("posts no side effects") {
                 sideEffects.assertNoValues()
             }
 
-            Then("the side effect is executed") {
+            And("the side effect is executed") {
                 assertThat(sideEffectList).containsExactly("10")
             }
         }
