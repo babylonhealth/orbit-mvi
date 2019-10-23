@@ -128,12 +128,12 @@ OrbitViewModel<State, SideEffect>(State(), {
             Timber.log(inputState)
             Timber.log(action)
         }
-        
+
     perform("side effect after transformation")
         .on<OtherAction>()
         .transform { this.compose(getRandomNumberUseCase) }
         .sideEffect { Timber.log(event) }
-        
+
     perform("add random number")
         .on<YetAnotherAction>()
         .transform { this.compose(getRandomNumberUseCase) }
@@ -158,7 +158,7 @@ navigation, logging, analytics etc.
 
 It comes in two flavors:
 
-1. `sideEffect` lets us perform side effects that are not intended for 
+1. `sideEffect` lets us perform side effects that are not intended for
    consumption outside the Orbit container.
 1. `postSideEffect` sends the value returned from the closure to a relay
    that can be subscribed when connecting to the view model. Use this for
