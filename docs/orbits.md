@@ -37,6 +37,10 @@ Then we declare an action that this orbit will react to using the `on` keyword.
 We can also declare a list of actions if this orbit reacts to a few different
 actions.
 
+The type provided to `on` is out-projected so subclasses of the given type
+will also trigger this flow. For example, an `on<Number>()` will be triggered
+for `Int`, `Float`, etc.
+
 **NOTE**
 Be careful not to use generic types in these filters! Due to type erasure
 e.g. `List<Int>` and `List<String>` resolve to the same class, potentially
