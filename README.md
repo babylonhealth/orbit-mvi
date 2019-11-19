@@ -1,6 +1,7 @@
 # Orbit MVI for Kotlin and Android
 
 [![CI status](https://github.com/babylonhealth/orbit-mvi/workflows/Android%20CI/badge.svg)](https://github.com/babylonhealth/orbit-mvi/actions)
+[![codecov](https://codecov.io/gh/babylonhealth/orbit-mvi/branch/master/graph/badge.svg)](https://codecov.io/gh/babylonhealth/orbit-mvi)
 [![Download](https://api.bintray.com/packages/babylonpartners/maven/orbit/images/download.svg)](https://bintray.com/babylonpartners/maven/orbit/_latestVersion)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
@@ -58,7 +59,7 @@ class CalculatorViewModel : OrbitViewModel<State, SideEffect> (State(), {
         .on<AddAction>()
         .sideEffect { post(SideEffect.Toast("Adding ${event.number}")) }
         .reduce {
-            getCurrentState().copy(getCurrentState().total + event.number)
+            currentState.copy(currentState.total + event.number)
         }
 
     ...

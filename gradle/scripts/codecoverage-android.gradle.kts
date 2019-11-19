@@ -14,23 +14,26 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit
+import com.dicedmelon.gradle.jacoco.android.JacocoAndroidPlugin
+import com.dicedmelon.gradle.jacoco.android.JacocoAndroidUnitTestReportExtension
 
-/**
- * @property event The incoming event.
- */
-@OrbitDsl
-class EventReceiver<STATE : Any, EVENT : Any>(
-    private val stateProvider: () -> STATE,
-    val event: EVENT
-) {
-    /**
-     * Returns the current state captured whenever this field is accessed. Successive queries of this
-     * field may yield different results each time as the state could be modified by another flow at
-     * any time.
-     *
-     * Within a reducer however, you can expect this to be constant.
-     */
-    val currentState
-        get() = stateProvider()
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath(PluginDependencies.jacocoAndroid)
+    }
+}
+
+apply<JacocoAndroidPlugin>()
+
+configure<JacocoAndroidUnitTestReportExtension> {
+    csv.enabled(false)
+    html.enabled(true)
+    xml.enabled(true)
+}
+
+tasks.withType<Test>().configureEach {
+    finalizedBy(tasks.named("jacocoTestReport"))
 }

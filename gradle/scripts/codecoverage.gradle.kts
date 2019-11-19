@@ -14,23 +14,13 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit
+apply<JacocoPlugin>()
 
-/**
- * @property event The incoming event.
- */
-@OrbitDsl
-class EventReceiver<STATE : Any, EVENT : Any>(
-    private val stateProvider: () -> STATE,
-    val event: EVENT
-) {
-    /**
-     * Returns the current state captured whenever this field is accessed. Successive queries of this
-     * field may yield different results each time as the state could be modified by another flow at
-     * any time.
-     *
-     * Within a reducer however, you can expect this to be constant.
-     */
-    val currentState
-        get() = stateProvider()
+tasks.getByName("test").finalizedBy(tasks.getByName("jacocoTestReport"))
+
+tasks.withType<JacocoReport> {
+    reports {
+        xml.isEnabled = true
+        html.isEnabled = true
+    }
 }
