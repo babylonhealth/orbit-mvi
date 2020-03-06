@@ -16,25 +16,26 @@
 
 object Versions {
 
-    const val gradleVersionsPlugin = "0.27.0"
-    const val gradleAndroidPlugin = "3.5.3"
+    const val gradleVersionsPlugin = "0.28.0"
+    const val gradleAndroidPlugin = "3.6.1"
     const val markdownLintPlugin = "0.6.0"
     const val jacocoAndroidPlugin = "0.1.4"
     const val detektPlugin = "1.4.0"
+    const val novodaBintrayRelease = "0.9.2"
 
-    const val kotlin = "1.3.61"
+    const val kotlin = "1.3.70"
 
     const val androidLifecycles = "2.2.0"
-    const val androidLifecyclesSavedState = "1.0.0"
+    const val androidLifecyclesSavedState = "2.2.0"
     const val androidAppCompat = "1.1.0"
     const val androidConstrainLayout = "1.1.3"
     const val androidMaterial = "1.1.0-rc02"
-    const val androidKoin = "2.1.0-beta-1"
+    const val androidKoin = "2.1.3"
     const val androidRxBindings = "3.1.0"
 
     const val javaxInject = "1"
 
-    const val rxJava2 = "2.2.17"
+    const val rxJava2 = "2.2.18"
     const val rxJava2Extensions = "0.20.10"
     const val rxKotlin = "2.4.0"
     const val rxAndroid = "2.1.1"
@@ -46,11 +47,11 @@ object Versions {
     // Testing
     const val spek = "2.0.9"
     const val junitPlatform = "1.6.0"
-    const val assertJ = "3.14.0"
+    const val assertJ = "3.15.0"
     const val mockitoKotlin = "2.1.0"
     const val junit4 = "4.13"
     const val junitVintage = "5.6.0"
-    const val kotlinFixture = "0.7.0"
+    const val kotlinFixture = "0.7.1"
 }
 
 object ProjectDependencies {
