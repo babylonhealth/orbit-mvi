@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":orbit"))
 
     implementation(kotlin("stdlib-jdk8"))
+    implementation(ProjectDependencies.kotlinCoroutines)
 
     implementation(ProjectDependencies.androidLifecycleComponents)
     implementation(ProjectDependencies.androidLifecycleSavedState)

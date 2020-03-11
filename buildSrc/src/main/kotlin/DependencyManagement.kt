@@ -24,6 +24,7 @@ object Versions {
     const val novodaBintrayRelease = "0.9.2"
 
     const val kotlin = "1.3.70"
+    const val coroutines = "1.3.4"
 
     const val androidLifecycles = "2.2.0"
     const val androidLifecyclesSavedState = "2.2.0"
@@ -56,6 +57,7 @@ object Versions {
 
 object ProjectDependencies {
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
+    const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
 
     // Android libraries
     const val androidLifecycleComponents = "androidx.lifecycle:lifecycle-extensions:${Versions.androidLifecycles}"
