@@ -16,13 +16,11 @@
 
 package com.babylon.orbit.v2
 
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,7 +29,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
-import kotlin.properties.Delegates
 
 data class State(val verified: Boolean = false)
 
@@ -48,6 +45,9 @@ interface Host<STATE : Any, SIDE_EFFECT : Any> {
 
     fun <EVENT : Any> orbit(event: EVENT, init: Builder<STATE, EVENT>.() -> Builder<STATE, *>) =
         container.orbit(event, init)
+
+    fun orbit(init: Builder<STATE, Unit>.() -> Builder<STATE, *>) =
+        container.orbit(Unit, init)
 }
 
 class Container<STATE : Any, SIDE_EFFECT : Any>(
@@ -105,29 +105,6 @@ class Container<STATE : Any, SIDE_EFFECT : Any>(
                 }
             }
         }
-    }
-}
-
-class MyViewModel : ViewModel(), Host<State, Unit> {
-    override val container = Container<State, Unit>(State())
-
-    fun aFunc() = orbit(Unit) {
-        transform {
-            event
-        }
-            .transformSuspend {
-                event.toString()
-            }
-            .transformFlow {
-                flowOf(event, "true", "false", "true", "false")
-            }
-            .reduce {
-                //println("${event::class}, $state")
-                state.copy(verified = event.toBoolean())
-            }
-            .sideEffect {
-                println("${event::class}, $state")
-            }
     }
 }
 

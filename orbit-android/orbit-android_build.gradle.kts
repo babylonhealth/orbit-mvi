@@ -45,7 +45,7 @@ android {
     }
 }
 
-tasks.withType(KotlinCompile::class.java).all {
+tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -66,9 +66,6 @@ dependencies {
     implementation(ProjectDependencies.rxAndroid)
 
     // Testing
-    GroupedDependencies.spekTestsImplementation.forEach { testImplementation(it) }
-    GroupedDependencies.spekTestsRuntime.forEach { testRuntimeOnly(it) }
-    testImplementation(ProjectDependencies.junit4)
-    testImplementation(ProjectDependencies.kotlinFixture)
-    testRuntimeOnly(ProjectDependencies.junitVintage)
+    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
+    GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
 }

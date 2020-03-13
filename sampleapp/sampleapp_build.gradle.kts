@@ -76,9 +76,7 @@ dependencies {
     implementation(ProjectDependencies.groupieKotlinAndroidExtensions)
 
     // Testing
-    GroupedDependencies.spekTestsImplementation.forEach { testImplementation(it) }
-    GroupedDependencies.spekTestsRuntime.forEach { testRuntimeOnly(it) }
+    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
+    GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
     testImplementation(ProjectDependencies.androidKoinTest)
-    testImplementation(ProjectDependencies.junit4)
-    testRuntimeOnly(ProjectDependencies.junitVintage)
 }

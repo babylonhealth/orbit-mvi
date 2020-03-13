@@ -50,25 +50,30 @@ object Versions {
     const val junitPlatform = "1.6.0"
     const val assertJ = "3.15.0"
     const val mockitoKotlin = "2.1.0"
-    const val junit4 = "4.13"
-    const val junitVintage = "5.6.0"
+    const val junitRuntime = "5.6.0"
     const val kotlinFixture = "0.7.1"
 }
 
 object ProjectDependencies {
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
-    const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val kotlinCoroutines =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
 
     // Android libraries
-    const val androidLifecycleComponents = "androidx.lifecycle:lifecycle-extensions:${Versions.androidLifecycles}"
-    const val androidLifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Versions.androidLifecycles}"
-    const val androidLifecycleSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.androidLifecyclesSavedState}"
+    const val androidLifecycleComponents =
+        "androidx.lifecycle:lifecycle-extensions:${Versions.androidLifecycles}"
+    const val androidLifecycleCompiler =
+        "androidx.lifecycle:lifecycle-compiler:${Versions.androidLifecycles}"
+    const val androidLifecycleSavedState =
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.androidLifecyclesSavedState}"
     const val androidAppCompat = "androidx.appcompat:appcompat:${Versions.androidAppCompat}"
-    const val androidConstrainLayout = "androidx.constraintlayout:constraintlayout:${Versions.androidConstrainLayout}"
+    const val androidConstrainLayout =
+        "androidx.constraintlayout:constraintlayout:${Versions.androidConstrainLayout}"
     const val androidMaterial = "com.google.android.material:material:${Versions.androidMaterial}"
     const val androidKoinViewModel = "org.koin:koin-androidx-viewmodel:${Versions.androidKoin}"
     const val androidKoinTest = "org.koin:koin-test:${Versions.androidKoin}"
-    const val androidRxBindings = "com.jakewharton.rxbinding3:rxbinding-material:${Versions.androidRxBindings}"
+    const val androidRxBindings =
+        "com.jakewharton.rxbinding3:rxbinding-material:${Versions.androidRxBindings}"
 
     // Dagger dependency injection framework.
     // See https://google.github.io/dagger/ for more details.
@@ -76,14 +81,17 @@ object ProjectDependencies {
 
     // Reactive extension related stuff
     const val rxJava2 = "io.reactivex.rxjava2:rxjava:${Versions.rxJava2}"
-    const val rxJava2Extensions = "com.github.akarnokd:rxjava2-extensions:${Versions.rxJava2Extensions}"
+    const val rxJava2Extensions =
+        "com.github.akarnokd:rxjava2-extensions:${Versions.rxJava2Extensions}"
     const val rxKotlin = "io.reactivex.rxjava2:rxkotlin:${Versions.rxKotlin}"
     const val rxAndroid = "io.reactivex.rxjava2:rxandroid:${Versions.rxAndroid}"
 
     const val groupie = "com.xwray:groupie:${Versions.groupie}"
-    const val groupieKotlinAndroidExtensions = "com.xwray:groupie-kotlin-android-extensions:${Versions.groupie}"
+    const val groupieKotlinAndroidExtensions =
+        "com.xwray:groupie-kotlin-android-extensions:${Versions.groupie}"
 
-    const val detektFormatting = "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detektPlugin}"
+    const val detektFormatting =
+        "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detektPlugin}"
 
     // Debugging tools
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
@@ -91,14 +99,15 @@ object ProjectDependencies {
     // Test prerequisites
     const val spekDsl = "org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}"
     const val spekRunner = "org.spekframework.spek2:spek-runner-junit5:${Versions.spek}"
-    const val junitPlatformConsole = "org.junit.platform:junit-platform-console:${Versions.junitPlatform}"
+    const val junitPlatformConsole =
+        "org.junit.platform:junit-platform-console:${Versions.junitPlatform}"
     const val assertJ = "org.assertj:assertj-core:${Versions.assertJ}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val kotlinFixture = "com.appmattus.fixture:fixture:${Versions.kotlinFixture}"
 
     // Testing
-    const val junit4 = "junit:junit:${Versions.junit4}"
-    const val junitVintage = "org.junit.vintage:junit-vintage-engine:${Versions.junitVintage}"
+    const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitRuntime}"
+    const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitRuntime}"
 }
 
 object PluginDependencies {
@@ -109,15 +118,18 @@ object PluginDependencies {
 }
 
 object GroupedDependencies {
-    val spekTestsImplementation = listOf(
-        ProjectDependencies.kotlinReflect,
+    val testsImplementation = listOf(
+        ProjectDependencies.junitPlatformConsole,
+        ProjectDependencies.junitJupiterApi,
         ProjectDependencies.spekDsl,
+        ProjectDependencies.kotlinReflect,
         ProjectDependencies.assertJ,
-        ProjectDependencies.mockitoKotlin
+        ProjectDependencies.mockitoKotlin,
+        ProjectDependencies.kotlinFixture
     )
 
-    val spekTestsRuntime = listOf(
-        ProjectDependencies.junitPlatformConsole,
-        ProjectDependencies.spekRunner
+    val testsRuntime = listOf(
+        ProjectDependencies.spekRunner,
+        ProjectDependencies.junitJupiterEngine
     )
 }

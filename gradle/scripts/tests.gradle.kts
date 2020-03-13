@@ -14,12 +14,14 @@
  *  limitations under the License.
  */
 
-tasks.withType<Test> {
+tasks.withType<Test>().configureEach {
     @Suppress("UnstableApiUsage")
     useJUnitPlatform {
-        includeEngines = setOf("junit-vintage", "spek2")
+        includeEngines(
+            "junit-jupiter",
+            "spek2"
+        )
     }
-
     testLogging {
         events("passed", "skipped", "failed")
     }
