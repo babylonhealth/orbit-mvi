@@ -548,7 +548,7 @@ internal class DslSpek : Spek({
                             currentState.copy(id = currentState.id + 3)
                         }
                 }
-                orbitContainer = BaseOrbitContainer(middleware.test())
+                orbitContainer = BaseOrbitContainer(middleware.test("flow one"))
                 testObserver = orbitContainer.orbit.test()
             }
 
@@ -561,28 +561,4 @@ internal class DslSpek : Spek({
             }
         }
     }
-//
-//    // Given a middleware with two flows
-//    data class TestState(val id: Int)
-//    val middleware: Middleware<TestState, String> = middleware(TestState(42)) {
-//        perform("flow one")
-//            .on<Int>()
-//            .reduce {
-//                currentState.copy(id = currentState.id + 11)
-//            }
-//        perform("flow two")
-//            .on<Int>()
-//            .reduce {
-//                currentState.copy(id = currentState.id + 3)
-//            }
-//    }
-//    val orbitContainer = BaseOrbitContainer(middleware.test("flow one"))
-//    val testObserver = orbitContainer.orbit.test()
-//
-//    // When I send 5 to the middleware
-//    orbitContainer.sendAction(5)
-//    testObserver.awaitCount(3)
-//
-//    // I expect three states to be emitted
-//    testObserver.assertValuesOnly(TestState(42), TestState(53), TestState(56))
 })
