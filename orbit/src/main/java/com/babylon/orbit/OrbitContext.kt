@@ -17,6 +17,7 @@
 package com.babylon.orbit
 
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.subjects.PublishSubject
 
 typealias TransformerFunction<STATE, SIDE_EFFECT> = OrbitContext<STATE, SIDE_EFFECT>.() -> (Observable<*>)
@@ -27,5 +28,6 @@ data class OrbitContext<STATE : Any, SIDE_EFFECT : Any>(
     val inputSubject: PublishSubject<Any>,
     val reducerSubject: PublishSubject<(STATE) -> STATE>,
     val sideEffectSubject: PublishSubject<SIDE_EFFECT>,
+    val backgroundScheduler: Scheduler,
     val ioScheduled: Boolean
 )
