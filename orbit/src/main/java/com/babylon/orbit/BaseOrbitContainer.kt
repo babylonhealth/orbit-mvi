@@ -52,7 +52,7 @@ class BaseOrbitContainer<STATE : Any, SIDE_EFFECT : Any>(
         }
 
     init {
-        val scheduler = createSingleScheduler()
+        val scheduler = orbitScheduler(middleware.configuration)
 
         disposables += inputSubject.doOnSubscribe { disposables += it }
             .observeOn(scheduler)
@@ -64,11 +64,12 @@ class BaseOrbitContainer<STATE : Any, SIDE_EFFECT : Any>(
                         inputSubject,
                         reducerSubject,
                         sideEffectSubject,
+                        backgroundScheduler(middleware.configuration),
                         false
                     )
                 ) {
                     Observable.merge(
-                        middleware.orbits.map { transformer ->
+                        middleware.orbits.values.map { transformer ->
                             transformer()
                         }
                     )
@@ -117,7 +118,19 @@ class BaseOrbitContainer<STATE : Any, SIDE_EFFECT : Any>(
         disposables.clear()
     }
 
-    private fun createSingleScheduler(): Scheduler {
-        return Schedulers.from(Executors.newSingleThreadExecutor { Thread(it, "reducerThread") })
+    private fun backgroundScheduler(configuration: Middleware.Config): Scheduler {
+        return if (configuration.testMode) {
+            Schedulers.trampoline()
+        } else {
+            Schedulers.io()
+        }
+    }
+
+    private fun orbitScheduler(configuration: Middleware.Config): Scheduler {
+        return if (configuration.testMode) {
+            Schedulers.trampoline()
+        } else {
+            Schedulers.from(Executors.newSingleThreadExecutor { Thread(it, "reducerThread") })
+        }
     }
 }
