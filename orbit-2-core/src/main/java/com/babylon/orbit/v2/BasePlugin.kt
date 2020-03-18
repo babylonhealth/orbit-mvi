@@ -17,7 +17,6 @@
 package com.babylon.orbit.v2
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
@@ -68,11 +67,6 @@ internal class BasePlugin<S : Any> : OrbitPlugin<S> {
 //                    withContext(Dispatchers.IO) {
                     context(it).block()
 //                    }
-                }
-            }
-            is TransformFlow -> flow.flatMapConcat {
-                with(operator) {
-                    context(it).block()//.flowOn(Dispatchers.IO)
                 }
             }
             is SideEffect -> flow.onEach {

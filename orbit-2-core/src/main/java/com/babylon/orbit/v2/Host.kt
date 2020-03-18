@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Babylon Partners Limited
+ * Copyright 2020 Babylon Partners Limited
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,20 +14,14 @@
  *  limitations under the License.
  */
 
-include(
-    "orbit",
-    "orbit-2-core",
-    "orbit-2-coroutines",
-    "orbit-2-rxjava2",
-    "orbit-2-livedata",
-    "orbit-2-savedstate",
-    "orbit-android",
-    "sampleapp"
-)
+package com.babylon.orbit.v2
 
-// Will rename every module's build.gradle file to use its name instead of `build`.
-// E.g. `app/build.gradle` will become `app/app_build.gradle`
-// The root build.gradle file remains untouched
-rootProject.children.forEach { project ->
-    project.buildFileName = "${project.name}_build.gradle.kts"
+interface Host<STATE : Any, SIDE_EFFECT : Any> {
+    val container: Container<STATE, SIDE_EFFECT>
+
+    fun <EVENT : Any> orbit(event: EVENT, init: Builder<STATE, EVENT>.() -> Builder<STATE, *>) =
+        container.orbit(event, init)
+
+    fun orbit(init: Builder<STATE, Unit>.() -> Builder<STATE, *>) =
+        container.orbit(Unit, init)
 }

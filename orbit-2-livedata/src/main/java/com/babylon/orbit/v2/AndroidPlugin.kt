@@ -16,20 +16,22 @@
 
 package com.babylon.orbit.v2
 
-import kotlinx.coroutines.flow.Flow
+import androidx.lifecycle.LiveData
 
-// TODO State here should probably be a lambda
-data class Context<S : Any, E : Any>(val state: S, val event: E)
 
-interface Operator<S : Any, E : Any>
+fun <T> Stream<T>.asLiveData(): LiveData<T> {
+    return object : LiveData<T>() {
+        private var closeable: Stream.Closeable? = null
 
-class Builder<S : Any, E : Any>(val stack: List<Operator<S, *>> = emptyList())
+        override fun onActive() {
+            super.onActive()
+            closeable = observe { postValue(it) }
+        }
 
-interface OrbitPlugin<S : Any> {
-    fun <E : Any> apply(
-        operator: Operator<S, E>,
-        context: (event: E) -> Context<S, E>,
-        flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit
-    ): Flow<Any>
+        override fun onInactive() {
+            closeable?.close()
+        }
+    }
 }
+
+//TODO fun Stream<T>.observe(lifecycleOwner: LifecycleOwner, lambda: () -> T)

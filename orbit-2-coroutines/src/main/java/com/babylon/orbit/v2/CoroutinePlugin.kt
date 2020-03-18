@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.map
 internal class TransformSuspend<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> E2) :
     Operator<S, E2>
 
-internal class TransformFlow<S : Any, E : Any>(val block: suspend Context<S, E>.() -> Flow<Any>) :
+internal class TransformFlow<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Flow<E2>) :
     Operator<S, E>
 
 fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformSuspend(block: suspend Context<S, E>.() -> E2): Builder<S, E2> {
@@ -60,8 +60,8 @@ internal class CoroutinePlugin<S : Any> : OrbitPlugin<S> {
 //                    }
                 }
             }
-            is TransformFlow -> flow.flatMapConcat {
-                with(operator) {
+            is TransformFlow<*, *, *> -> flow.flatMapConcat {
+                with(operator as TransformFlow<S, E, Any>) {
                     context(it).block()//.flowOn(Dispatchers.IO)
                 }
             }

@@ -49,7 +49,8 @@ object Versions {
     const val spek = "2.0.9"
     const val junitPlatform = "1.6.0"
     const val assertJ = "3.15.0"
-    const val mockitoKotlin = "2.1.0"
+    const val mockitoKotlin = "2.2.0"
+    const val mockito = "2.23.0"
     const val junitRuntime = "5.6.0"
     const val kotlinFixture = "0.7.1"
 }
@@ -57,6 +58,10 @@ object Versions {
 object ProjectDependencies {
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val kotlinCoroutines =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+    const val kotlinCoroutinesRx2 =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${Versions.coroutines}"
+    const val kotlinCoroutinesAndroid =
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
 
     // Android libraries
@@ -103,6 +108,7 @@ object ProjectDependencies {
         "org.junit.platform:junit-platform-console:${Versions.junitPlatform}"
     const val assertJ = "org.assertj:assertj-core:${Versions.assertJ}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
+    const val mockitoInline = "org.mockito:mockito-inline:${Versions.mockito}"
     const val kotlinFixture = "com.appmattus.fixture:fixture:${Versions.kotlinFixture}"
 
     // Testing
@@ -125,6 +131,7 @@ object GroupedDependencies {
         ProjectDependencies.kotlinReflect,
         ProjectDependencies.assertJ,
         ProjectDependencies.mockitoKotlin,
+        ProjectDependencies.mockitoInline,
         ProjectDependencies.kotlinFixture
     )
 

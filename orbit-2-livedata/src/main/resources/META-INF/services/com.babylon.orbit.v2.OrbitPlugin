@@ -1,0 +1,3 @@
+com.babylon.orbit.v2.BasePlugin
+com.babylon.orbit.v2.CoroutinePlugin
+com.babylon.orbit.v2.RxJava2Plugin

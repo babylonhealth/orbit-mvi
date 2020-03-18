@@ -19,11 +19,12 @@ package com.babylon.orbit.v2
 import io.reactivex.Observable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.rx2.asFlow
 
-internal class RxJavaObservable<S : Any, E : Any>(val block: suspend Context<S, E>.() -> Flow<Any>) :
+internal class RxJavaObservable<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Observable<E2>) :
     Operator<S, E>
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRxJava2Observable(block: suspend Context<S, E>.() -> Flow<E2>): Builder<S, E2> {
+fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRxJava2Observable(block: suspend Context<S, E>.() -> Observable<E2>): Builder<S, E2> {
     return Builder(
         stack + RxJavaObservable(
             block
@@ -38,11 +39,11 @@ internal class RxJava2Plugin<S : Any> : OrbitPlugin<S> {
         flow: Flow<E>,
         setState: (suspend () -> S) -> Unit
     ): Flow<Any> {
-        return if (operator is RxJavaObservable<S, E>) {
+        return if (operator is RxJavaObservable<*, *, *>) {
             flow.flatMapConcat {
-                with(operator) {
+                with(operator as RxJavaObservable<S, E, Any>) {
                     context(it).block()
-                }
+                }.asFlow()
             }
         } else {
             flow

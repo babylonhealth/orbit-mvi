@@ -14,20 +14,11 @@
  *  limitations under the License.
  */
 
-include(
-    "orbit",
-    "orbit-2-core",
-    "orbit-2-coroutines",
-    "orbit-2-rxjava2",
-    "orbit-2-livedata",
-    "orbit-2-savedstate",
-    "orbit-android",
-    "sampleapp"
-)
+package com.babylon.orbit
 
-// Will rename every module's build.gradle file to use its name instead of `build`.
-// E.g. `app/build.gradle` will become `app/app_build.gradle`
-// The root build.gradle file remains untouched
-rootProject.children.forEach { project ->
-    project.buildFileName = "${project.name}_build.gradle.kts"
+fun createTestMiddleware(
+    initialState: TestState = TestState(42),
+    block: OrbitsBuilder<TestState, String>.() -> Unit
+) = middleware<TestState, String>(initialState) {
+    this.apply(block)
 }
