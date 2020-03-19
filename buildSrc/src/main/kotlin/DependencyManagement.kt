@@ -63,6 +63,7 @@ object ProjectDependencies {
         "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${Versions.coroutines}"
     const val kotlinCoroutinesAndroid =
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
 
     // Android libraries
     const val androidLifecycleComponents =
@@ -133,6 +134,12 @@ object GroupedDependencies {
         ProjectDependencies.mockitoKotlin,
         ProjectDependencies.mockitoInline,
         ProjectDependencies.kotlinFixture
+    )
+    val testsImplementationJUnit5 = listOf(
+        ProjectDependencies.junitPlatformConsole,
+        ProjectDependencies.junitJupiterApi,
+        ProjectDependencies.mockitoKotlin,
+        ProjectDependencies.mockitoInline
     )
 
     val testsRuntime = listOf(

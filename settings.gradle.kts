@@ -21,6 +21,7 @@ include(
     "orbit-2-rxjava2",
     "orbit-2-livedata",
     "orbit-2-savedstate",
+    "orbit-2-test",
     "orbit-android",
     "sampleapp"
 )

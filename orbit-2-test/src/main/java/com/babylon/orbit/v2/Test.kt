@@ -19,7 +19,6 @@ package com.babylon.orbit.v2
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeast
 import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -27,123 +26,8 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
-
-class TestTest {
-    @Test
-    fun `newDSLTestTest`() {
-
-        val mockDependency = mock<BogusDependency>()
-        val testSubject = MyClass(mockDependency)
-
-        whenever2(testSubject, State()) {
-            something(true)
-        }.test {
-            states(
-                { copy(verified = true) }
-            )
-            loopBack { somethingElse("true") }
-        }
-    }
-
-
-    private fun <HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>
-            whenever2(testSubject: HOST, initialState: STATE, invocation: HOST.() -> Unit) =
-        OrbitInvocation(
-            spy(testSubject.apply { configureForTest(initialState) }),
-            initialState,
-            invocation
-        )
-
-    class OrbitInvocation<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>(
-        private val host: HOST,
-        private val initialState: STATE,
-        private val invocation: HOST.() -> Unit
-    ) {
-        fun test(block: OrbitVerification<HOST, STATE, SIDE_EFFECT>.() -> Unit) {
-
-            val orbitTestObserver = host.container.orbit.test()
-            val sideEffectTestObserver = host.container.sideEffect.test()
-            host.invocation()
-
-            val verification = OrbitVerification(
-                host,
-                initialState
-            )
-                .apply(block)
-
-            // sanity check the initial state
-            assertEquals(initialState, orbitTestObserver.values.firstOrNull())
-
-            assertStatesInOrder(
-                orbitTestObserver.values.drop(1),
-                verification.expectedStateChanges,
-                initialState
-            )
-
-            Assertions.assertIterableEquals(
-                verification.expectedSideEffects,
-                sideEffectTestObserver.values
-            )
-
-            verify(host, atLeast(0)).orbit<Any>(any(), any())
-            verify(host, atLeast(0)).container
-            verify(host, atLeast(0)).invocation()
-
-            verification.expectedLoopBacks.forEach {
-                val f = it.invocation
-                verify(host, times(it.times)).f()
-            }
-
-            verifyNoMoreInteractions(host)
-        }
-    }
-
-    class OrbitVerification<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>(
-        private val host: HOST,
-        private val initialState: STATE
-    ) {
-        internal var expectedSideEffects = emptyList<SIDE_EFFECT>()
-        internal var expectedStateChanges = emptyList<STATE.() -> STATE>()
-        internal var expectedLoopBacks = mutableListOf<Times<HOST, STATE, SIDE_EFFECT>>()
-
-        fun states(vararg expectedStateChanges: STATE.() -> STATE) {
-            this.expectedStateChanges = expectedStateChanges.toList()
-        }
-
-        fun postedSideEffects(vararg expectedSideEffects: SIDE_EFFECT) {
-            this.expectedSideEffects = expectedSideEffects.toList()
-        }
-
-        fun loopBack(times: Int = 1, block: HOST.() -> Unit) {
-            this.expectedLoopBacks.add(Times(times, block))
-        }
-
-        data class Times<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>(
-            val times: Int = 1,
-            val invocation: HOST.() -> Unit
-        )
-    }
-}
-
-fun <T : Any> Stream<T>.test() = TestStreamObserver<T>(this)
-
-class TestStreamObserver<T>(stream: Stream<T>) {
-    private val _values = mutableListOf<T>()
-    val values: List<T>
-        get() = _values
-
-    init {
-        stream.observe {
-            _values.add(it)
-        }
-    }
-}
-
-
-//fun whenever2()
+import kotlin.test.assertEquals
+import kotlin.test.fail
 
 /*
 Things to verify:
@@ -154,74 +38,33 @@ Things to verify:
 5. No other interactions
  */
 
-data class State(val verified: Boolean = false)
-
-interface BogusDependency {
-    fun stub()
-}
-
-class MyClass(private val dependency: BogusDependency) : Host<State, Nothing> {
-    override val container =
-        Container.create<State, Nothing>(
-            State()
-        ) {
-            created()
-        }
-
-    fun created() {
-        dependency.stub()
-        println("created!")
-    }
-
-    fun something(action: Boolean) = orbit(action) {
-        transform {
-            event.toString()
-
-        }
-//            .transformRxJava2Observable {
-//                Observable.just(event, "true", "false", "true", "false")
-//            }
-//            .transformSuspend {
-//                delay(1000)
-//                event
-//            }
-            .reduce {
-                //println("${event::class}, $state")
-                state.copy(verified = event.toBoolean())
-            }
-            .sideEffect {
-                print("${event::class}, $state")
-            }
-            .sideEffect {
-                somethingElse(event)
-            }
-//            .sideEffect {
-//                if(state.verified == true)
-//                    something(false)
-//            }
-    }
-
-    fun somethingElse(action: String) = orbit(action) {
-        sideEffect {
-            print("something else $event")
-        }
-    }
-
-    private fun print(string: String) {
-        println(string)
-    }
-}
-
-
-fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(initialState: STATE): T {
+fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(
+    initialState: STATE,
+    isolateFlow: Boolean
+): T {
     val spy = spy(this)
-    val container = TestContainer<STATE, SIDE_EFFECT>(initialState)
+    val container = TestContainer<STATE, SIDE_EFFECT>(initialState, isolateFlow)
     doAnswer { container }.whenever(spy).container
     return spy
 }
 
+//fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.configureForTest(
+//    initialState: STATE,
+//    isolateFlow: Boolean
+//) {
+//    val field = this.javaClass.getDeclaredField("container")
+//    field.isAccessible = true
+//
+//    field.set(
+//        this,
+//        TestContainer<STATE, SIDE_EFFECT>(initialState, isolateFlow)
+//    )
+//    field.isAccessible = false
+//}
+
 internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
-    initialState: STATE
+    initialState: STATE,
+    private val isolateFlow: Boolean
 ) : RealContainer<STATE, SIDE_EFFECT>(initialState, Dispatchers.Unconfined) {
     private var dispatched = false
 
@@ -229,7 +72,7 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
         event: EVENT,
         init: Builder<STATE, EVENT>.() -> Builder<STATE, *>
     ) {
-        if (!dispatched) {
+        if (!isolateFlow || !dispatched) {
             dispatched = true
             runBlocking {
                 collectFlow(
@@ -241,6 +84,88 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     }
 }
 
+fun <HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>
+        whenever2(
+    testSubject: HOST,
+    initialState: STATE,
+    isolateFlow: Boolean = false,
+    invocation: HOST.() -> Unit
+) =
+    OrbitInvocation(
+        testSubject.testSpy(initialState, isolateFlow),
+        initialState,
+        invocation
+    )
+
+class OrbitInvocation<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>(
+    private val host: HOST,
+    private val initialState: STATE,
+    private val invocation: HOST.() -> Unit
+) {
+    fun test(block: OrbitVerification<HOST, STATE, SIDE_EFFECT>.() -> Unit) {
+
+        val orbitTestObserver = host.container.orbit.test()
+        val sideEffectTestObserver = host.container.sideEffect.test()
+        host.invocation()
+
+        val verification = OrbitVerification(
+            host,
+            initialState
+        )
+            .apply(block)
+
+        // sanity check the initial state
+        assertEquals(initialState, orbitTestObserver.values.firstOrNull())
+
+        assertStatesInOrder(
+            orbitTestObserver.values.drop(1),
+            verification.expectedStateChanges,
+            initialState
+        )
+
+        assertEquals(
+            verification.expectedSideEffects,
+            sideEffectTestObserver.values
+        )
+
+        verify(host, atLeast(0)).orbit<Any>(any(), any())
+        verify(host, atLeast(0)).container
+        verify(host, atLeast(0)).invocation()
+
+        verification.expectedLoopBacks.forEach {
+            val f = it.invocation
+            verify(host, times(it.times)).f()
+        }
+
+        verifyNoMoreInteractions(host)
+    }
+}
+
+class OrbitVerification<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>(
+    private val host: HOST,
+    private val initialState: STATE
+) {
+    internal var expectedSideEffects = emptyList<SIDE_EFFECT>()
+    internal var expectedStateChanges = emptyList<STATE.() -> STATE>()
+    internal var expectedLoopBacks = mutableListOf<Times<HOST, STATE, SIDE_EFFECT>>()
+
+    fun states(vararg expectedStateChanges: STATE.() -> STATE) {
+        this.expectedStateChanges = expectedStateChanges.toList()
+    }
+
+    fun postedSideEffects(vararg expectedSideEffects: SIDE_EFFECT) {
+        this.expectedSideEffects = expectedSideEffects.toList()
+    }
+
+    fun loopBack(times: Int = 1, block: HOST.() -> Unit) {
+        this.expectedLoopBacks.add(Times(times, block))
+    }
+
+    data class Times<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>(
+        val times: Int = 1,
+        val invocation: HOST.() -> Unit
+    )
+}
 
 /**
  * Helper function for asserting orbit state sequences. It applies the reductions specified in `nextState` in a cumulative way, based on
@@ -274,7 +199,6 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
  * @param inOrder Whether the assertions should be evaluated in top-to-bottom order or in any order.
  * @param timeoutMillis How long to wait for the desired number of states to be emitted before continuing.
  */
-
 private tailrec fun <T : Any> assertStatesInOrder(
     values: List<T>,
     assertions: List<T.() -> T>,
@@ -319,8 +243,9 @@ private tailrec fun <T : Any> assertStatesInOrder(
                 } else {
                     assertEquals(
                         expectedState,
-                        actualState
-                    ) { "Failed assertion at index $satisfiedAssertions:" }
+                        actualState,
+                        "Failed assertion at index $satisfiedAssertions:"
+                    )
 
                     assertStatesInOrder(
                         values.drop(1),
@@ -346,7 +271,7 @@ private fun <T : Any> failLessStatesReceivedThanExpected(
                         list.lastOrNull() ?: previousState
                         ).reducer()
             }
-    Assertions.fail<Unit>(
+    fail(
         "Failed assertions at indices ${satisfiedAssertions until (satisfiedAssertions + assertions.size)}, " +
                 "expected states but never received:\n$expectedStates"
     )
@@ -356,7 +281,7 @@ private fun <T : Any> failNoStatesReceived(
     assertions: List<T.() -> T>,
     previousState: T
 ) {
-    Assertions.fail<Unit> { "Expected ${assertions.size} states but none were emitted" }
+    fail("Expected ${assertions.size} states but none were emitted")
 }
 
 private fun <T : Any> failMoreStatesThanExpected(
@@ -365,20 +290,19 @@ private fun <T : Any> failMoreStatesThanExpected(
     values: List<T>
 ) {
     // More states received than expected
-    Assertions.fail<Unit>("Expected ${assertions.size + satisfiedAssertions} states but more were emitted:\n$values")
+    fail("Expected ${assertions.size + satisfiedAssertions} states but more were emitted:\n$values")
 }
 
-@DslMarker
-annotation class AssertStateSequenceDsl
+fun <T : Any> Stream<T>.test() = TestStreamObserver<T>(this)
 
-@AssertStateSequenceDsl
-class AssertStateReceiver<T : Any>(
-    private val list2: MutableList<StateReceiver<T>.() -> T>
-) {
-    fun nextState(func: StateReceiver<T>.() -> T) = list2.add(func)
-}
+class TestStreamObserver<T>(stream: Stream<T>) {
+    private val _values = mutableListOf<T>()
+    val values: List<T>
+        get() = _values
 
-@AssertStateSequenceDsl
-interface StateReceiver<T : Any> {
-    val previousState: T
+    init {
+        stream.observe {
+            _values.add(it)
+        }
+    }
 }

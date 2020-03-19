@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
-internal open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
+open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     private val orbitDispatcher: CoroutineDispatcher = Dispatchers.IO // TODO fix threading
 ) : Container<STATE, SIDE_EFFECT> {
