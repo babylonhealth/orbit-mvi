@@ -433,7 +433,7 @@ internal class DslSpek : Spek({
                             currentState.copy(id = currentState.id + 3)
                         }
                 }
-                orbitContainer = BaseOrbitContainer(middleware.test())
+                orbitContainer = BaseOrbitContainer(middleware.test("flow one"))
                 testObserver = orbitContainer.orbit.test()
             }
 
