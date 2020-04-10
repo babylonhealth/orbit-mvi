@@ -16,10 +16,12 @@
 
 package com.babylon.orbit.v2
 
-interface Stream<T> {
-    fun observe(lambda: (T) -> Unit): Closeable
+object Orbit {
 
-    interface Closeable {
-        fun close()
+    var plugins: Set<OrbitPlugin> = setOf(BasePlugin)
+    private set
+
+    fun registerPlugins(vararg plugins: OrbitPlugin) {
+        this.plugins = setOf(*plugins, BasePlugin)
     }
 }

@@ -16,17 +16,4 @@
 
 package com.babylon.orbit.v2
 
-import kotlinx.coroutines.flow.Flow
-
-interface Operator<S : Any, E : Any>
-
 class Builder<S : Any, E : Any>(val stack: List<Operator<S, *>> = emptyList())
-
-interface OrbitPlugin<S : Any> {
-    fun <E : Any> apply(
-        operator: Operator<S, E>,
-        context: (event: E) -> Context<S, E>,
-        flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit
-    ): Flow<Any>
-}

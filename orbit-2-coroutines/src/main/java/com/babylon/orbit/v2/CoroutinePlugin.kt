@@ -28,6 +28,7 @@ internal class TransformFlow<S : Any, E : Any, E2 : Any>(val block: suspend Cont
     Operator<S, E>
 
 fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformSuspend(block: suspend Context<S, E>.() -> E2): Builder<S, E2> {
+    requirePlugin(CoroutinePlugin, "transformSuspend")
     return Builder(
         stack + TransformSuspend(
             block
@@ -36,6 +37,7 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformSuspend(block: suspend C
 }
 
 fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformFlow(block: suspend Context<S, E>.() -> Flow<E2>): Builder<S, E2> {
+    requirePlugin(CoroutinePlugin, "transformFlow")
     return Builder(
         stack + TransformFlow(
             block
@@ -43,9 +45,8 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformFlow(block: suspend Cont
     )
 }
 
-internal class CoroutinePlugin<S : Any> : OrbitPlugin<S> {
-
-    override fun <E : Any> apply(
+object CoroutinePlugin : OrbitPlugin {
+    override fun <S : Any, E : Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,

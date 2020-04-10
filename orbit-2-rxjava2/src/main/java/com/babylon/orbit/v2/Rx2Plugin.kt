@@ -16,37 +16,92 @@
 
 package com.babylon.orbit.v2
 
+import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx2.asFlow
 
-internal class RxJavaObservable<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Observable<E2>) :
+internal class RxJava2Observable<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Observable<E2>) :
     Operator<S, E>
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRxJava2Observable(block: suspend Context<S, E>.() -> Observable<E2>): Builder<S, E2> {
+internal class RxJava2Single<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Single<E2>) :
+    Operator<S, E>
+
+internal class RxJava2Maybe<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Maybe<E2>) :
+    Operator<S, E>
+
+internal class RxJava2Completable<S : Any, E : Any>(val block: suspend Context<S, E>.() -> Completable) :
+    Operator<S, E>
+
+fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Observable(block: suspend Context<S, E>.() -> Observable<E2>): Builder<S, E2> {
+    requirePlugin(RxJava2Plugin, "transformRxJava2Observable")
     return Builder(
-        stack + RxJavaObservable(
+        stack + RxJava2Observable(
             block
         )
     )
 }
 
-internal class RxJava2Plugin<S : Any> : OrbitPlugin<S> {
-    override fun <E : Any> apply(
+fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Single(block: suspend Context<S, E>.() -> Single<E2>): Builder<S, E2> {
+    requirePlugin(RxJava2Plugin, "transformRx2Single")
+    return Builder(
+        stack + RxJava2Single(
+            block
+        )
+    )
+}
+
+fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Maybe(block: suspend Context<S, E>.() -> Maybe<E2>): Builder<S, E2> {
+    requirePlugin(RxJava2Plugin, "transformRx2Maybe")
+    return Builder(
+        stack + RxJava2Maybe(
+            block
+        )
+    )
+}
+
+fun <S : Any, E : Any> Builder<S, E>.transformRx2Completable(block: suspend Context<S, E>.() -> Completable): Builder<S, E> {
+    requirePlugin(RxJava2Plugin, "transformRx2Completable")
+    return Builder(
+        stack + RxJava2Completable(
+            block
+        )
+    )
+}
+
+object RxJava2Plugin : OrbitPlugin {
+    override fun <S : Any, E : Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
         setState: (suspend () -> S) -> Unit
     ): Flow<Any> {
-        return if (operator is RxJavaObservable<*, *, *>) {
-            flow.flatMapConcat {
-                with(operator as RxJavaObservable<S, E, Any>) {
+        return when (operator) {
+            is RxJava2Observable<*, *, *> -> flow.flatMapConcat {
+                with(operator as RxJava2Observable<S, E, Any>) {
                     context(it).block()
                 }.asFlow()
             }
-        } else {
-            flow
+            is RxJava2Single<*, *, *> -> flow.flatMapConcat {
+                with(operator as RxJava2Single<S, E, Any>) {
+                    context(it).block()
+                }.toObservable().asFlow()
+            }
+            is RxJava2Maybe<*, *, *> -> flow.flatMapConcat {
+                with(operator as RxJava2Maybe<S, E, Any>) {
+                    context(it).block()
+                }.toObservable().asFlow()
+            }
+            is RxJava2Completable -> flow.onEach {
+                with(operator) {
+                    context(it).block()
+                }.blockingAwait()
+            }
+            else -> flow
         }
     }
 }

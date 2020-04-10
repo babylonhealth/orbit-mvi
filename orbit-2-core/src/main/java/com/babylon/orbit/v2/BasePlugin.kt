@@ -53,8 +53,8 @@ fun <S : Any, E : Any> Builder<S, E>.reduce(block: Context<S, E>.() -> S): Build
     )
 }
 
-internal class BasePlugin<S : Any> : OrbitPlugin<S> {
-    override fun <E : Any> apply(
+object BasePlugin : OrbitPlugin {
+    override fun <S : Any, E : Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
@@ -84,3 +84,13 @@ internal class BasePlugin<S : Any> : OrbitPlugin<S> {
         }
     }
 }
+
+fun requirePlugin(plugin: OrbitPlugin, operatorName: String) {
+    require(Orbit.plugins.contains(plugin)) {
+        throw IllegalStateException(
+            "${plugin.javaClass.simpleName} required to use $operatorName! " +
+                "Install plugins using Orbit.registerPlugins."
+        )
+    }
+}
+

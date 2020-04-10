@@ -26,14 +26,18 @@ class TestTest {
         val mockDependency = mock<BogusDependency>()
         val testSubject = MyClass(mockDependency)
 
-        whenever2(testSubject, State()) {
-            something(true)
-        }.test {
-            states(
-                { copy(verified = true) }
-            )
-            loopBack { somethingElse("true") }
-        }
+        testSubject.something(true)
+
+        val given = testSubject.given(State())
+        val when1 = given.whenever {
+                something(true)
+            }
+        when1.then {
+                states(
+                    { copy(verified = true) }
+                )
+                loopBack { somethingElse("true") }
+            }
     }
 }
 

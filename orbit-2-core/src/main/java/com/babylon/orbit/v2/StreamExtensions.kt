@@ -16,10 +16,23 @@
 
 package com.babylon.orbit.v2
 
-interface Stream<T> {
-    fun observe(lambda: (T) -> Unit): Closeable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
-    interface Closeable {
-        fun close()
+fun <T> Flow<T>.asStream(scope: CoroutineScope): Stream<T> {
+    return object : Stream<T> {
+        override fun observe(lambda: (T) -> Unit): Stream.Closeable {
+            val job = this@asStream
+                .onEach { lambda(it) }
+                .launchIn(scope) // TODO Is this right?
+
+            return object : Stream.Closeable {
+                override fun close() {
+                    job.cancel()
+                }
+            }
+        }
     }
 }

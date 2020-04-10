@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.*
 
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
@@ -61,27 +60,25 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
         }
     }
 
-    private val plugins = ServiceLoader.load(OrbitPlugin::class.java)
-
     @Suppress("UNCHECKED_CAST")
     suspend fun <EVENT : Any> collectFlow(
         event: EVENT,
         init: Builder<STATE, EVENT>.() -> Builder<STATE, *>
     ) {
-        return Builder<STATE, EVENT>()
+        Builder<STATE, EVENT>()
             .init().stack.fold(flowOf(event)) { flow: Flow<Any>, operator: Operator<STATE, *> ->
-            plugins.fold(flow) { flow2: Flow<Any>, plugin: OrbitPlugin<*> ->
-                (plugin as OrbitPlugin<STATE>).apply(
-                    operator as Operator<STATE, Any>,
-                    { Context(currentState, it) },
-                    flow2,
-                    {
-                        runBlocking(scope.coroutineContext) {
-                            stateChannel.send(it())
-                        }
-                    } // TODO fix threading
-                )
-            }
-        }.collect()
+                Orbit.plugins.fold(flow) { flow2: Flow<Any>, plugin: OrbitPlugin ->
+                    plugin.apply(
+                        operator as Operator<STATE, Any>,
+                        { Context(currentState, it) },
+                        flow2,
+                        {
+                            runBlocking(scope.coroutineContext) {
+                                stateChannel.send(it())
+                            }
+                        } // TODO fix threading
+                    )
+                }
+            }.collect()
     }
 }

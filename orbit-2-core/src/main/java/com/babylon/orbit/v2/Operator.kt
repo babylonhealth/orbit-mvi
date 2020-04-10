@@ -16,10 +16,4 @@
 
 package com.babylon.orbit.v2
 
-interface Stream<T> {
-    fun observe(lambda: (T) -> Unit): Closeable
-
-    interface Closeable {
-        fun close()
-    }
-}
+interface Operator<S : Any, E : Any>

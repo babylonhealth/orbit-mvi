@@ -16,10 +16,13 @@
 
 package com.babylon.orbit.v2
 
-interface Stream<T> {
-    fun observe(lambda: (T) -> Unit): Closeable
+import kotlinx.coroutines.flow.Flow
 
-    interface Closeable {
-        fun close()
-    }
+interface OrbitPlugin {
+    fun <S : Any, E : Any> apply(
+        operator: Operator<S, E>,
+        context: (event: E) -> Context<S, E>,
+        flow: Flow<E>,
+        setState: (suspend () -> S) -> Unit
+    ): Flow<Any>
 }
