@@ -19,10 +19,11 @@ package com.babylon.orbit.v2
 import kotlinx.coroutines.flow.Flow
 
 interface OrbitPlugin {
-    fun <S : Any, E : Any> apply(
+    fun <S : Any, E : Any, SE: Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit
+        setState: (suspend () -> S) -> Unit,
+        postSideEffect: (SE) -> Unit
     ): Flow<Any>
 }

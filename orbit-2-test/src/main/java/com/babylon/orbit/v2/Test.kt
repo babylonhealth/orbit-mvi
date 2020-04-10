@@ -48,20 +48,6 @@ fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(
     return spy
 }
 
-//fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.configureForTest(
-//    initialState: STATE,
-//    isolateFlow: Boolean
-//) {
-//    val field = this.javaClass.getDeclaredField("container")
-//    field.isAccessible = true
-//
-//    field.set(
-//        this,
-//        TestContainer<STATE, SIDE_EFFECT>(initialState, isolateFlow)
-//    )
-//    field.isAccessible = false
-//}
-
 internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     private val isolateFlow: Boolean
@@ -70,7 +56,7 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     override fun <EVENT : Any> orbit(
         event: EVENT,
-        init: Builder<STATE, EVENT>.() -> Builder<STATE, *>
+        init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
     ) {
         if (!isolateFlow || !dispatched) {
             dispatched = true

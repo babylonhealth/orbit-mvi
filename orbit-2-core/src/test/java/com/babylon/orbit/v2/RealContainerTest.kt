@@ -16,8 +16,6 @@
 
 package com.babylon.orbit.v2
 
-// TODO State here should probably be a lambda
-interface Context<S : Any, E : Any> {
-    val state: S
-    val event: E
-}
+import org.junit.jupiter.api.Assertions.*
+
+internal class RealContainerTest

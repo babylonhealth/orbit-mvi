@@ -19,9 +19,9 @@ package com.babylon.orbit.v2
 interface Host<STATE : Any, SIDE_EFFECT : Any> {
     val container: Container<STATE, SIDE_EFFECT>
 
-    fun <EVENT : Any> orbit(event: EVENT, init: Builder<STATE, EVENT>.() -> Builder<STATE, *>) =
+    fun <EVENT : Any> orbit(event: EVENT, init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>) =
         container.orbit(event, init)
 
-    fun orbit(init: Builder<STATE, Unit>.() -> Builder<STATE, *>) =
+    fun orbit(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) =
         container.orbit(Unit, init)
 }

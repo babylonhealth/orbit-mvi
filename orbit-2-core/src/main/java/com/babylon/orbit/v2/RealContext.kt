@@ -16,8 +16,5 @@
 
 package com.babylon.orbit.v2
 
-// TODO State here should probably be a lambda
-interface Context<S : Any, E : Any> {
-    val state: S
-    val event: E
-}
+data class RealContext<S : Any, E : Any>(override val state: S, override val event: E): Context<S, E>
+

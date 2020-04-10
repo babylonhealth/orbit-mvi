@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
@@ -50,7 +51,7 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     override fun <EVENT : Any> orbit(
         event: EVENT,
-        init: Builder<STATE, EVENT>.() -> Builder<STATE, *>
+        init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
     ) {
         scope.launch {// TODO fix threading
             collectFlow(
@@ -63,20 +64,23 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     @Suppress("UNCHECKED_CAST")
     suspend fun <EVENT : Any> collectFlow(
         event: EVENT,
-        init: Builder<STATE, EVENT>.() -> Builder<STATE, *>
+        init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
     ) {
-        Builder<STATE, EVENT>()
+        Builder<STATE, SIDE_EFFECT, EVENT>()
             .init().stack.fold(flowOf(event)) { flow: Flow<Any>, operator: Operator<STATE, *> ->
                 Orbit.plugins.fold(flow) { flow2: Flow<Any>, plugin: OrbitPlugin ->
                     plugin.apply(
                         operator as Operator<STATE, Any>,
-                        { Context(currentState, it) },
+                        { RealContext(currentState, it) },
                         flow2,
                         {
                             runBlocking(scope.coroutineContext) {
                                 stateChannel.send(it())
                             }
-                        } // TODO fix threading
+                        }, // TODO fix threading
+                        { event : SIDE_EFFECT ->
+                            sideEffectChannel.sendBlocking(event)
+                        }
                     )
                 }
             }.collect()

@@ -20,7 +20,10 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
     val currentState: STATE
     val orbit: Stream<STATE>
     val sideEffect: Stream<SIDE_EFFECT>
-    fun <EVENT : Any> orbit(event: EVENT, init: Builder<STATE, EVENT>.() -> Builder<STATE, *>)
+    fun <EVENT : Any> orbit(
+        event: EVENT,
+        init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
+    )
 
     companion object {
         fun <STATE : Any, SIDE_EFFECT : Any> create(

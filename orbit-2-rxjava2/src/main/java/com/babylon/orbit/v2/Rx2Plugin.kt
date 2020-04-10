@@ -37,7 +37,7 @@ internal class RxJava2Maybe<S : Any, E : Any, E2 : Any>(val block: suspend Conte
 internal class RxJava2Completable<S : Any, E : Any>(val block: suspend Context<S, E>.() -> Completable) :
     Operator<S, E>
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Observable(block: suspend Context<S, E>.() -> Observable<E2>): Builder<S, E2> {
+fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformRx2Observable(block: suspend Context<S, E>.() -> Observable<E2>): Builder<S, SE, E2> {
     requirePlugin(RxJava2Plugin, "transformRxJava2Observable")
     return Builder(
         stack + RxJava2Observable(
@@ -46,7 +46,7 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Observable(block: sus
     )
 }
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Single(block: suspend Context<S, E>.() -> Single<E2>): Builder<S, E2> {
+fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformRx2Single(block: suspend Context<S, E>.() -> Single<E2>): Builder<S, SE, E2> {
     requirePlugin(RxJava2Plugin, "transformRx2Single")
     return Builder(
         stack + RxJava2Single(
@@ -55,7 +55,7 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Single(block: suspend
     )
 }
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Maybe(block: suspend Context<S, E>.() -> Maybe<E2>): Builder<S, E2> {
+fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformRx2Maybe(block: suspend Context<S, E>.() -> Maybe<E2>): Builder<S, SE, E2> {
     requirePlugin(RxJava2Plugin, "transformRx2Maybe")
     return Builder(
         stack + RxJava2Maybe(
@@ -64,7 +64,7 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformRx2Maybe(block: suspend 
     )
 }
 
-fun <S : Any, E : Any> Builder<S, E>.transformRx2Completable(block: suspend Context<S, E>.() -> Completable): Builder<S, E> {
+fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.transformRx2Completable(block: suspend Context<S, E>.() -> Completable): Builder<S, SE, E> {
     requirePlugin(RxJava2Plugin, "transformRx2Completable")
     return Builder(
         stack + RxJava2Completable(
@@ -74,11 +74,12 @@ fun <S : Any, E : Any> Builder<S, E>.transformRx2Completable(block: suspend Cont
 }
 
 object RxJava2Plugin : OrbitPlugin {
-    override fun <S : Any, E : Any> apply(
+    override fun <S : Any, E : Any, SE : Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit
+        setState: (suspend () -> S) -> Unit,
+        postSideEffect: (SE) -> Unit
     ): Flow<Any> {
         return when (operator) {
             is RxJava2Observable<*, *, *> -> flow.flatMapConcat {

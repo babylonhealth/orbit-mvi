@@ -23,13 +23,23 @@ import kotlinx.coroutines.flow.onEach
 internal class Transform<S : Any, E : Any, E2 : Any>(val block: Context<S, E>.() -> E2) :
     Operator<S, E2>
 
-internal class SideEffect<S : Any, E : Any>(val block: Context<S, E>.() -> Unit) :
+internal class SideEffect<S : Any, SE : Any, E : Any>(val block: SideEffectContext<S, SE, E>.() -> Unit) :
     Operator<S, E>
 
-internal class Reduce<S : Any, E : Any>(val block: Context<S, E>.() -> Any) :
-    Operator<S, E>
+internal class Reduce<S : Any, E : Any>(val block: Context<S, E>.() -> Any) : Operator<S, E>
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transform(block: Context<S, E>.() -> E2): Builder<S, E2> {
+data class SideEffectContext<S : Any, SE : Any, E : Any>(
+    override val state: S,
+    override val event: E,
+    private val postSideEffect: (SE) -> Unit
+) : Context<S, E> {
+    fun post(event: SE) {
+        postSideEffect(event)
+    }
+
+}
+
+fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transform(block: Context<S, E>.() -> E2): Builder<S, SE, E2> {
     return Builder(
         stack + Transform(
             block
@@ -37,7 +47,7 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transform(block: Context<S, E>.()
     )
 }
 
-fun <S : Any, E : Any> Builder<S, E>.sideEffect(block: Context<S, E>.() -> Unit): Builder<S, E> {
+fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.sideEffect(block: SideEffectContext<S, SE, E>.() -> Unit): Builder<S, SE, E> {
     return Builder(
         stack + SideEffect(
             block
@@ -45,7 +55,7 @@ fun <S : Any, E : Any> Builder<S, E>.sideEffect(block: Context<S, E>.() -> Unit)
     )
 }
 
-fun <S : Any, E : Any> Builder<S, E>.reduce(block: Context<S, E>.() -> S): Builder<S, E> {
+fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.reduce(block: Context<S, E>.() -> S): Builder<S, SE, E> {
     return Builder(
         stack + Reduce(
             block
@@ -54,11 +64,12 @@ fun <S : Any, E : Any> Builder<S, E>.reduce(block: Context<S, E>.() -> S): Build
 }
 
 object BasePlugin : OrbitPlugin {
-    override fun <S : Any, E : Any> apply(
+    override fun <S : Any, E : Any, SE : Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit
+        setState: (suspend () -> S) -> Unit,
+        postSideEffect: (SE) -> Unit
     ): Flow<Any> {
         return when (operator) {
             is Transform<*, *, *> -> flow.map {
@@ -69,9 +80,10 @@ object BasePlugin : OrbitPlugin {
 //                    }
                 }
             }
-            is SideEffect -> flow.onEach {
-                with(operator) {
-                    context(it).block()
+            is SideEffect<*, *, *> -> flow.onEach {
+                with(operator as SideEffect<S, SE, E>) {
+                    val baseContext = context(it)
+                    SideEffectContext(baseContext.state, baseContext.event, postSideEffect).block()
                 }
             }
             is Reduce -> flow.onEach {
@@ -89,7 +101,7 @@ fun requirePlugin(plugin: OrbitPlugin, operatorName: String) {
     require(Orbit.plugins.contains(plugin)) {
         throw IllegalStateException(
             "${plugin.javaClass.simpleName} required to use $operatorName! " +
-                "Install plugins using Orbit.registerPlugins."
+                    "Install plugins using Orbit.registerPlugins."
         )
     }
 }

@@ -61,6 +61,6 @@ internal class SavedStateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
 
     override fun <EVENT : Any> orbit(
         event: EVENT,
-        init: Builder<STATE, EVENT>.() -> Builder<STATE, *>
+        init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
     ) = actual.orbit(event, init)
 }

@@ -27,7 +27,7 @@ internal class TransformSuspend<S : Any, E : Any, E2 : Any>(val block: suspend C
 internal class TransformFlow<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Flow<E2>) :
     Operator<S, E>
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformSuspend(block: suspend Context<S, E>.() -> E2): Builder<S, E2> {
+fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformSuspend(block: suspend Context<S, E>.() -> E2): Builder<S, SE, E2> {
     requirePlugin(CoroutinePlugin, "transformSuspend")
     return Builder(
         stack + TransformSuspend(
@@ -36,7 +36,7 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformSuspend(block: suspend C
     )
 }
 
-fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformFlow(block: suspend Context<S, E>.() -> Flow<E2>): Builder<S, E2> {
+fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformFlow(block: suspend Context<S, E>.() -> Flow<E2>): Builder<S, SE, E2> {
     requirePlugin(CoroutinePlugin, "transformFlow")
     return Builder(
         stack + TransformFlow(
@@ -46,11 +46,12 @@ fun <S : Any, E : Any, E2 : Any> Builder<S, E>.transformFlow(block: suspend Cont
 }
 
 object CoroutinePlugin : OrbitPlugin {
-    override fun <S : Any, E : Any> apply(
+    override fun <S : Any, E : Any, SE : Any> apply(
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit
+        setState: (suspend () -> S) -> Unit,
+        postSideEffect: (SE) -> Unit
     ): Flow<Any> {
         return when (operator) {
             is TransformSuspend<*, *, *> -> flow.map {
