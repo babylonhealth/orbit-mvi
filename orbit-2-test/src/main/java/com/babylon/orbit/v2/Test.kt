@@ -51,7 +51,7 @@ fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(
 internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     private val isolateFlow: Boolean
-) : RealContainer<STATE, SIDE_EFFECT>(initialState, Dispatchers.Unconfined) {
+) : RealContainer<STATE, SIDE_EFFECT>(initialState, Dispatchers.Unconfined, Dispatchers.Unconfined) {
     private var dispatched = false
 
     override fun <EVENT : Any> orbit(
@@ -95,8 +95,8 @@ class OrbitInvocation<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT 
 ) {
     fun then(block: OrbitVerification<HOST, STATE, SIDE_EFFECT>.() -> Unit) {
 
-        val orbitTestObserver = host.container.orbit.then()
-        val sideEffectTestObserver = host.container.sideEffect.then()
+        val orbitTestObserver = host.container.orbit.test()
+        val sideEffectTestObserver = host.container.sideEffect.test()
         host.invocation()
 
         val verification = OrbitVerification<HOST, STATE, SIDE_EFFECT>()
@@ -278,7 +278,7 @@ private fun <T : Any> failMoreStatesThanExpected(
     fail("Expected ${assertions.size + satisfiedAssertions} states but more were emitted:\n$values")
 }
 
-fun <T : Any> Stream<T>.then() = TestStreamObserver<T>(this)
+fun <T : Any> Stream<T>.test() = TestStreamObserver(this)
 
 class TestStreamObserver<T>(stream: Stream<T>) {
     private val _values = mutableListOf<T>()
@@ -288,6 +288,16 @@ class TestStreamObserver<T>(stream: Stream<T>) {
     init {
         stream.observe {
             _values.add(it)
+        }
+    }
+
+    fun awaitCount(count: Int) {
+        val timeout = 5000L
+        val start = System.currentTimeMillis()
+        while(values.count() < count) {
+            if(System.currentTimeMillis() - start > timeout)
+                break
+            Thread.sleep(10)
         }
     }
 }

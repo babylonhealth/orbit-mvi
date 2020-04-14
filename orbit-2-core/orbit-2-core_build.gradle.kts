@@ -27,6 +27,7 @@ apply(from = "$rootDir/gradle/scripts/jacoco.gradle.kts")
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(ProjectDependencies.kotlinCoroutines)
+    implementation(ProjectDependencies.kotlinCoroutineExtensions)
 
 
     implementation(ProjectDependencies.mockitoKotlin)

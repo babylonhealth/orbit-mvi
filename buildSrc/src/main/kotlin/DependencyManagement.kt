@@ -23,8 +23,9 @@ object Versions {
     const val detektPlugin = "1.4.0"
     const val novodaBintrayRelease = "0.9.2"
 
-    const val kotlin = "1.3.70"
-    const val coroutines = "1.3.4"
+    const val kotlin = "1.3.71"
+    const val coroutines = "1.3.5"
+    const val coroutineExtensions = "0.0.4"
 
     const val androidLifecycles = "2.2.0"
     const val androidLifecyclesSavedState = "2.2.0"
@@ -63,6 +64,8 @@ object ProjectDependencies {
         "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${Versions.coroutines}"
     const val kotlinCoroutinesAndroid =
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val kotlinCoroutineExtensions =
+        "com.github.akarnokd:kotlin-flow-extensions:${Versions.coroutineExtensions}"
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
 
     // Android libraries
@@ -115,6 +118,7 @@ object ProjectDependencies {
     // Testing
     const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitRuntime}"
     const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitRuntime}"
+    const val junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junitRuntime}"
 }
 
 object PluginDependencies {
@@ -128,6 +132,7 @@ object GroupedDependencies {
     val testsImplementation = listOf(
         ProjectDependencies.junitPlatformConsole,
         ProjectDependencies.junitJupiterApi,
+        ProjectDependencies.junitJupiterParams,
         ProjectDependencies.spekDsl,
         ProjectDependencies.kotlinReflect,
         ProjectDependencies.assertJ,
@@ -138,6 +143,7 @@ object GroupedDependencies {
     val testsImplementationJUnit5 = listOf(
         ProjectDependencies.junitPlatformConsole,
         ProjectDependencies.junitJupiterApi,
+        ProjectDependencies.junitJupiterParams,
         ProjectDependencies.mockitoKotlin,
         ProjectDependencies.mockitoInline
     )

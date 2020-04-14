@@ -16,6 +16,7 @@
 
 package com.babylon.orbit.v2
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -65,10 +66,11 @@ fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.reduce(block: Context<S, E>.(
 
 object BasePlugin : OrbitPlugin {
     override fun <S : Any, E : Any, SE : Any> apply(
+        backgroundDispatcher: CoroutineDispatcher,
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit,
+        setState: suspend (() -> S) -> Unit,
         postSideEffect: (SE) -> Unit
     ): Flow<Any> {
         return when (operator) {

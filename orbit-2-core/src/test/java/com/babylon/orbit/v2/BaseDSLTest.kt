@@ -19,13 +19,13 @@ package com.babylon.orbit.v2
 import com.appmattus.kotlinfixture.kotlinFixture
 import org.junit.jupiter.api.Test
 
-internal class BasePluginTest {
+internal class BaseDSLTest {
 
     private val fixture = kotlinFixture()
     private val initialState = fixture<TestState>()
 
     @Test
-    fun `reducer`() {
+    fun `reducer produces new states`() {
         val action = fixture<Int>()
 
         BaseDSLMiddleware()
@@ -41,7 +41,7 @@ internal class BasePluginTest {
     }
 
     @Test
-    fun `transformer`() {
+    fun `transformer maps values`() {
         val action = fixture<Int>()
 
         BaseDSLMiddleware()
@@ -57,7 +57,21 @@ internal class BasePluginTest {
     }
 
     @Test
-    fun `side effect`() {
+    fun `posting side effects emit side effects`() {
+        val action = fixture<Int>()
+
+        BaseDSLMiddleware()
+            .given(initialState)
+            .whenever {
+                postingSideEffect(action)
+            }
+            .then {
+                postedSideEffects(action.toString())
+            }
+    }
+
+    @Test
+    fun `side effect does not post anything if post is not called`() {
         val action = fixture<Int>()
 
         BaseDSLMiddleware()
@@ -65,36 +79,39 @@ internal class BasePluginTest {
             .whenever {
                 sideEffect(action)
             }
-            .then {
-                postedSideEffects(action.toString())
+            .then {}
+    }
+
+    private data class TestState(val id: Int)
+
+    private class BaseDSLMiddleware : Host<TestState, String> {
+        override val container = Container.create<TestState, String>(TestState(42))
+
+        fun reducer(action: Int) = orbit(action) {
+            reduce {
+                state.copy(id = action)
             }
-    }
-}
-
-private data class TestState(val id: Int)
-
-private class BaseDSLMiddleware : Host<TestState, String> {
-    override val container = Container.create<TestState, String>(TestState(42))
-
-    fun reducer(action: Int) = orbit(action) {
-        reduce {
-            state.copy(id = action)
         }
-    }
 
-    fun transformer(action: Int) = orbit(action) {
-        transform {
-            event + 5
-        }
-            .reduce {
-                state.copy(id = event)
+        fun transformer(action: Int) = orbit(action) {
+            transform {
+                event + 5
             }
-    }
+                .reduce {
+                    state.copy(id = event)
+                }
+        }
 
-    fun sideEffect(action: Int) = orbit(action) {
-        sideEffect {
-            post(event.toString())
-            event + 5
+        fun postingSideEffect(action: Int) = orbit(action) {
+            sideEffect {
+                post(event.toString())
+            }
+        }
+
+        fun sideEffect(action: Int) = orbit(action) {
+            sideEffect {
+                event.toString()
+            }
         }
     }
 }

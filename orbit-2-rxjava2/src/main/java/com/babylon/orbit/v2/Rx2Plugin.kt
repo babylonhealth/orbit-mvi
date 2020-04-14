@@ -20,10 +20,16 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withContext
 
 internal class RxJava2Observable<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> Observable<E2>) :
     Operator<S, E>
@@ -75,32 +81,39 @@ fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.transformRx2Completable(block
 
 object RxJava2Plugin : OrbitPlugin {
     override fun <S : Any, E : Any, SE : Any> apply(
+        backgroundDispatcher: CoroutineDispatcher,
         operator: Operator<S, E>,
         context: (event: E) -> Context<S, E>,
         flow: Flow<E>,
-        setState: (suspend () -> S) -> Unit,
+        setState: suspend (() -> S) -> Unit,
         postSideEffect: (SE) -> Unit
     ): Flow<Any> {
         return when (operator) {
             is RxJava2Observable<*, *, *> -> flow.flatMapConcat {
                 with(operator as RxJava2Observable<S, E, Any>) {
                     context(it).block()
-                }.asFlow()
+                }.asFlow().flowOn(backgroundDispatcher)
             }
-            is RxJava2Single<*, *, *> -> flow.flatMapConcat {
+            is RxJava2Single<*, *, *> -> flow.map {
                 with(operator as RxJava2Single<S, E, Any>) {
-                    context(it).block()
-                }.toObservable().asFlow()
+                    withContext(backgroundDispatcher) {
+                        context(it).block().await()
+                    }
+                }
             }
-            is RxJava2Maybe<*, *, *> -> flow.flatMapConcat {
+            is RxJava2Maybe<*, *, *> -> flow.mapNotNull {
                 with(operator as RxJava2Maybe<S, E, Any>) {
-                    context(it).block()
-                }.toObservable().asFlow()
+                    withContext(backgroundDispatcher) {
+                        context(it).block().await()
+                    }
+                }
             }
             is RxJava2Completable -> flow.onEach {
                 with(operator) {
-                    context(it).block()
-                }.blockingAwait()
+                    withContext(backgroundDispatcher) {
+                        context(it).block().await()
+                    }
+                }
             }
             else -> flow
         }
