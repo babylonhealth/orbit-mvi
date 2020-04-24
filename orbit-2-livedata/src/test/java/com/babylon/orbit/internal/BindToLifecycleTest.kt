@@ -2,6 +2,7 @@ package com.babylon.orbit.internal
 
 import androidx.lifecycle.Lifecycle
 import com.babylon.orbit.MockLifecycleOwner
+import com.babylon.orbit2.bindToLifecycle
 import io.reactivex.disposables.Disposables
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
