@@ -33,5 +33,3 @@ fun <T> Stream<T>.asLiveData(): LiveData<T> {
         }
     }
 }
-
-//TODO fun Stream<T>.observe(lifecycleOwner: LifecycleOwner, lambda: () -> T)
