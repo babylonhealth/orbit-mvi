@@ -90,7 +90,6 @@ object BasePlugin : OrbitPlugin {
             }
             is Reduce -> flow.onEach {
                 with(operator) {
-                    // TODO line below blocking
                     setState { context(it).block() as S }
                 }
             }

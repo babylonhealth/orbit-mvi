@@ -24,15 +24,17 @@ internal val Container.Companion.SAVED_STATE_KEY
 fun <STATE : Any, SIDE_EFFECT : Any> Container.Companion.create(
     initialState: STATE,
     savedStateHandle: SavedStateHandle,
-    onCreate: () -> Unit
+    settings: Container.Settings = Container.Settings(),
+    onCreate: (() -> Unit)? = null
 ): Container<STATE, SIDE_EFFECT> {
     val savedState: STATE? = savedStateHandle[SAVED_STATE_KEY]
 
-    val realContainer: Container<STATE, SIDE_EFFECT> = if (savedState != null) {
-        create(savedState)
-    } else {
-        create(initialState, onCreate)
-    }
+    val realContainer: Container<STATE, SIDE_EFFECT> =
+        when {
+            savedState != null -> create(savedState)
+            onCreate != null -> create(initialState, settings, onCreate)
+            else -> create(initialState, settings)
+        }
     return SavedStateContainerDecorator(
         realContainer,
         savedStateHandle

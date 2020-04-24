@@ -38,6 +38,13 @@ Things to verify:
 5. No other interactions
  */
 
+fun <STATE : Any, SIDE_EFFECT : Any> Container.Companion.createTest(
+    initialState: STATE,
+    isolateFlow: Boolean = true
+): Container<STATE, SIDE_EFFECT> {
+    return TestContainer(initialState, isolateFlow)
+}
+
 fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(
     initialState: STATE,
     isolateFlow: Boolean
@@ -51,7 +58,12 @@ fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(
 internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     private val isolateFlow: Boolean
-) : RealContainer<STATE, SIDE_EFFECT>(initialState, Dispatchers.Unconfined, Dispatchers.Unconfined) {
+) : RealContainer<STATE, SIDE_EFFECT>(
+    initialState,
+    Container.Settings(),
+    Dispatchers.Unconfined,
+    Dispatchers.Unconfined
+) {
     private var dispatched = false
 
     override fun <EVENT : Any> orbit(
@@ -282,22 +294,24 @@ fun <T : Any> Stream<T>.test() = TestStreamObserver(this)
 
 class TestStreamObserver<T>(stream: Stream<T>) {
     private val _values = mutableListOf<T>()
+    private val closeable: Stream.Closeable
     val values: List<T>
         get() = _values
 
     init {
-        stream.observe {
+        closeable = stream.observe {
             _values.add(it)
         }
     }
 
-    fun awaitCount(count: Int) {
-        val timeout = 5000L
+    fun awaitCount(count: Int, timeout: Long = 5000L) {
         val start = System.currentTimeMillis()
-        while(values.count() < count) {
-            if(System.currentTimeMillis() - start > timeout)
+        while (values.count() < count) {
+            if (System.currentTimeMillis() - start > timeout)
                 break
             Thread.sleep(10)
         }
     }
+
+    fun close(): Unit = closeable.close()
 }

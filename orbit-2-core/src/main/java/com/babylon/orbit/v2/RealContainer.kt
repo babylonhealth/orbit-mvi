@@ -16,50 +16,49 @@
 
 package com.babylon.orbit.v2
 
-import hu.akarnokd.kotlin.flow.BehaviorSubject
+import hu.akarnokd.kotlin.flow.PublishSubject
+import hu.akarnokd.kotlin.flow.ReplaySubject
+import hu.akarnokd.kotlin.flow.SubjectAPI
+import hu.akarnokd.kotlin.flow.replay
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.Executors
 
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
-    orbitDispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor()
-        .asCoroutineDispatcher(),
+    settings: Container.Settings,
+    orbitDispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Container<STATE, SIDE_EFFECT> {
     override val currentState: STATE
-        get() = runBlocking { stateChannel.first() }
-    private val stateChannel = BehaviorSubject(initialState)
-
-    //    override val currentState: STATE // TODO see if we can achieve this using vanilla channels
-//        get() = stateChannel.value
-//    private val stateChannel = ConflatedBroadcastChannel(initialState)
-    private val sideEffectChannel =
-        BroadcastChannel<SIDE_EFFECT>(Channel.BUFFERED) // TODO sort out side effects and caching
+        get() = stateChannel.value
+    private val stateChannel = ConflatedBroadcastChannel(initialState)
+    private val sideEffectChannel: SubjectAPI<SIDE_EFFECT> =
+        if (settings.sideEffectCaching) {
+            ReplaySubject() // TODO this is wrong!! Will replay every side effect so far upon subscription
+        } else {
+            PublishSubject()
+        }
     private val scope = CoroutineScope(orbitDispatcher)
-    private val mutex = Mutex()
+    private val stateMutex = Mutex()
+    private val sideEffectMutex = Mutex()
 
     override val orbit: Stream<STATE> =
-        stateChannel.distinctUntilChanged().asStream(scope)
+        stateChannel.asFlow().distinctUntilChanged().replay(1) { it }.asStream(scope)
 
-    override val sideEffect: Stream<SIDE_EFFECT> =
-        sideEffectChannel.asFlow().flowOn(Dispatchers.Unconfined).asStream(scope)
+    override val sideEffect: Stream<SIDE_EFFECT> = sideEffectChannel.asStream(scope)
 
     override fun <EVENT : Any> orbit(
         event: EVENT,
@@ -88,16 +87,20 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                         flow2,
                         {
                             scope.launch {
-                                mutex.withLock {
+                                stateMutex.withLock {
                                     println(Thread.currentThread().name)
                                     val reduced = it()
                                     println(reduced)
-                                    stateChannel.emit(reduced)
+                                    stateChannel.send(reduced)
                                 }
                             }.join()
                         },
                         { event: SIDE_EFFECT ->
-                            sideEffectChannel.sendBlocking(event)
+                            scope.launch {
+                                sideEffectMutex.withLock {
+                                    sideEffectChannel.emit(event)
+                                }
+                            }
                         }
                     )
                 }

@@ -30,38 +30,37 @@ class TestTest {
 
         val given = testSubject.given(State())
         val when1 = given.whenever {
-                something(true)
-            }
+            something(true)
+        }
         when1.then {
-                states(
-                    { copy(verified = true) }
-                )
-                loopBack { somethingElse("true") }
+            states(
+                { copy(verified = true) }
+            )
+            loopBack { somethingElse("true") }
+        }
+    }
+
+    private data class State(val verified: Boolean = false)
+
+    private interface BogusDependency {
+        fun stub()
+    }
+
+    private class MyClass(private val dependency: BogusDependency) : Host<State, Nothing> {
+        override val container =
+            Container.create<State, Nothing>(State()) {
+                created()
             }
-    }
-}
 
-data class State(val verified: Boolean = false)
-
-interface BogusDependency {
-    fun stub()
-}
-
-class MyClass(private val dependency: BogusDependency) : Host<State, Nothing> {
-    override val container =
-        Container.create<State, Nothing>(State()) {
-            created()
+        fun created() {
+            dependency.stub()
+            println("created!")
         }
 
-    fun created() {
-        dependency.stub()
-        println("created!")
-    }
-
-    fun something(action: Boolean): Unit = orbit(action) {
-        transform {
-            event.toString()
-        }
+        fun something(action: Boolean): Unit = orbit(action) {
+            transform {
+                event.toString()
+            }
 //            .transformRxJava2Observable {
 //                Observable.just(event, "true", "false", "true", "false")
 //            }
@@ -73,29 +72,30 @@ class MyClass(private val dependency: BogusDependency) : Host<State, Nothing> {
 //                delay(1000)
 //                event
 //            }
-            .reduce {
-                //println("${event::class}, $state")
-                state.copy(verified = event.toBoolean())
-            }
-            .sideEffect {
-                print("${event::class}, $state")
-            }
-            .sideEffect {
-                somethingElse(event)
-            }
+                .reduce {
+                    //println("${event::class}, $state")
+                    state.copy(verified = event.toBoolean())
+                }
+                .sideEffect {
+                    print("${event::class}, $state")
+                }
+                .sideEffect {
+                    somethingElse(event)
+                }
 //            .sideEffect {
 //                if(state.verified)
 //                    something(false)
 //            }
-    }
-
-    fun somethingElse(action: String) = orbit(action) {
-        sideEffect {
-            print("something else $event")
         }
-    }
 
-    private fun print(string: String) {
-        println(string)
+        fun somethingElse(action: String) = orbit(action) {
+            sideEffect {
+                print("something else $event")
+            }
+        }
+
+        private fun print(string: String) {
+            println(string)
+        }
     }
 }

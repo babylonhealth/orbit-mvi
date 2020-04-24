@@ -16,6 +16,52 @@
 
 package com.babylon.orbit.v2
 
-import org.junit.jupiter.api.Assertions.*
+import com.appmattus.kotlinfixture.kotlinFixture
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
-internal class RealContainerTest
+internal class RealContainerTest {
+
+    private val fixture = kotlinFixture()
+
+    @Test
+    fun `initial state is emitted on connection`() {
+        val initialState = fixture<TestState>()
+        val middleware = Middleware(initialState)
+
+        val testStateObserver = middleware.container.orbit.test()
+
+        testStateObserver.awaitCount(1)
+
+        assertThat(testStateObserver.values).containsExactly(initialState)
+    }
+
+    @Test
+    fun `latest state is emitted on connection`() {
+        val initialState = fixture<TestState>()
+        val middleware = Middleware(initialState)
+        val testStateObserver = middleware.container.orbit.test()
+        val action = fixture<Int>()
+        middleware.something(action)
+        testStateObserver.awaitCount(1) // block until the state is updated
+
+        val testStateObserver2 = middleware.container.orbit.test()
+        testStateObserver.awaitCount(2)
+        testStateObserver2.awaitCount(1)
+
+        assertThat(testStateObserver.values).containsExactly(initialState, TestState(action))
+        assertThat(testStateObserver2.values).containsExactly(TestState(action))
+    }
+
+    private data class TestState(val id: Int)
+
+    private class Middleware(initialState: TestState) : Host<TestState, String> {
+        override val container = Container.create<TestState, String>(initialState)
+
+        fun something(action: Int) = orbit(action) {
+            reduce {
+                state.copy(id = event)
+            }
+        }
+    }
+}

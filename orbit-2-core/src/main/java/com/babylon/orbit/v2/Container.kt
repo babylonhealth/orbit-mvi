@@ -27,14 +27,18 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
 
     companion object {
         fun <STATE : Any, SIDE_EFFECT : Any> create(
-            initialState: STATE
-        ): Container<STATE, SIDE_EFFECT> =
-            RealContainer(initialState)
-
-        fun <STATE : Any, SIDE_EFFECT : Any> create(
             initialState: STATE,
-            onCreate: () -> Unit
+            settings: Settings = Settings(),
+            onCreate: (() -> Unit)? = null
         ): Container<STATE, SIDE_EFFECT> =
-            LazyCreateContainerDecorator(RealContainer(initialState), onCreate)
+            if (onCreate == null) {
+                RealContainer(initialState, settings)
+            } else {
+                LazyCreateContainerDecorator(RealContainer(initialState, settings), onCreate)
+            }
     }
+
+    class Settings(
+        val sideEffectCaching: Boolean = true
+    )
 }
