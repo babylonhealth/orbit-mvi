@@ -23,6 +23,7 @@ import hu.akarnokd.kotlin.flow.replay
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
@@ -35,11 +36,12 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.Executors
 
+@FlowPreview
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     settings: Container.Settings,
     orbitDispatcher: CoroutineDispatcher =
-        Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
+        Executors.newSingleThreadExecutor { Thread(it, "orbit") }.asCoroutineDispatcher(),
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Container<STATE, SIDE_EFFECT> {
     override val currentState: STATE
@@ -88,9 +90,7 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                         {
                             scope.launch {
                                 stateMutex.withLock {
-                                    println(Thread.currentThread().name)
                                     val reduced = it()
-                                    println(reduced)
                                     stateChannel.send(reduced)
                                 }
                             }.join()

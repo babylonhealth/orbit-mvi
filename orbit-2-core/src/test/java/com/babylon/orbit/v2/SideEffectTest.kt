@@ -17,21 +17,33 @@
 package com.babylon.orbit.v2
 
 import com.appmattus.kotlinfixture.kotlinFixture
-import kotlinx.coroutines.Dispatchers
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
+import org.junit.jupiter.params.provider.ArgumentsSource
+import java.util.stream.Stream
 
 internal class SideEffectTest {
 
     private val fixture = kotlinFixture()
 
+    object MulticastTestCases : ArgumentsProvider {
+        override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
+            Stream.of(
+                Arguments.of(true),
+                Arguments.of(false),
+                Arguments.of(null)
+            )
+    }
+
     @DisplayName("Side effects are multicast to all current observers by default")
     @ParameterizedTest(name = "Caching is {0}")
-    @ValueSource(booleans = [true, false])
-    fun `side effects are multicast to all current observers by default`(caching: Boolean) {
+    @ArgumentsSource(MulticastTestCases::class)
+    fun `side effects are multicast to all current observers by default`(caching: Boolean?) {
         val action = fixture<Int>()
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
@@ -53,12 +65,22 @@ internal class SideEffectTest {
         assertThat(testSideEffectObserver3.values).containsExactly(action, action2, action3)
     }
 
-    @Test
-    fun `when caching is turned on side effects are cached when there are no subscribers`() {
+    object CachingOnTestCases : ArgumentsProvider {
+        override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
+            Stream.of(
+                Arguments.of(true),
+                Arguments.of(null)
+            )
+    }
+
+    @DisplayName("when caching is turned on side effects are cached when there are no subscribers")
+    @ParameterizedTest(name = "Caching is {0}")
+    @ArgumentsSource(CachingOnTestCases::class)
+    fun `when caching is turned on side effects are cached when there are no subscribers`(caching: Boolean?) {
         val action = fixture<Int>()
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
-        val middleware = Middleware(true)
+        val middleware = Middleware(caching)
 
         middleware.someFlow(action)
         middleware.someFlow(action2)
@@ -91,12 +113,14 @@ internal class SideEffectTest {
         assertThat(testSideEffectObserver1.values).isEmpty()
     }
 
-    @Test
-    fun `when caching is turned on only new side effects are emitted when resubscribing`() {
+    @DisplayName("when caching is turned on only new side effects are emitted when resubscribing")
+    @ParameterizedTest(name = "Caching is {0}")
+    @ArgumentsSource(CachingOnTestCases::class)
+    fun `when caching is turned on only new side effects are emitted when resubscribing`(caching: Boolean?) {
         val action = fixture<Int>()
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
-        val middleware = Middleware(true)
+        val middleware = Middleware(caching)
 
         val testSideEffectObserver1 = middleware.container.sideEffect.test()
 
@@ -115,11 +139,12 @@ internal class SideEffectTest {
         assertThat(testSideEffectObserver2.values).containsExactly(action2, action3)
     }
 
-    private class Middleware(caching: Boolean) : Host<Unit, Int> {
-        override val container = Container.create<Unit, Int>(
-            Unit,
-            Container.Settings(caching)
-        )
+    private class Middleware(caching: Boolean? = null) : Host<Unit, Int> {
+        override val container: Container<Unit, Int> =
+            when (caching) {
+                null -> Container.create(Unit) // making sure defaults are tested
+                else -> Container.create(Unit, Container.Settings(caching))
+            }
 
         fun someFlow(action: Int) = orbit(action) {
             sideEffect {

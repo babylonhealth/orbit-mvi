@@ -20,7 +20,7 @@ import com.appmattus.kotlinfixture.kotlinFixture
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-internal class RealContainerTest {
+internal class StateConnectionTest {
 
     private val fixture = kotlinFixture()
 

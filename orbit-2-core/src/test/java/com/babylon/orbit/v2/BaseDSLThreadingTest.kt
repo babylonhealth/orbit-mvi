@@ -17,84 +17,83 @@
 package com.babylon.orbit.v2
 
 import com.appmattus.kotlinfixture.kotlinFixture
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CountDownLatch
 
-internal class BaseDSLTest {
+internal class BaseDSLThreadingTest {
 
     private val fixture = kotlinFixture()
-    private val initialState = fixture<TestState>()
 
     @Test
-    fun `reducer produces new states`() {
+    fun `reducer executes on orbit thread`() {
         val action = fixture<Int>()
 
-        BaseDSLMiddleware()
-            .given(initialState)
-            .whenever {
-                reducer(action)
-            }
-            .then {
-                states(
-                    { TestState(action) }
-                )
-            }
+        val middleware = BaseDSLMiddleware()
+        val testStreamObserver = middleware.container.orbit.test()
+
+        middleware.reducer(action)
+
+        testStreamObserver.awaitCount(2)
+        assertThat(middleware.threadName).startsWith("orbit")
     }
 
     @Test
-    fun `transformer maps values`() {
+    fun `transformer executes on orbit thread`() {
         val action = fixture<Int>()
 
-        BaseDSLMiddleware()
-            .given(initialState)
-            .whenever {
-                transformer(action)
-            }
-            .then {
-                states(
-                    { TestState(action + 5) }
-                )
-            }
+        val middleware = BaseDSLMiddleware()
+        val testStreamObserver = middleware.container.orbit.test()
+
+        middleware.transformer(action)
+
+        testStreamObserver.awaitCount(2)
+        assertThat(middleware.threadName).startsWith("orbit")
     }
 
     @Test
-    fun `posting side effects emit side effects`() {
+    fun `posting side effects executes on orbit thread`() {
         val action = fixture<Int>()
 
-        BaseDSLMiddleware()
-            .given(initialState)
-            .whenever {
-                postingSideEffect(action)
-            }
-            .then {
-                postedSideEffects(action.toString())
-            }
+        val middleware = BaseDSLMiddleware()
+        val testStreamObserver = middleware.container.sideEffect.test()
+
+        middleware.postingSideEffect(action)
+
+        testStreamObserver.awaitCount(1)
+        assertThat(middleware.threadName).startsWith("orbit")
     }
 
     @Test
-    fun `side effect does not post anything if post is not called`() {
+    fun `side effect executes on orbit thread`() {
         val action = fixture<Int>()
 
-        BaseDSLMiddleware()
-            .given(initialState)
-            .whenever {
-                sideEffect(action)
-            }
-            .then {}
+        val middleware = BaseDSLMiddleware()
+
+        middleware.sideEffect(action)
+
+        middleware.latch.await()
+
+        assertThat(middleware.threadName).startsWith("orbit")
     }
 
     private data class TestState(val id: Int)
 
     private class BaseDSLMiddleware : Host<TestState, String> {
         override val container = Container.create<TestState, String>(TestState(42))
+        lateinit var threadName: String
+        val latch = CountDownLatch(1)
 
         fun reducer(action: Int) = orbit(action) {
             reduce {
+                threadName = Thread.currentThread().name
                 state.copy(id = action)
             }
         }
 
         fun transformer(action: Int) = orbit(action) {
             transform {
+                threadName = Thread.currentThread().name
                 event + 5
             }
                 .reduce {
@@ -104,12 +103,15 @@ internal class BaseDSLTest {
 
         fun postingSideEffect(action: Int) = orbit(action) {
             sideEffect {
+                threadName = Thread.currentThread().name
                 post(event.toString())
             }
         }
 
         fun sideEffect(action: Int) = orbit(action) {
             sideEffect {
+                threadName = Thread.currentThread().name
+                latch.countDown()
                 event.toString()
             }
         }
