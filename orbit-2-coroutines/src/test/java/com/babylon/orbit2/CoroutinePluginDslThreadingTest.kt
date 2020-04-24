@@ -69,7 +69,8 @@ internal class CoroutinePluginDslThreadingTest {
         override val container = RealContainer<TestState, String>(
             initialState = TestState(42),
             settings = Container.Settings(),
-            backgroundDispatcher = Executors.newSingleThreadExecutor { Thread(it, "IO") }.asCoroutineDispatcher()
+            backgroundDispatcher = Executors.newSingleThreadExecutor { Thread(it, "IO") }
+                .asCoroutineDispatcher()
         )
         lateinit var threadName: String
 
