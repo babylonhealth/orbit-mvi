@@ -62,10 +62,10 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     private val isolateFlow: Boolean
 ) : RealContainer<STATE, SIDE_EFFECT>(
-    initialState,
-    Container.Settings(),
-    Dispatchers.Unconfined,
-    Dispatchers.Unconfined
+    initialState = initialState,
+    settings = Container.Settings(),
+    orbitDispatcher = Dispatchers.Unconfined,
+    backgroundDispatcher = Dispatchers.Unconfined
 ) {
     private var dispatched = false
 

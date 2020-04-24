@@ -18,7 +18,7 @@ package com.babylon.orbit2
 
 object Orbit {
 
-    var plugins: Set<OrbitPlugin> = setOf(
+    internal var plugins: Set<OrbitPlugin> = setOf(
         BasePlugin
     )
     private set

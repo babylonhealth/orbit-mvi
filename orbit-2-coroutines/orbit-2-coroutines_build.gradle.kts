@@ -31,6 +31,7 @@ dependencies {
     implementation(project(":orbit-2-core"))
 
     // Testing
+    testImplementation(project(":orbit-2-test"))
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
     GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
 }

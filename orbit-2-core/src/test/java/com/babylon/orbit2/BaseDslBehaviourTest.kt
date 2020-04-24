@@ -19,7 +19,7 @@ package com.babylon.orbit2
 import com.appmattus.kotlinfixture.kotlinFixture
 import org.junit.jupiter.api.Test
 
-internal class BaseDSLBehaviourTest {
+internal class BaseDslBehaviourTest {
 
     private val fixture = kotlinFixture()
     private val initialState = fixture<TestState>()
@@ -92,7 +92,7 @@ internal class BaseDSLBehaviourTest {
 
         fun reducer(action: Int) = orbit(action) {
             reduce {
-                state.copy(id = action)
+                state.copy(id = event)
             }
         }
 

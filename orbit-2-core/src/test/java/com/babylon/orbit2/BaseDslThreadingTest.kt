@@ -21,7 +21,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 
-internal class BaseDSLThreadingTest {
+internal class BaseDslThreadingTest {
 
     private val fixture = kotlinFixture()
 

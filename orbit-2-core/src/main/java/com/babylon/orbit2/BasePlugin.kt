@@ -78,9 +78,7 @@ object BasePlugin : OrbitPlugin {
             is Transform<*, *, *> -> flow.map {
                 @Suppress("UNCHECKED_CAST")
                 with(operator as Transform<S, E, Any>) {
-//                    withContext(Dispatchers.IO) {
                     context(it).block()
-//                    }
                 }
             }
             is SideEffect<*, *, *> -> flow.onEach {
