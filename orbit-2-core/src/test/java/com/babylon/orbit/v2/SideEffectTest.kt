@@ -18,6 +18,7 @@ package com.babylon.orbit.v2
 
 import com.appmattus.kotlinfixture.kotlinFixture
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -137,6 +138,12 @@ internal class SideEffectTest {
 
         assertThat(testSideEffectObserver1.values).containsExactly(action)
         assertThat(testSideEffectObserver2.values).containsExactly(action2, action3)
+    }
+
+    @Test
+    @Disabled
+    fun `Cached side effects are guaranteed to be delivered to the first observer by default`() {
+        TODO("Fill this in when caching works properly")
     }
 
     private class Middleware(caching: Boolean? = null) : Host<Unit, Int> {

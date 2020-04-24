@@ -52,8 +52,6 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    implementation(project(":orbit"))
-
     implementation(kotlin("stdlib-jdk8"))
     implementation(ProjectDependencies.kotlinCoroutines)
 
@@ -64,6 +62,7 @@ dependencies {
     kapt(ProjectDependencies.androidLifecycleCompiler)
 
     // Testing
+    testImplementation(project(":orbit-2-test"))
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
     GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
 }

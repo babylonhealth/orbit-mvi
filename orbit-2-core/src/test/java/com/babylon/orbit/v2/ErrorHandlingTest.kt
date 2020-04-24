@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Babylon Partners Limited
+ * Copyright 2020 Babylon Partners Limited
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,11 +14,8 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit
+package com.babylon.orbit.v2
 
-fun createTestMiddleware(
-    initialState: TestState = TestState(42),
-    block: OrbitsBuilder<TestState, String>.() -> Unit
-) = middleware<TestState, String>(initialState) {
-    this.apply(block)
+internal class ErrorHandlingTest {
+
 }

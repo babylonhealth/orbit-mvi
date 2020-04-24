@@ -51,7 +51,7 @@ internal class SavedStateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
     override val orbit: Stream<STATE>
         get() = object : Stream<STATE> {
             override fun observe(lambda: (STATE) -> Unit): Stream.Closeable {
-                return orbit.observe {
+                return actual.orbit.observe {
                     savedStateHandle[Container.SAVED_STATE_KEY] = it
                     lambda(it)
                 }

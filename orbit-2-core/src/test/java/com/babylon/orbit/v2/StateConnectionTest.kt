@@ -28,7 +28,6 @@ internal class StateConnectionTest {
     fun `initial state is emitted on connection`() {
         val initialState = fixture<TestState>()
         val middleware = Middleware(initialState)
-
         val testStateObserver = middleware.container.orbit.test()
 
         testStateObserver.awaitCount(1)
@@ -51,6 +50,28 @@ internal class StateConnectionTest {
 
         assertThat(testStateObserver.values).containsExactly(initialState, TestState(action))
         assertThat(testStateObserver2.values).containsExactly(TestState(action))
+    }
+
+    @Test
+    fun `current state is set to the initial state after instantiation`() {
+        val initialState = fixture<TestState>()
+        val middleware = Middleware(initialState)
+
+        assertThat(middleware.container.currentState).isEqualTo(initialState)
+    }
+
+    @Test
+    fun `current state is up to date after modification`() {
+        val initialState = fixture<TestState>()
+        val middleware = Middleware(initialState)
+        val action = fixture<Int>()
+        val testStateObserver = middleware.container.orbit.test()
+
+        middleware.something(action)
+
+        testStateObserver.awaitCount(2)
+
+        assertThat(middleware.container.currentState).isEqualTo(testStateObserver.values.last())
     }
 
     private data class TestState(val id: Int)
