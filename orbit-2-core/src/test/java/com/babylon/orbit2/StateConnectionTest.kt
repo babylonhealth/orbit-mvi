@@ -27,8 +27,7 @@ internal class StateConnectionTest {
     @Test
     fun `initial state is emitted on connection`() {
         val initialState = fixture<TestState>()
-        val middleware =
-            Middleware(initialState)
+        val middleware = Middleware(initialState)
         val testStateObserver = middleware.container.orbit.test()
 
         testStateObserver.awaitCount(1)
@@ -39,8 +38,7 @@ internal class StateConnectionTest {
     @Test
     fun `latest state is emitted on connection`() {
         val initialState = fixture<TestState>()
-        val middleware =
-            Middleware(initialState)
+        val middleware = Middleware(initialState)
         val testStateObserver = middleware.container.orbit.test()
         val action = fixture<Int>()
         middleware.something(action)
@@ -86,8 +84,7 @@ internal class StateConnectionTest {
 
     private data class TestState(val id: Int)
 
-    private class Middleware(initialState: TestState) :
-        Host<TestState, String> {
+    private class Middleware(initialState: TestState) : Host<TestState, String> {
         override val container = Container.create<TestState, String>(initialState)
 
         fun something(action: Int) = orbit(action) {

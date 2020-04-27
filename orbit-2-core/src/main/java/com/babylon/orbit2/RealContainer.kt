@@ -22,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -45,7 +45,7 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     override val currentState: STATE
         get() = stateChannel.value
     private val stateChannel = ConflatedBroadcastChannel(initialState)
-    private val sideEffectChannel = BroadcastChannel<SIDE_EFFECT>(1024)
+    private val sideEffectChannel = Channel<SIDE_EFFECT>(Channel.RENDEZVOUS)
     private val scope = CoroutineScope(orbitDispatcher)
     private val stateMutex = Mutex()
     private val sideEffectMutex = Mutex()
@@ -55,9 +55,9 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     override val sideEffect: Stream<SIDE_EFFECT> =
         if (settings.sideEffectCaching) {
-            sideEffectChannel.asFlow().asCachingStream(scope)
+            sideEffectChannel.asCachingStream(scope)
         } else {
-            sideEffectChannel.asFlow().asStream()
+            sideEffectChannel.asStream(scope)
         }
 
     override fun <EVENT : Any> orbit(

@@ -83,8 +83,6 @@ internal class SideEffectTest {
         val action3 = fixture<Int>()
         val middleware = Middleware(caching)
 
-        println("$action $action2 $action3")
-
         middleware.someFlow(action)
         middleware.someFlow(action2)
         middleware.someFlow(action3)
@@ -103,6 +101,8 @@ internal class SideEffectTest {
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
         val middleware = Middleware(false)
+
+        println("$action $action2 $action3")
 
         middleware.someFlow(action)
         middleware.someFlow(action2)
@@ -125,9 +125,6 @@ internal class SideEffectTest {
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
         val middleware = Middleware(caching)
-        println(action)
-        println(action2)
-        println(action3)
 
         val testSideEffectObserver1 = middleware.container.sideEffect.test()
 

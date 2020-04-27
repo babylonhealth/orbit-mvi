@@ -17,12 +17,16 @@
 package com.babylon.orbit2
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.broadcast
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -46,7 +50,40 @@ internal fun <T> Flow<T>.asStream(): Stream<T> {
     }
 }
 
-fun <T> Flow<T>.asCachingStream(originalScope: CoroutineScope): Stream<T> {
+internal fun <T> Channel<T>.asStream(originalScope: CoroutineScope): Stream<T> {
+    return object : Stream<T> {
+        private val broadcastChannel = originalScope.broadcast(
+            capacity = 1024,
+            start = CoroutineStart.DEFAULT
+        ) {
+            for (item in this@asStream) {
+                if (isActive) {
+                    send(item)
+                } else {
+                    break
+                }
+            }
+        }
+
+        override fun observe(lambda: (T) -> Unit): Stream.Closeable {
+            val scope = CoroutineScope(Dispatchers.Unconfined)
+            val receiveChannel = broadcastChannel.openSubscription()
+            scope.launch {
+                for (item in receiveChannel) {
+                    lambda(item)
+                }
+            }
+            return object : Stream.Closeable {
+                override fun close() {
+                    receiveChannel.cancel()
+                    scope.cancel()
+                }
+            }
+        }
+    }
+}
+
+internal fun <T> Channel<T>.asCachingStream(originalScope: CoroutineScope): Stream<T> {
     return object : Stream<T> {
         private val channels = mutableSetOf<ReceiveChannel<T>>()
         private val buffer = mutableListOf<T>()
@@ -55,12 +92,12 @@ fun <T> Flow<T>.asCachingStream(originalScope: CoroutineScope): Stream<T> {
 
         init {
             originalScope.launch {
-                this@asCachingStream.collect {
+                for (item in this@asCachingStream) {
                     bufferMutex.withLock {
                         if (channels.isEmpty()) {
-                            buffer.add(it)
+                            buffer.add(item)
                         } else {
-                            channel.send(it)
+                            channel.send(item)
                         }
                     }
                 }
