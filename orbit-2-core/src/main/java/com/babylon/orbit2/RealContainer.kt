@@ -16,15 +16,13 @@
 
 package com.babylon.orbit2
 
-import hu.akarnokd.kotlin.flow.PublishSubject
-import hu.akarnokd.kotlin.flow.ReplaySubject
-import hu.akarnokd.kotlin.flow.SubjectAPI
 import hu.akarnokd.kotlin.flow.replay
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -47,20 +45,20 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     override val currentState: STATE
         get() = stateChannel.value
     private val stateChannel = ConflatedBroadcastChannel(initialState)
-    private val sideEffectChannel: SubjectAPI<SIDE_EFFECT> =
-        if (settings.sideEffectCaching) {
-            ReplaySubject() // TODO this is wrong!! Will replay every side effect so far upon subscription
-        } else {
-            PublishSubject()
-        }
+    private val sideEffectChannel = BroadcastChannel<SIDE_EFFECT>(1024)
     private val scope = CoroutineScope(orbitDispatcher)
     private val stateMutex = Mutex()
     private val sideEffectMutex = Mutex()
 
     override val orbit: Stream<STATE> =
-        stateChannel.asFlow().distinctUntilChanged().replay(1) { it }.asStream(scope)
+        stateChannel.asFlow().distinctUntilChanged().replay(1) { it }.asStream()
 
-    override val sideEffect: Stream<SIDE_EFFECT> = sideEffectChannel.asStream(scope)
+    override val sideEffect: Stream<SIDE_EFFECT> =
+        if (settings.sideEffectCaching) {
+            sideEffectChannel.asFlow().asCachingStream(scope)
+        } else {
+            sideEffectChannel.asFlow().asStream()
+        }
 
     override fun <EVENT : Any> orbit(
         event: EVENT,
@@ -98,7 +96,7 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                         { event: SIDE_EFFECT ->
                             scope.launch {
                                 sideEffectMutex.withLock {
-                                    sideEffectChannel.emit(event)
+                                    sideEffectChannel.send(event)
                                 }
                             }
                         }

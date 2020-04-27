@@ -69,8 +69,8 @@ internal class SideEffectTest {
     object CachingOnTestCases : ArgumentsProvider {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
             Stream.of(
-                Arguments.of(true),
-                Arguments.of(null)
+                Arguments.of(null),
+                Arguments.of(true)
             )
     }
 
@@ -83,9 +83,12 @@ internal class SideEffectTest {
         val action3 = fixture<Int>()
         val middleware = Middleware(caching)
 
+        println("$action $action2 $action3")
+
         middleware.someFlow(action)
         middleware.someFlow(action2)
         middleware.someFlow(action3)
+        Thread.sleep(100L) // TODO fix this
 
         val testSideEffectObserver1 = middleware.container.sideEffect.test()
 
@@ -105,7 +108,7 @@ internal class SideEffectTest {
         middleware.someFlow(action2)
         middleware.someFlow(action3)
 
-        Thread.sleep(10L) // TODO fix this
+        Thread.sleep(100L) // TODO fix this
 
         val testSideEffectObserver1 = middleware.container.sideEffect.test()
 
@@ -122,6 +125,9 @@ internal class SideEffectTest {
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
         val middleware = Middleware(caching)
+        println(action)
+        println(action2)
+        println(action3)
 
         val testSideEffectObserver1 = middleware.container.sideEffect.test()
 
@@ -142,12 +148,11 @@ internal class SideEffectTest {
 
     @Test
     @Disabled
-    fun `Cached side effects are guaranteed to be delivered to the first observer by default`() {
+    fun `Cached side effects are guaranteed to be delivered to the first observer`() {
         TODO("Fill this in when caching works properly")
     }
 
-    private class Middleware(caching: Boolean? = null) :
-        Host<Unit, Int> {
+    private class Middleware(caching: Boolean? = null) : Host<Unit, Int> {
         override val container: Container<Unit, Int> =
             when (caching) {
                 null -> Container.create(Unit) // making sure defaults are tested
