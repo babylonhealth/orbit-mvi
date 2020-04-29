@@ -20,12 +20,16 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 
 interface OrbitPlugin {
-    fun <S : Any, E : Any, SE: Any> apply(
-        backgroundDispatcher: CoroutineDispatcher,
-        operator: Operator<S, E>,
-        context: (event: E) -> Context<S, E>,
+    fun <S : Any, E : Any, SE : Any> apply(
+        containerContext: ContainerContext<S, SE>,
         flow: Flow<E>,
-        setState: suspend (() -> S) -> Unit,
-        postSideEffect: (SE) -> Unit
+        operator: Operator<S, E>,
+        createContext: (event: E) -> Context<S, E>
     ): Flow<Any>
+
+    class ContainerContext<S : Any, SE : Any>(
+        val backgroundDispatcher: CoroutineDispatcher,
+        val setState: suspend (() -> S) -> Unit,
+        val postSideEffect: (SE) -> Unit
+    )
 }

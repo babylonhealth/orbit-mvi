@@ -29,7 +29,6 @@ dependencies {
     implementation(ProjectDependencies.kotlinCoroutines)
     implementation(ProjectDependencies.kotlinCoroutineExtensions)
 
-
     implementation(ProjectDependencies.mockitoKotlin)
     implementation(ProjectDependencies.kotlinTest)
 

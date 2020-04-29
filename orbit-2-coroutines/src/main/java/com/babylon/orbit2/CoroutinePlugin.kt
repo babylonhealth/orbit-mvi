@@ -16,13 +16,11 @@
 
 package com.babylon.orbit2
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-
 
 internal class TransformSuspend<S : Any, E : Any, E2 : Any>(val block: suspend Context<S, E>.() -> E2) :
     Operator<S, E2>
@@ -50,25 +48,23 @@ fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformFlow(block
 
 object CoroutinePlugin : OrbitPlugin {
     override fun <S : Any, E : Any, SE : Any> apply(
-        backgroundDispatcher: CoroutineDispatcher,
-        operator: Operator<S, E>,
-        context: (event: E) -> Context<S, E>,
+        containerContext: OrbitPlugin.ContainerContext<S, SE>,
         flow: Flow<E>,
-        setState: suspend (() -> S) -> Unit,
-        postSideEffect: (SE) -> Unit
+        operator: Operator<S, E>,
+        context: (event: E) -> Context<S, E>
     ): Flow<Any> {
         return when (operator) {
             is TransformSuspend<*, *, *> -> flow.map {
                 @Suppress("UNCHECKED_CAST")
                 with(operator as TransformSuspend<S, E, Any>) {
-                    withContext(backgroundDispatcher) {
+                    withContext(containerContext.backgroundDispatcher) {
                         context(it).block()
                     }
                 }
             }
             is TransformFlow<*, *, *> -> flow.flatMapConcat {
                 with(operator as TransformFlow<S, E, Any>) {
-                    context(it).block().flowOn(backgroundDispatcher)
+                    context(it).block().flowOn(containerContext.backgroundDispatcher)
                 }
             }
             else -> flow

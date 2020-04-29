@@ -21,7 +21,6 @@ import com.appmattus.kotlinfixture.kotlinFixture
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-
 class SavedStatePluginReadTest {
 
     private val fixture = kotlinFixture()

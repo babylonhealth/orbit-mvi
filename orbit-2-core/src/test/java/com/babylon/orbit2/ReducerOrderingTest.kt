@@ -26,8 +26,7 @@ internal class ReducerOrderingTest {
     @Test
     fun `reductions are conflated`() {
         runBlocking {
-            val middleware =
-                ThreeReducersMiddleware()
+            val middleware = ThreeReducersMiddleware()
             val testStateObserver = middleware.container.orbit.test()
             val expectedStates = mutableListOf(
                 TestState(
@@ -54,7 +53,6 @@ internal class ReducerOrderingTest {
             assertThat(testStateObserver.values.last()).isEqualTo(expectedStates.last())
             assertThat(testStateObserver.values.count()).isLessThan(expectedStates.count())
         }
-
     }
 
     @Test

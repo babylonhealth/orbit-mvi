@@ -40,29 +40,3 @@ fun <STATE : Any, SIDE_EFFECT : Any> Container.Companion.create(
         savedStateHandle
     )
 }
-
-internal class SavedStateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
-    private val actual: Container<STATE, SIDE_EFFECT>,
-    private val savedStateHandle: SavedStateHandle
-) : Container<STATE, SIDE_EFFECT> {
-    override val currentState: STATE
-        get() = actual.currentState
-
-    override val orbit: Stream<STATE>
-        get() = object : Stream<STATE> {
-            override fun observe(lambda: (STATE) -> Unit): Stream.Closeable {
-                return actual.orbit.observe {
-                    savedStateHandle[Container.SAVED_STATE_KEY] = it
-                    lambda(it)
-                }
-            }
-        }
-
-    override val sideEffect: Stream<SIDE_EFFECT>
-        get() = actual.sideEffect
-
-    override fun <EVENT : Any> orbit(
-        event: EVENT,
-        init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
-    ) = actual.orbit(event, init)
-}

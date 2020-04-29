@@ -16,6 +16,4 @@
 
 package com.babylon.orbit2
 
-internal class ErrorHandlingTest {
-
-}
+internal class ErrorHandlingTest

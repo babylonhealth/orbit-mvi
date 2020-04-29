@@ -23,7 +23,6 @@ import com.appmattus.kotlinfixture.kotlinFixture
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-
 class SavedStatePluginWriteTest {
 
     private val fixture = kotlinFixture()
@@ -45,7 +44,7 @@ class SavedStatePluginWriteTest {
         )
     }
 
-    private data class TestState(val id: Int): Parcelable {
+    private data class TestState(val id: Int) : Parcelable {
         constructor(parcel: Parcel) : this(parcel.readInt())
 
         override fun writeToParcel(parcel: Parcel, flags: Int) {

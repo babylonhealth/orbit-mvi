@@ -24,8 +24,9 @@ object Orbit {
     private set
 
     fun registerDslPlugins(vararg plugins: OrbitPlugin) {
-        Orbit.plugins = setOf(*plugins,
-            BasePlugin
-        )
+        val pluginSet = mutableSetOf<OrbitPlugin>(BasePlugin)
+        pluginSet.addAll(plugins)
+
+        Orbit.plugins = pluginSet.toSet()
     }
 }

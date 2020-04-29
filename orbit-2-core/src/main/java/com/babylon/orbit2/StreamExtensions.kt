@@ -88,7 +88,7 @@ internal fun <T> Channel<T>.asCachingStream(originalScope: CoroutineScope): Stre
         private val channels = mutableSetOf<ReceiveChannel<T>>()
         private val buffer = mutableListOf<T>()
         private val bufferMutex = Mutex()
-        private val channel = BroadcastChannel<T>(1024)
+        private val channel = BroadcastChannel<T>(Channel.BUFFERED)
 
         init {
             originalScope.launch {

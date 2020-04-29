@@ -16,7 +16,6 @@
 
 package com.babylon.orbit2
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -38,7 +37,6 @@ data class SideEffectContext<S : Any, SE : Any, E : Any>(
     fun post(event: SE) {
         postSideEffect(event)
     }
-
 }
 
 fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transform(block: Context<S, E>.() -> E2): Builder<S, SE, E2> {
@@ -67,12 +65,10 @@ fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.reduce(block: Context<S, E>.(
 
 object BasePlugin : OrbitPlugin {
     override fun <S : Any, E : Any, SE : Any> apply(
-        backgroundDispatcher: CoroutineDispatcher,
-        operator: Operator<S, E>,
-        context: (event: E) -> Context<S, E>,
+        containerContext: OrbitPlugin.ContainerContext<S, SE>,
         flow: Flow<E>,
-        setState: suspend (() -> S) -> Unit,
-        postSideEffect: (SE) -> Unit
+        operator: Operator<S, E>,
+        context: (event: E) -> Context<S, E>
     ): Flow<Any> {
         return when (operator) {
             is Transform<*, *, *> -> flow.map {
@@ -87,13 +83,13 @@ object BasePlugin : OrbitPlugin {
                     SideEffectContext(
                         baseContext.state,
                         baseContext.event,
-                        postSideEffect
+                        containerContext.postSideEffect
                     ).block()
                 }
             }
             is Reduce -> flow.onEach {
                 with(operator) {
-                    setState { context(it).block() as S }
+                    containerContext.setState { context(it).block() as S }
                 }
             }
             else -> flow
@@ -109,4 +105,3 @@ fun requirePlugin(plugin: OrbitPlugin, operatorName: String) {
         )
     }
 }
-

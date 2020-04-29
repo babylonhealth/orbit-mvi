@@ -18,7 +18,6 @@ package com.babylon.orbit2
 
 import androidx.lifecycle.LiveData
 
-
 fun <T> Stream<T>.asLiveData(): LiveData<T> {
     return object : LiveData<T>() {
         private var closeable: Stream.Closeable? = null

@@ -76,7 +76,7 @@ class TestTest {
 //                event
 //            }
                 .reduce {
-                    //println("${event::class}, $state")
+                    // println("${event::class}, $state")
                     state.copy(verified = event.toBoolean())
                 }
                 .sideEffect {

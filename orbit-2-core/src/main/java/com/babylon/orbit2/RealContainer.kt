@@ -72,6 +72,25 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
         }
     }
 
+    private val pluginContext = OrbitPlugin.ContainerContext<STATE, SIDE_EFFECT>(
+        backgroundDispatcher = backgroundDispatcher,
+        setState = {
+            scope.launch {
+                stateMutex.withLock {
+                    val reduced = it()
+                    stateChannel.send(reduced)
+                }
+            }.join()
+        },
+        postSideEffect = { event: SIDE_EFFECT ->
+            scope.launch {
+                sideEffectMutex.withLock {
+                    sideEffectChannel.send(event)
+                }
+            }
+        }
+    )
+
     @Suppress("UNCHECKED_CAST")
     suspend fun <EVENT : Any> collectFlow(
         event: EVENT,
@@ -81,26 +100,10 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
             .init().stack.fold(flowOf(event)) { flow: Flow<Any>, operator: Operator<STATE, *> ->
                 Orbit.plugins.fold(flow) { flow2: Flow<Any>, plugin: OrbitPlugin ->
                     plugin.apply(
-                        backgroundDispatcher,
-                        operator as Operator<STATE, Any>,
-                        { RealContext(currentState, it) },
+                        pluginContext,
                         flow2,
-                        {
-                            scope.launch {
-                                stateMutex.withLock {
-                                    val reduced = it()
-                                    stateChannel.send(reduced)
-                                }
-                            }.join()
-                        },
-                        { event: SIDE_EFFECT ->
-                            scope.launch {
-                                sideEffectMutex.withLock {
-                                    sideEffectChannel.send(event)
-                                }
-                            }
-                        }
-                    )
+                        operator as Operator<STATE, Any>
+                    ) { RealContext(currentState, it) }
                 }
             }.collect()
     }

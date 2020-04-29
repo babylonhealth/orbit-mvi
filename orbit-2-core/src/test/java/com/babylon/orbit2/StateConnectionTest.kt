@@ -42,10 +42,9 @@ internal class StateConnectionTest {
         val testStateObserver = middleware.container.orbit.test()
         val action = fixture<Int>()
         middleware.something(action)
-        testStateObserver.awaitCount(1) // block until the state is updated
+        testStateObserver.awaitCount(2) // block until the state is updated
 
         val testStateObserver2 = middleware.container.orbit.test()
-        testStateObserver.awaitCount(2)
         testStateObserver2.awaitCount(1)
 
         assertThat(testStateObserver.values).containsExactly(initialState,

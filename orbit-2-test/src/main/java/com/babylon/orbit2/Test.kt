@@ -87,9 +87,9 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
 
 fun <HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFECT : Any>
         HOST.given(
-    initialState: STATE,
-    isolateFlow: Boolean = false
-) =
+            initialState: STATE,
+            isolateFlow: Boolean = false
+        ) =
     OrbitGiven(
         testSpy(initialState, isolateFlow),
         initialState
@@ -315,8 +315,9 @@ class TestStreamObserver<T>(stream: Stream<T>) {
     fun awaitCount(count: Int, timeout: Long = 5000L) {
         val start = System.currentTimeMillis()
         while (values.count() < count) {
-            if (System.currentTimeMillis() - start > timeout)
+            if (System.currentTimeMillis() - start > timeout) {
                 break
+            }
             Thread.sleep(10)
         }
     }

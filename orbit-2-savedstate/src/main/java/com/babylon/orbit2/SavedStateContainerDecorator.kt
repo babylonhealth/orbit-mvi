@@ -16,40 +16,30 @@
 
 package com.babylon.orbit2
 
-import java.util.concurrent.atomic.AtomicBoolean
+import androidx.lifecycle.SavedStateHandle
 
-class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
+internal class SavedStateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
     private val actual: Container<STATE, SIDE_EFFECT>,
-    private val onCreate: () -> Unit
+    private val savedStateHandle: SavedStateHandle
 ) : Container<STATE, SIDE_EFFECT> {
-    private val created = AtomicBoolean(false)
-
     override val currentState: STATE
         get() = actual.currentState
 
     override val orbit: Stream<STATE>
         get() = object : Stream<STATE> {
             override fun observe(lambda: (STATE) -> Unit): Stream.Closeable {
-                runOnCreate()
-                return actual.orbit.observe(lambda)
+                return actual.orbit.observe {
+                    savedStateHandle[Container.SAVED_STATE_KEY] = it
+                    lambda(it)
+                }
             }
         }
+
     override val sideEffect: Stream<SIDE_EFFECT>
-        get() = object : Stream<SIDE_EFFECT> {
-            override fun observe(lambda: (SIDE_EFFECT) -> Unit): Stream.Closeable {
-                runOnCreate()
-                return actual.sideEffect.observe(lambda)
-            }
-        }
+        get() = actual.sideEffect
 
     override fun <EVENT : Any> orbit(
         event: EVENT,
         init: Builder<STATE, SIDE_EFFECT, EVENT>.() -> Builder<STATE, SIDE_EFFECT, *>
-    ) = runOnCreate().also { actual.orbit(event, init) }
-
-    private fun runOnCreate() {
-        if (created.compareAndSet(false, true)) {
-            onCreate()
-        }
-    }
+    ) = actual.orbit(event, init)
 }
