@@ -25,6 +25,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
 internal class RxJava2PluginDslThreadingTest {
@@ -73,7 +74,7 @@ internal class RxJava2PluginDslThreadingTest {
 
         middleware.maybeNot(action)
 
-        testStreamObserver.awaitCount(1)
+        middleware.latch.await()
         Assertions.assertThat(middleware.threadName).startsWith("IO")
     }
 
@@ -113,6 +114,7 @@ internal class RxJava2PluginDslThreadingTest {
                 .asCoroutineDispatcher()
         )
         lateinit var threadName: String
+        val latch = CountDownLatch(1)
 
         fun single(action: Int) = orbit(action) {
             transformRx2Single {
@@ -138,6 +140,7 @@ internal class RxJava2PluginDslThreadingTest {
             transformRx2Maybe {
                 Maybe.empty<Int>()
                     .doOnSubscribe { threadName = Thread.currentThread().name }
+                    .doOnSubscribe { latch.countDown() }
             }
                 .reduce {
                     state.copy(id = event)
