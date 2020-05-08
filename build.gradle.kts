@@ -15,6 +15,8 @@
  */
 
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.novoda.gradle.release.PublishExtension
+import com.novoda.gradle.release.ReleasePlugin
 
 buildscript {
     repositories {
@@ -25,6 +27,7 @@ buildscript {
     dependencies {
         classpath(PluginDependencies.android)
         classpath(PluginDependencies.kotlin)
+        classpath("com.novoda:bintray-release:${Versions.novodaBintrayRelease}")
     }
 }
 
@@ -53,7 +56,16 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
     resolutionStrategy {
         componentSelection {
             all {
-                fun isNonStable(version: String) = listOf("alpha", "beta", "rc", "cr", "m", "preview", "b", "ea").any { qualifier ->
+                fun isNonStable(version: String) = listOf(
+                    "alpha",
+                    "beta",
+                    "rc",
+                    "cr",
+                    "m",
+                    "preview",
+                    "b",
+                    "ea"
+                ).any { qualifier ->
                     version.matches(Regex("(?i).*[.-]$qualifier[.\\d-+]*"))
                 }
                 if (isNonStable(candidate.version) && !isNonStable(currentVersion)) {
@@ -62,4 +74,51 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
             }
         }
     }
+}
+
+subprojects.forEach { project ->
+    project.plugins.withId("org.jetbrains.kotlin.jvm") {
+        configurePub(project)
+    }
+    project.plugins.withId("org.jetbrains.kotlin.android") {
+        configurePub(project)
+    }
+}
+
+fun configurePub(project: Project) {
+    val tag = System.getenv("VERSION_TAG") ?: System.getProperty("VERSION_TAG")
+
+    val split = tag?.split(":")
+    val tagName = split?.get(0)
+    val tagVersion = split?.get(1)
+
+    val apply = when (tagName) {
+        "orbit-2" -> project.name.startsWith(tagName)
+        "orbit" -> project.name.startsWith(tagName) && !project.name.startsWith("orbit-2")
+        else -> false
+    }
+
+    if (apply) {
+        project.apply<ReleasePlugin>()
+        project.configure<PublishExtension> {
+            bintrayUser = System.getenv("BINTRAY_USER")
+                ?: System.getProperty("BINTRAY_USER") ?: "unknown"
+            bintrayKey = System.getenv("BINTRAY_KEY") ?: System.getProperty(
+                "BINTRAY_KEY"
+            ) ?: "unknown"
+
+            groupId = if (tagName == "orbit-2") "com.babylon.orbit2" else "com.babylon.orbit"
+            artifactId = project.name
+            publishVersion = tagVersion
+
+            repoName = "maven"
+            userOrg = "babylonpartners"
+            desc = "Orbit MVI for Kotlin and Android"
+            website = "https://github.com/babylonhealth/orbit-mvi"
+            setLicences("Apache-2.0")
+
+            dryRun = false
+        }
+    }
+
 }
