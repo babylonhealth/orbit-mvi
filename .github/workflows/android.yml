@@ -23,6 +23,12 @@ jobs:
       with:
         java-version: 1.8
 
+    - name: Detekt
+      run: ./gradlew detekt
+
+    - name: Lint
+      run: ./gradlew lint
+
     - name: Unit tests
       run: ./gradlew jacocoTestReport
 
@@ -32,12 +38,6 @@ jobs:
       with:
         name: test-results
         path: '**/build/reports/tests/**'
-
-    - name: Detekt
-      run: ./gradlew detekt
-
-    - name: Lint
-      run: ./gradlew lint
 
     - name: Build
       run: ./gradlew assemble
