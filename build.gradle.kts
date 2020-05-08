@@ -120,5 +120,4 @@ fun configurePub(project: Project) {
             dryRun = false
         }
     }
-
 }
