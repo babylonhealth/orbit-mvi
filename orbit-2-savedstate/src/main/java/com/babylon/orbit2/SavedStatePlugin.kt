@@ -32,8 +32,7 @@ fun <STATE : Any, SIDE_EFFECT : Any> Container.Companion.create(
     val realContainer: Container<STATE, SIDE_EFFECT> =
         when {
             savedState != null -> create(savedState)
-            onCreate != null -> create(initialState, settings, onCreate)
-            else -> create(initialState, settings)
+            else -> create(initialState, settings, onCreate)
         }
     return SavedStateContainerDecorator(
         realContainer,

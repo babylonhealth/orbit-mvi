@@ -19,9 +19,9 @@ package com.babylon.orbit2
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.jupiter.api.Test
 
-class TestTest {
+class OrbitTestingTest {
     @Test
-    fun `newDSLTestTest`() {
+    fun `basic test`() {
 
         val mockDependency = mock<BogusDependency>()
         val testSubject = MyClass(mockDependency)
@@ -36,6 +36,7 @@ class TestTest {
             states(
                 { copy(verified = true) }
             )
+
             loopBack { somethingElse("true") }
         }
     }
@@ -46,14 +47,10 @@ class TestTest {
         fun stub()
     }
 
-    private class MyClass(private val dependency: BogusDependency) :
-        Host<State, Nothing> {
-        override val container =
-            Container.create<State, Nothing>(
-                State()
-            ) {
-                created()
-            }
+    private class MyClass(private val dependency: BogusDependency) : Host<State, Nothing> {
+        override val container = Container.create<State, Nothing>(State()) {
+            created()
+        }
 
         fun created() {
             dependency.stub()
@@ -64,41 +61,21 @@ class TestTest {
             transform {
                 event.toString()
             }
-//            .transformRxJava2Observable {
-//                Observable.just(event, "true", "false", "true", "false")
-//            }
-//            .transformSuspend {
-//                delay(1000)
-//                event
-//            }
-//            .transformFlow {
-//                delay(1000)
-//                event
-//            }
                 .reduce {
-                    // println("${event::class}, $state")
                     state.copy(verified = event.toBoolean())
                 }
                 .sideEffect {
-                    print("${event::class}, $state")
+                    println("${event::class}, $state")
                 }
                 .sideEffect {
                     somethingElse(event)
                 }
-//            .sideEffect {
-//                if(state.verified)
-//                    something(false)
-//            }
         }
 
         fun somethingElse(action: String) = orbit(action) {
             sideEffect {
-                print("something else $event")
+                println("something else $event")
             }
-        }
-
-        private fun print(string: String) {
-            println(string)
         }
     }
 }

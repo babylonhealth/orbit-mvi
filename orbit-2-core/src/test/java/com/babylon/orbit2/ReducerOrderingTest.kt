@@ -69,7 +69,7 @@ internal class ReducerOrderingTest {
                 )
             )
 
-            for (i in 0 until 19) {
+            for (i in 0 until 1119) {
                 val value = (i % 3)
                 expectedStates.add(
                     expectedStates.last().copy(ids = expectedStates.last().ids + (value + 1))
@@ -81,10 +81,10 @@ internal class ReducerOrderingTest {
                     2 -> middleware.three()
                     else -> throw IllegalStateException("misconfigured test")
                 }
-                delay(30) // delay to circumvent conflation
+//                delay(30) // delay to circumvent conflation
             }
 
-            testStateObserver.awaitCount(20)
+            testStateObserver.awaitCount(1120)
 
             assertThat(testStateObserver.values).containsExactlyElementsOf(expectedStates)
         }

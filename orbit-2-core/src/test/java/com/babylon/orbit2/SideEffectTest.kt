@@ -18,8 +18,6 @@ package com.babylon.orbit2
 
 import com.appmattus.kotlinfixture.kotlinFixture
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
@@ -41,7 +39,6 @@ internal class SideEffectTest {
             )
     }
 
-    @DisplayName("Side effects are multicast to all current observers by default")
     @ParameterizedTest(name = "Caching is {0}")
     @ArgumentsSource(MulticastTestCases::class)
     fun `side effects are multicast to all current observers by default`(caching: Boolean?) {
@@ -60,6 +57,7 @@ internal class SideEffectTest {
 
         testSideEffectObserver1.awaitCount(3)
         testSideEffectObserver2.awaitCount(3)
+        testSideEffectObserver3.awaitCount(3)
 
         assertThat(testSideEffectObserver1.values).containsExactly(action, action2, action3)
         assertThat(testSideEffectObserver2.values).containsExactly(action, action2, action3)
@@ -74,7 +72,6 @@ internal class SideEffectTest {
             )
     }
 
-    @DisplayName("when caching is turned on side effects are cached when there are no subscribers")
     @ParameterizedTest(name = "Caching is {0}")
     @ArgumentsSource(CachingOnTestCases::class)
     fun `when caching is turned on side effects are cached when there are no subscribers`(caching: Boolean?) {
@@ -117,7 +114,6 @@ internal class SideEffectTest {
         assertThat(testSideEffectObserver1.values).isEmpty()
     }
 
-    @DisplayName("when caching is turned on only new side effects are emitted when resubscribing")
     @ParameterizedTest(name = "Caching is {0}")
     @ArgumentsSource(CachingOnTestCases::class)
     fun `when caching is turned on only new side effects are emitted when resubscribing`(caching: Boolean?) {
@@ -143,10 +139,28 @@ internal class SideEffectTest {
         assertThat(testSideEffectObserver2.values).containsExactly(action2, action3)
     }
 
-    @Test
-    @Disabled
-    fun `Cached side effects are guaranteed to be delivered to the first observer`() {
-        TODO("Fill this in when caching works properly")
+    @ParameterizedTest(name = "Caching is {0}")
+    @ArgumentsSource(CachingOnTestCases::class)
+    fun `when caching is turned on new subscribers do not get updates if there is already a sub`(
+        caching: Boolean?
+    ) {
+        val action = fixture<Int>()
+        val action2 = fixture<Int>()
+        val action3 = fixture<Int>()
+        val middleware = Middleware(caching)
+
+        val testSideEffectObserver1 = middleware.container.sideEffect.test()
+
+        middleware.someFlow(action)
+        middleware.someFlow(action2)
+        middleware.someFlow(action3)
+
+        testSideEffectObserver1.awaitCount(3)
+
+        val testSideEffectObserver2 = middleware.container.sideEffect.test()
+
+        assertThat(testSideEffectObserver1.values).containsExactly(action, action2, action3)
+        assertThat(testSideEffectObserver2.values).isEmpty()
     }
 
     private class Middleware(caching: Boolean? = null) : Host<Unit, Int> {

@@ -23,10 +23,14 @@ import java.util.concurrent.CountDownLatch
 
 internal class BaseDslThreadingTest {
 
+    companion object {
+        const val EXPECTED_THREAD_PREFIX = "orbit"
+    }
+
     private val fixture = kotlinFixture()
 
     @Test
-    fun `reducer executes on orbit thread`() {
+    fun `reducer executes on orbit dispatcher`() {
         val action = fixture<Int>()
 
         val middleware =
@@ -36,11 +40,11 @@ internal class BaseDslThreadingTest {
         middleware.reducer(action)
 
         testStreamObserver.awaitCount(2)
-        assertThat(middleware.threadName).startsWith("orbit")
+        assertThat(middleware.threadName).startsWith(EXPECTED_THREAD_PREFIX)
     }
 
     @Test
-    fun `transformer executes on orbit thread`() {
+    fun `transformer executes on orbit dispatcher`() {
         val action = fixture<Int>()
 
         val middleware =
@@ -50,11 +54,11 @@ internal class BaseDslThreadingTest {
         middleware.transformer(action)
 
         testStreamObserver.awaitCount(2)
-        assertThat(middleware.threadName).startsWith("orbit")
+        assertThat(middleware.threadName).startsWith(EXPECTED_THREAD_PREFIX)
     }
 
     @Test
-    fun `posting side effects executes on orbit thread`() {
+    fun `posting side effects executes on orbit dispatcher`() {
         val action = fixture<Int>()
 
         val middleware =
@@ -64,11 +68,11 @@ internal class BaseDslThreadingTest {
         middleware.postingSideEffect(action)
 
         testStreamObserver.awaitCount(1)
-        assertThat(middleware.threadName).startsWith("orbit")
+        assertThat(middleware.threadName).startsWith(EXPECTED_THREAD_PREFIX)
     }
 
     @Test
-    fun `side effect executes on orbit thread`() {
+    fun `side effect executes on orbit dispatcher`() {
         val action = fixture<Int>()
 
         val middleware =
@@ -78,13 +82,12 @@ internal class BaseDslThreadingTest {
 
         middleware.latch.await()
 
-        assertThat(middleware.threadName).startsWith("orbit")
+        assertThat(middleware.threadName).startsWith(EXPECTED_THREAD_PREFIX)
     }
 
     private data class TestState(val id: Int)
 
-    private class BaseDSLMiddleware :
-        Host<TestState, String> {
+    private class BaseDSLMiddleware : Host<TestState, String> {
         override val container = Container.create<TestState, String>(
             TestState(42)
         )

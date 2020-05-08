@@ -38,8 +38,7 @@ import java.util.concurrent.Executors
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     settings: Container.Settings,
-    orbitDispatcher: CoroutineDispatcher =
-        Executors.newSingleThreadExecutor { Thread(it, "orbit") }.asCoroutineDispatcher(),
+    orbitDispatcher: CoroutineDispatcher = DEFAULT_DISPATCHER,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Container<STATE, SIDE_EFFECT> {
     override val currentState: STATE
@@ -106,5 +105,11 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                     ) { RealContext(currentState, it) }
                 }
             }.collect()
+    }
+
+    companion object {
+        private val DEFAULT_DISPATCHER by lazy {
+            Executors.newSingleThreadExecutor { Thread(it, "orbit") }.asCoroutineDispatcher()
+        }
     }
 }

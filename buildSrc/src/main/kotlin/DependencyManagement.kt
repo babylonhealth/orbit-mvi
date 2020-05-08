@@ -29,6 +29,7 @@ object Versions {
 
     const val androidLifecycles = "2.2.0"
     const val androidLifecyclesSavedState = "2.2.0"
+    const val androidXTesting = "2.1.0"
     const val androidAppCompat = "1.1.0"
     const val androidConstrainLayout = "1.1.3"
     const val androidMaterial = "1.1.0-rc02"
@@ -62,8 +63,6 @@ object ProjectDependencies {
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val kotlinCoroutinesRx2 =
         "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${Versions.coroutines}"
-    const val kotlinCoroutinesAndroid =
-        "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val kotlinCoroutineExtensions =
         "com.github.akarnokd:kotlin-flow-extensions:${Versions.coroutineExtensions}"
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
@@ -106,6 +105,8 @@ object ProjectDependencies {
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
 
     // Test prerequisites
+    const val androidXTesting =
+        "androidx.arch.core:core-testing:${Versions.androidXTesting}"
     const val spekDsl = "org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}"
     const val spekRunner = "org.spekframework.spek2:spek-runner-junit5:${Versions.spek}"
     const val junitPlatformConsole =
@@ -114,8 +115,6 @@ object ProjectDependencies {
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val mockitoInline = "org.mockito:mockito-inline:${Versions.mockito}"
     const val kotlinFixture = "com.appmattus.fixture:fixture:${Versions.kotlinFixture}"
-
-    // Testing
     const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitRuntime}"
     const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitRuntime}"
     const val junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junitRuntime}"
