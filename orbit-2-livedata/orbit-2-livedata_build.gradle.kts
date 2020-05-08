@@ -58,8 +58,6 @@ dependencies {
     implementation(project(":orbit-2-core"))
 
     implementation(ProjectDependencies.androidLifecycleComponents)
-    implementation(ProjectDependencies.androidLifecycleSavedState)
-    kapt(ProjectDependencies.androidLifecycleCompiler)
 
     // Testing
     testImplementation(project(":orbit-2-test"))

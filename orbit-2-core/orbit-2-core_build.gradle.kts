@@ -29,9 +29,6 @@ dependencies {
     implementation(ProjectDependencies.kotlinCoroutines)
     implementation(ProjectDependencies.kotlinCoroutineExtensions)
 
-    implementation(ProjectDependencies.mockitoKotlin)
-    implementation(ProjectDependencies.kotlinTest)
-
     // Testing
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
     GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
