@@ -86,14 +86,15 @@ subprojects.forEach { project ->
 }
 
 fun configurePub(project: Project) {
-    val tag = System.getenv("VERSION_TAG") ?: System.getProperty("VERSION_TAG")
+    val tag = (System.getenv("GITHUB_REF") ?: System.getProperty("GITHUB_REF"))
+        ?.replaceFirst("refs/tags/", "")
 
     val split = tag?.split("/")
     val tagName = split?.get(0)
     val tagVersion = split?.get(1)
 
     val apply = when (tagName) {
-        "orbit-2" -> project.name.startsWith(tagName)
+        "orbit2" -> project.name.startsWith("orbit-2")
         "orbit" -> project.name.startsWith(tagName) && !project.name.startsWith("orbit-2")
         else -> false
     }
@@ -107,7 +108,7 @@ fun configurePub(project: Project) {
                 "BINTRAY_KEY"
             ) ?: "unknown"
 
-            groupId = if (tagName == "orbit-2") "com.babylon.orbit2" else "com.babylon.orbit"
+            groupId = if (tagName == "orbit2") "com.babylon.orbit2" else "com.babylon.orbit"
             artifactId = project.name
             publishVersion = tagVersion
 
@@ -117,7 +118,7 @@ fun configurePub(project: Project) {
             website = "https://github.com/babylonhealth/orbit-mvi"
             setLicences("Apache-2.0")
 
-            dryRun = false
+            dryRun = true
         }
     }
 }
