@@ -83,7 +83,6 @@ internal class SideEffectTest {
         middleware.someFlow(action)
         middleware.someFlow(action2)
         middleware.someFlow(action3)
-        Thread.sleep(100L) // TODO fix this
 
         val testSideEffectObserver1 = middleware.container.sideEffect.test()
 
@@ -98,20 +97,19 @@ internal class SideEffectTest {
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
         val middleware = Middleware(false)
-
-        println("$action $action2 $action3")
+        val testSideEffectObserver1 = middleware.container.sideEffect.test()
 
         middleware.someFlow(action)
         middleware.someFlow(action2)
         middleware.someFlow(action3)
+        testSideEffectObserver1.awaitCount(3)
+        testSideEffectObserver1.close()
 
-        Thread.sleep(100L) // TODO fix this
-
-        val testSideEffectObserver1 = middleware.container.sideEffect.test()
+        val testSideEffectObserver2 = middleware.container.sideEffect.test()
 
         testSideEffectObserver1.awaitCount(3, 10L)
 
-        assertThat(testSideEffectObserver1.values).isEmpty()
+        assertThat(testSideEffectObserver2.values).isEmpty()
     }
 
     @ParameterizedTest(name = "Caching is {0}")

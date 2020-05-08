@@ -38,13 +38,6 @@ Things to verify:
 5. No other interactions
  */
 
-fun <STATE : Any, SIDE_EFFECT : Any> Container.Companion.createTest(
-    initialState: STATE,
-    isolateFlow: Boolean = true
-): Container<STATE, SIDE_EFFECT> {
-    return TestContainer(initialState, isolateFlow)
-}
-
 fun <STATE : Any, SIDE_EFFECT : Any, T : Host<STATE, SIDE_EFFECT>> T.testSpy(
     initialState: STATE,
     isolateFlow: Boolean
@@ -176,19 +169,6 @@ class OrbitVerification<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFEC
  * Helper function for asserting orbit state sequences. It applies the reductions specified in `nextState` in a cumulative way, based on
  * successive states.
  *
- * Usage:
- *
- * ```
- * testStateObserver.assertStateSequence(inOrder = true) {
- *     nextState { TestState() },
- *     nextState { previousState.copy(label = previousState.label + "baz") },
- *     nextState { previousState.copy(label = previousState.label + "bar") },
- *     nextState { previousState.copy(index = 3) }
- * }
- *```
- *
- * The first state provided cannot refer to the previous state because none exists at that point and will throw an exception if used.
- *
  * Fails assertions:
  *
  * - When more or less states have been emitted than expected
@@ -198,11 +178,6 @@ class OrbitVerification<HOST : Host<STATE, SIDE_EFFECT>, STATE : Any, SIDE_EFFEC
  * It is recommended to always use the ordered mode unless we cannot guarantee the order in which the states are emitted.
  *
  * Once an assertion-reduction is satisfied it is removed from further consideration.
- *
- * See `documentation/testing/testing-strategy/middleware-testing.md#assertions`.
- *
- * @param inOrder Whether the assertions should be evaluated in top-to-bottom order or in any order.
- * @param timeoutMillis How long to wait for the desired number of states to be emitted before continuing.
  */
 private tailrec fun <T : Any> assertStatesInOrder(
     values: List<T>,
@@ -225,7 +200,7 @@ private tailrec fun <T : Any> assertStatesInOrder(
         )
         assertions.isNotEmpty() -> {
             val assertion = assertions.first()
-            val expectedState = previousState?.assertion()
+            val expectedState = previousState.assertion()
 
             if (expectedState == previousState) {
                 // Assertion already satisfied by previous state, drop the assertion and continue the checks in case it was deduplicated by orbit

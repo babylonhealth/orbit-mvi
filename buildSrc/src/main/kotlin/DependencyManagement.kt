@@ -43,8 +43,6 @@ object Versions {
     const val rxKotlin = "2.4.0"
     const val rxAndroid = "2.1.1"
 
-    const val timber = "4.7.1"
-
     const val groupie = "2.7.2"
 
     // Testing
@@ -100,9 +98,6 @@ object ProjectDependencies {
 
     const val detektFormatting =
         "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detektPlugin}"
-
-    // Debugging tools
-    const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
 
     // Test prerequisites
     const val androidXTesting =

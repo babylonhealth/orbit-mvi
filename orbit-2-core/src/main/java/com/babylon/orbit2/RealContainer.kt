@@ -39,7 +39,7 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     settings: Container.Settings,
     orbitDispatcher: CoroutineDispatcher = DEFAULT_DISPATCHER,
-    private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
+    backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Container<STATE, SIDE_EFFECT> {
     override val currentState: STATE
         get() = stateChannel.value

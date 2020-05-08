@@ -16,7 +16,6 @@
 
 package com.babylon.orbit2
 
-// TODO State here should probably be a lambda
 interface Context<S : Any, E : Any> {
     val state: S
     val event: E

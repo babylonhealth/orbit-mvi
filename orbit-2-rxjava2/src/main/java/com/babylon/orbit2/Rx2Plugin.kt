@@ -128,7 +128,7 @@ object RxJava2Plugin : OrbitPlugin {
     }
 }
 
-fun <T> Stream<T>.asRx() =
+fun <T> Stream<T>.asRxObservable() =
     Observable.create<T> { emitter ->
         val closeable = observe {
             if (!emitter.isDisposed) {

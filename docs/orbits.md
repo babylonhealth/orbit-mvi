@@ -144,14 +144,14 @@ OrbitViewModel<State, SideEffect>(State(), {
     perform("side effect straight on the incoming action")
         .on<SomeAction>()
         .sideEffect {
-            Timber.log(currentState)
-            Timber.log(event)
+            Log.i(currentState)
+            Log.i(event)
         }
 
     perform("side effect after transformation")
         .on<OtherAction>()
         .transform { eventObservable.compose(getRandomNumberUseCase) }
-        .sideEffect { Timber.log(event) }
+        .sideEffect { Log.i(event) }
 
     perform("post side effect after transformation")
         .on<YetAnotherAction>()

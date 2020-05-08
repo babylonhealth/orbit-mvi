@@ -70,8 +70,6 @@ dependencies {
     implementation(ProjectDependencies.rxKotlin)
     implementation(ProjectDependencies.rxAndroid)
 
-    implementation(ProjectDependencies.timber)
-
     implementation(ProjectDependencies.groupie)
     implementation(ProjectDependencies.groupieKotlinAndroidExtensions)
 
