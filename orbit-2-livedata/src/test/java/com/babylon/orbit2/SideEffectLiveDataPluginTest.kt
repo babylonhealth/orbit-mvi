@@ -209,10 +209,10 @@ internal class SideEffectLiveDataPluginTest {
         testSideEffectObserver1.awaitCount(1)
         testSideEffectObserver1.close()
 
+        val testSideEffectObserver2 = liveData.test(mockLifecycleOwner)
+
         middleware.someFlow(action2)
         middleware.someFlow(action3)
-
-        val testSideEffectObserver2 = liveData.test(mockLifecycleOwner)
         testSideEffectObserver2.awaitCount(2)
 
         assertThat(testSideEffectObserver1.values).containsExactly(action)
@@ -263,11 +263,11 @@ internal class SideEffectLiveDataPluginTest {
         testSideEffectObserver1.awaitCount(1)
         testSideEffectObserver1.close()
 
-        middleware.someFlow(action2)
-        middleware.someFlow(action3)
-
         val testSideEffectObserver2 =
             middleware.container.sideEffect.asLiveData().test(mockLifecycleOwner)
+
+        middleware.someFlow(action2)
+        middleware.someFlow(action3)
         testSideEffectObserver2.awaitCount(2)
 
         assertThat(testSideEffectObserver1.values).containsExactly(action)
