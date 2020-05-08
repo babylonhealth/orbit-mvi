@@ -88,7 +88,7 @@ subprojects.forEach { project ->
 fun configurePub(project: Project) {
     val tag = System.getenv("VERSION_TAG") ?: System.getProperty("VERSION_TAG")
 
-    val split = tag?.split(":")
+    val split = tag?.split("/")
     val tagName = split?.get(0)
     val tagVersion = split?.get(1)
 

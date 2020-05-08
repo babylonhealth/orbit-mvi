@@ -31,7 +31,7 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: test-results
-        path: orbit/build/reports/tests/test
+        path: '**/build/reports/tests/**'
 
     - name: Detekt
       run: ./gradlew detekt
