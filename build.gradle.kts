@@ -118,7 +118,7 @@ fun configurePub(project: Project) {
             website = "https://github.com/babylonhealth/orbit-mvi"
             setLicences("Apache-2.0")
 
-            dryRun = true
+            dryRun = false
         }
     }
 }
