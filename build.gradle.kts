@@ -109,7 +109,7 @@ fun configurePub(project: Project) {
             ) ?: "unknown"
 
             groupId = if (tagName == "orbit2") "com.babylon.orbit2" else "com.babylon.orbit"
-            artifactId = project.name
+            artifactId = project.name.replace("2-", "")
             publishVersion = tagVersion
 
             repoName = "maven"
