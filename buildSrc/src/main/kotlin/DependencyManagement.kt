@@ -23,12 +23,10 @@ object Versions {
     const val bintray = "1.8.5"
 
     const val kotlin = "1.3.72"
-    const val coroutines = "1.3.8"
 
     const val androidxLifecycles = "2.2.0"
     const val androidxLifecyclesSavedState = "2.2.0"
     const val androidxAnnotation = "1.1.0"
-    const val androidxTesting = "2.1.0"
     const val androidxAppCompat = "1.1.0"
     const val androidxConstrainLayout = "1.1.3"
     const val androidMaterial = "1.1.0"
@@ -57,11 +55,6 @@ object Versions {
 object ProjectDependencies {
     // Kotlin
     const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
-    const val kotlinCoroutines =
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
-    const val kotlinCoroutinesRx2 =
-        "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${Versions.coroutines}"
-    const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
 
     // AndroidX
     const val androidxAppCompat = "androidx.appcompat:appcompat:${Versions.androidxAppCompat}"
@@ -100,8 +93,6 @@ object ProjectDependencies {
         "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detektPlugin}"
 
     // Test prerequisites
-    const val androidXTesting =
-        "androidx.arch.core:core-testing:${Versions.androidxTesting}"
     const val spekDsl = "org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}"
     const val spekRunner = "org.spekframework.spek2:spek-runner-junit5:${Versions.spek}"
     const val junitPlatformConsole =
@@ -133,15 +124,6 @@ object GroupedDependencies {
         ProjectDependencies.mockitoKotlin,
         ProjectDependencies.mockitoInline,
         ProjectDependencies.kotlinFixture
-    )
-    val testsImplementationJUnit5 = listOf(
-        ProjectDependencies.junitPlatformConsole,
-        ProjectDependencies.junitJupiterApi,
-        ProjectDependencies.junitJupiterParams,
-        ProjectDependencies.mockitoKotlin,
-        ProjectDependencies.mockitoInline,
-        ProjectDependencies.kotlinFixture,
-        ProjectDependencies.assertJ
     )
 
     val testsRuntime = listOf(
