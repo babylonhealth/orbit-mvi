@@ -44,14 +44,16 @@ Orbit supports using various async/stream frameworks at the same time so it is
 perfect for legacy codebases. For example, it can support both RxJava 2 and
 coroutines if you are in the process of migrating from one to the other.
 
-At the very least you will need the `orbit-core` module to get started.
+At the very least you will need the `orbit-core` module to get started,
+alternatively include one of the other modules which already include
+`orbit-core`.
 
 ```kotlin
-implementation("com.babylon.orbit2:orbit-core:<latest-version>") // mandatory
+implementation("com.babylon.orbit2:orbit-core:<latest-version>")
 implementation("com.babylon.orbit2:orbit-coroutines:<latest-version>")
 implementation("com.babylon.orbit2:orbit-rxjava2:<latest-version>")
 implementation("com.babylon.orbit2:orbit-livedata:<latest-version>")
-implementation("com.babylon.orbit2:orbit-savedstate:<latest-version>")
+implementation("com.babylon.orbit2:orbit-viewmodel:<latest-version>")
 
 testImplementation("com.babylon.orbit2:orbit-test:<latest-version>")
 ```
@@ -64,13 +66,19 @@ For detailed documentation, see:
 - [Coroutines](orbit-2-coroutines/README.md)
 - [RxJava 2](orbit-2-rxjava2/README.md)
 - [LiveData](orbit-2-livedata/README.md)
-- [Saved state](orbit-2-savedstate/README.md)
+- [ViewModel](orbit-2-viewmodel/README.md)
 - [Test](orbit-2-test/README.md)
 
 ## Creating a simple Orbit 2 ViewModel
 
 Using the core Orbit functionality, we can create a simple, functional
 ViewModel.
+
+### Include the dependencies
+
+```kotlin
+implementation("com.babylon.orbit2:orbit-viewmodel:<latest-version>")
+```
 
 ### Define the contract
 
@@ -97,7 +105,7 @@ Next, we can define the ViewModel.
 1. Implement the
    [ContainerHost](orbit-2-core/src/main/java/com/babylon/orbit2/ContainerHost.kt)
    interface
-1. Override the `container` field and use the `Container.create` factory
+1. Override the `container` field and use the `ViewModel.container` factory
    function to build an Orbit
    [Container](orbit-2-core/src/main/java/com/babylon/orbit2/Container.kt) in
    your
@@ -106,7 +114,8 @@ Next, we can define the ViewModel.
 ``` kotlin
 class CalculatorViewModel: ContainerHost<CalculatorState, CalculatorSideEffect>, ViewModel() {
 
-    override val container = Container.create<CalculatorState, CalculatorSideEffect>(CalculatorState())
+    // Include `orbit-viewmodel` for the factory function
+    override val container = container<CalculatorState, CalculatorSideEffect>(CalculatorState())
 
     fun add(number: Int) = orbit {
         sideEffect {

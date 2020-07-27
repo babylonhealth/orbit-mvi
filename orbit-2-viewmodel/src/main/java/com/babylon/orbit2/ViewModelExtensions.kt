@@ -19,10 +19,10 @@ package com.babylon.orbit2
 import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.babylon.orbit2.Container.Settings
 
-internal val Container.Companion.SAVED_STATE_KEY
-    get() = "state"
+internal const val SAVED_STATE_KEY = "state"
 
 /**
  * Allows you to used the Android ViewModel's saved state support.
@@ -39,21 +39,25 @@ internal val Container.Companion.SAVED_STATE_KEY
  * executed in a lazy manner after the container has been interacted with in any way.
  * @return A [Container] implementation
  */
-fun <STATE : Parcelable, SIDE_EFFECT : Any> Container.Companion.createWithSavedState(
+fun <STATE : Parcelable, SIDE_EFFECT : Any> ViewModel.container(
     initialState: STATE,
-    savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle? = null,
     settings: Settings = Settings(),
     onCreate: (() -> Unit)? = null
 ): Container<STATE, SIDE_EFFECT> {
-    val savedState: STATE? = savedStateHandle[SAVED_STATE_KEY]
+    return if (savedStateHandle == null) {
+        viewModelScope.container(initialState, settings, onCreate)
+    } else {
+        val savedState: STATE? = savedStateHandle[SAVED_STATE_KEY]
 
-    val realContainer: Container<STATE, SIDE_EFFECT> =
-        when {
-            savedState != null -> create(savedState)
-            else -> create(initialState, settings, onCreate)
-        }
-    return SavedStateContainerDecorator(
-        realContainer,
-        savedStateHandle
-    )
+        val realContainer: Container<STATE, SIDE_EFFECT> =
+            when {
+                savedState != null -> viewModelScope.container(savedState)
+                else -> viewModelScope.container(initialState, settings, onCreate)
+            }
+        SavedStateContainerDecorator(
+            realContainer,
+            savedStateHandle
+        )
+    }
 }

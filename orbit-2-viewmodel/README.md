@@ -50,8 +50,8 @@ val viewModelModule = module {
 private val viewModel by stateViewModel<TodoViewModel>()
 
 // Pass the SavedStateHandle to  your ViewModel
-class ExampleViewModel(savedStateHandle: SavedStateHandle) : ContainerHost<ExampleState, Nothing> {
-    override val container: Container<ExampleState, Nothing> = Container.createWithSavedState(
+class ExampleViewModel(savedStateHandle: SavedStateHandle) : ContainerHost<ExampleState, Nothing>, ViewModel() {
+    override val container = container<ExampleState, Nothing>(
         ExampleState(),
         savedStateHandle
     )

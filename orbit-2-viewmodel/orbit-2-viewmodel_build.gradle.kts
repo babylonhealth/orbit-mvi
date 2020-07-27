@@ -24,9 +24,10 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(ProjectDependencies.kotlinCoroutines)
 
-    implementation(project(":orbit-2-core"))
+    api(project(":orbit-2-core"))
 
     implementation(ProjectDependencies.androidxLifecycleSavedState)
+    implementation(ProjectDependencies.androidxLifecycleKtx)
 
     // Testing
     testImplementation(project(":orbit-2-test"))

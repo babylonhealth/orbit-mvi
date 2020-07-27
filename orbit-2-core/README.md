@@ -132,7 +132,7 @@ sealed class ExampleSideEffect {
 }
 
 class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect>, ViewModel() {
-    override val container = Container.create<ExampleState, ExampleSideEffect>(ExampleState())
+    override val container = container<ExampleState, ExampleSideEffect>(ExampleState())
 
     fun example(number: Int) = orbit {
        transform {
@@ -268,8 +268,8 @@ class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect> {
 
 ``` kotlin
 perform("Toast the current state")
-class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect> {
-    override val container = Container.create<ExampleState, ExampleSideEffect>(ExampleState()) {
+class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect>, ViewModel() {
+    override val container = container<ExampleState, ExampleSideEffect>(ExampleState()) {
         onCreate()
     }
 

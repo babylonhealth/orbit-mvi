@@ -16,6 +16,8 @@
 
 package com.babylon.orbit2
 
+import kotlinx.coroutines.CoroutineScope
+
 /**
  * The heart of the Orbit MVI system. Represents an MVI container with its input and outputs.
  * You can manipulate the container through the [orbit] function
@@ -55,28 +57,6 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     companion object {
-        /**
-         * Helps create a concrete container in a standard way.
-         *
-         * @param initialState The initial state of the container.
-         * @param settings The [Settings] to set the container up with.
-         * @param onCreate The lambda to execute when the container is created. By default it is
-         * executed in a lazy manner when the container is first interacted with in any way.
-         * @return A [Container] implementation
-         */
-        fun <STATE : Any, SIDE_EFFECT : Any> create(
-            initialState: STATE,
-            settings: Settings = Settings(),
-            onCreate: (() -> Unit)? = null
-        ): Container<STATE, SIDE_EFFECT> =
-            if (onCreate == null) {
-                RealContainer(initialState, settings)
-            } else {
-                LazyCreateContainerDecorator(
-                    RealContainer(initialState, settings),
-                    onCreate
-                )
-            }
     }
 
     /**
@@ -90,3 +70,34 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
         val sideEffectCaching: Boolean = true
     )
 }
+
+/**
+ * Helps create a concrete container in a standard way.
+ *
+ * @param initialState The initial state of the container.
+ * @param settings The [Settings] to set the container up with.
+ * @param onCreate The lambda to execute when the container is created. By default it is
+ * executed in a lazy manner when the container is first interacted with in any way.
+ * @return A [Container] implementation
+ */
+fun <STATE : Any, SIDE_EFFECT : Any> CoroutineScope.container(
+    initialState: STATE,
+    settings: Container.Settings = Container.Settings(),
+    onCreate: (() -> Unit)? = null
+): Container<STATE, SIDE_EFFECT> =
+    if (onCreate == null) {
+        RealContainer(
+            initialState = initialState,
+            settings = settings,
+            parentScope = this
+        )
+    } else {
+        LazyCreateContainerDecorator(
+            RealContainer(
+                initialState = initialState,
+                settings = settings,
+                parentScope = this
+            ),
+            onCreate
+        )
+    }
