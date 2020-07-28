@@ -139,7 +139,7 @@ class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect>, ViewMod
           number.toString()
        }
          .sideEffect { post(ExampleSideEffect.Toast(event)) }
-         .reduce { currentState.copy(seen = currentState.seen + event) }
+         .reduce { state.copy(seen = state.seen + event) }
     }
 }
 ```
@@ -181,7 +181,7 @@ class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect> {
     ...
 
     fun example(number: Int) = orbit {
-        reduce { state.copy(currentState.total + number)}
+        reduce { state.copy(state.total + number)}
     }
 
     fun anotherExample(number: Int) = orbit {

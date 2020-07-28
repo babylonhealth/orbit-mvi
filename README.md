@@ -119,19 +119,19 @@ class CalculatorViewModel: ContainerHost<CalculatorState, CalculatorSideEffect>,
 
     fun add(number: Int) = orbit {
         sideEffect {
-            post(CalculatorSideEffect.Toast("Adding $number to ${currentState.total}!"))
+            post(CalculatorSideEffect.Toast("Adding $number to ${state.total}!"))
         }
             .reduce {
-                currentState.copy(total = currentState.total + number)
+                state.copy(total = state.total + number)
             }
     }
 
     fun subtract(number: Int) = orbit {
         sideEffect {
-            post(CalculatorSideEffect.Toast("Subtracting $number from ${currentState.total}!"))
+            post(CalculatorSideEffect.Toast("Subtracting $number from ${state.total}!"))
         }
             .reduce {
-                currentState.copy(total = currentState.total - number)
+                state.copy(total = state.total - number)
             }
     }
 }
@@ -150,23 +150,23 @@ of connecting via optional modules. For Android, the most convenient way to
 connect is via `LiveData`, as it manages subscription disposal automatically.
 
 ``` kotlin
-class CalculatorActivity: Activity() {
+class CalculatorActivity: AppCompatActivity() {
 
     // Example of injection using koin, your DI system might differ
     private val viewModel by viewModel<CalculatorViewModel>()
 
-    override fun onCreate() {
+    override fun onCreate(savedState: Bundle?) {
         ...
         addButton.setOnClickListener { viewModel.add(1234) }
         subtractButton.setOnClickListener { viewModel.subtract(1234) }
 
         // NOTE: Live data support is provided by the live data module:
         // com.babylon.orbit2:orbit-livedata
-        viewModel.stateLiveData.observe(this) { render(it) }
-        viewModel.sideEffectLiveData.observe(this) { handleSideEffect(it) }
+        viewModel.container.stateLiveData.observe(this, Observer { render(it) })
+        viewModel.container.sideEffectLiveData.observe(this, Observer { handleSideEffect(it) })
     }
 
-    private fun render(state: State) {
+    private fun render(state: CalculatorState) {
         ...
     }
 

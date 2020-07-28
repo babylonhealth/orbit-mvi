@@ -25,7 +25,25 @@ import com.babylon.orbit2.Container.Settings
 internal const val SAVED_STATE_KEY = "state"
 
 /**
- * Allows you to used the Android ViewModel's saved state support.
+ * Creates a container scoped with ViewModelScope.
+ *
+ * @param initialState The initial state of the container.
+ * @param settings The [Settings] to set the container up with.
+ * @param onCreate The lambda to execute when the container is created. By default it is
+ * executed in a lazy manner after the container has been interacted with in any way.
+ * @return A [Container] implementation
+ */
+fun <STATE : Any, SIDE_EFFECT : Any> ViewModel.container(
+    initialState: STATE,
+    settings: Settings = Settings(),
+    onCreate: (() -> Unit)? = null
+): Container<STATE, SIDE_EFFECT> {
+    return viewModelScope.container(initialState, settings, onCreate)
+}
+
+/**
+ * Creates a container scoped with ViewModelScope and allows you to used the
+ * Android ViewModel's saved state support.
  *
  * Provide a [SavedStateHandle] in order for your [Parcelable] state to be automatically saved as
  * you use the container.
@@ -41,23 +59,19 @@ internal const val SAVED_STATE_KEY = "state"
  */
 fun <STATE : Parcelable, SIDE_EFFECT : Any> ViewModel.container(
     initialState: STATE,
-    savedStateHandle: SavedStateHandle? = null,
+    savedStateHandle: SavedStateHandle,
     settings: Settings = Settings(),
     onCreate: (() -> Unit)? = null
 ): Container<STATE, SIDE_EFFECT> {
-    return if (savedStateHandle == null) {
-        viewModelScope.container(initialState, settings, onCreate)
-    } else {
-        val savedState: STATE? = savedStateHandle[SAVED_STATE_KEY]
+    val savedState: STATE? = savedStateHandle[SAVED_STATE_KEY]
 
-        val realContainer: Container<STATE, SIDE_EFFECT> =
-            when {
-                savedState != null -> viewModelScope.container(savedState)
-                else -> viewModelScope.container(initialState, settings, onCreate)
-            }
-        SavedStateContainerDecorator(
-            realContainer,
-            savedStateHandle
-        )
-    }
+    val realContainer: Container<STATE, SIDE_EFFECT> =
+        when {
+            savedState != null -> viewModelScope.container(savedState)
+            else -> viewModelScope.container(initialState, settings, onCreate)
+        }
+    return SavedStateContainerDecorator(
+        realContainer,
+        savedStateHandle
+    )
 }
