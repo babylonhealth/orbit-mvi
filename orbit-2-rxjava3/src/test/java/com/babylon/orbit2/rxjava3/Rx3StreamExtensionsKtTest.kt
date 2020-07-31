@@ -59,5 +59,3 @@ class Rx3StreamExtensionsKtTest {
         fun hasObservers() = observers.size > 0
     }
 }
-
-
