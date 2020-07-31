@@ -1,5 +1,6 @@
 package com.babylon.orbit2.sample.posts.app.di
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.room.Room
 import com.babylon.orbit2.sample.posts.app.features.postdetails.viewmodel.PostDetailsViewModel
 import com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel.PostListViewModel
@@ -20,7 +21,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
 fun module() = module {
-    viewModel { PostListViewModel(get()) }
+    viewModel { (savedStateHandle: SavedStateHandle) -> PostListViewModel(savedStateHandle, get()) }
 
     viewModel { (postId: Int) -> PostDetailsViewModel(get(), postId) }
 
