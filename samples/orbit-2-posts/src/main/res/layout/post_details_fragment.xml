@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/postdetails"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".app.features.postdetails.ui.PostDetailsFragment">
+
+    <ImageView
+        android:id="@+id/post_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/emptyContentDescription"
+        android:transitionName="post_avatar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="UnusedAttribute"
+        tools:srcCompat="@tools:sample/avatars"
+        tools:targetApi="lollipop" />
+
+    <TextView
+        android:id="@+id/post_username"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
+        android:transitionName="post_username"
+        app:layout_constraintBottom_toBottomOf="@+id/post_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/post_avatar"
+        app:layout_constraintTop_toTopOf="@+id/post_avatar"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:ignore="UnusedAttribute"
+        tools:text="@sample/posts.json/data/post_username"
+        tools:targetApi="lollipop" />
+
+    <TextView
+        android:id="@+id/post_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+        android:transitionName="post_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/post_avatar"
+        tools:ignore="UnusedAttribute"
+        tools:text="@sample/posts.json/data/post_title"
+        tools:targetApi="lollipop" />
+
+    <TextView
+        android:id="@+id/post_body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/post_title"
+        tools:text="@sample/posts.json/data/post_body" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_margin="16dp"
+        android:background="@color/separator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/post_body" />
+
+    <TextView
+        android:id="@+id/post_comment_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider"
+        tools:text="@sample/posts.json/data/post_comments" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/post_comments_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/post_comment_count"
+        tools:listitem="@layout/post_comment_list_item" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

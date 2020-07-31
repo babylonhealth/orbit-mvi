@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Babylon</string>
+    <string name="emptyContentDescription" />
+
+    <string name="post_list_title">Posts</string>
+
+    <plurals name="comments">
+        <item quantity="one">%d post</item>
+        <item quantity="other">%d comments</item>
+    </plurals>
+</resources>
