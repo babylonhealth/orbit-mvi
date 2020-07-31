@@ -56,7 +56,6 @@ object Versions {
 
 object ProjectDependencies {
     // Kotlin
-    const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val kotlinCoroutines =
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val kotlinCoroutinesRx2 =
@@ -127,16 +126,6 @@ object PluginDependencies {
 
 object GroupedDependencies {
     val testsImplementation = listOf(
-        ProjectDependencies.junitPlatformConsole,
-        ProjectDependencies.junitJupiterApi,
-        ProjectDependencies.junitJupiterParams,
-        ProjectDependencies.kotlinReflect,
-        ProjectDependencies.assertJ,
-        ProjectDependencies.mockitoKotlin,
-        ProjectDependencies.mockitoInline,
-        ProjectDependencies.kotlinFixture
-    )
-    val testsImplementationJUnit5 = listOf(
         ProjectDependencies.junitPlatformConsole,
         ProjectDependencies.junitJupiterApi,
         ProjectDependencies.junitJupiterParams,

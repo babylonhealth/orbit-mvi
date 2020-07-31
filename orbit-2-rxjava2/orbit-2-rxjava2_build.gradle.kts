@@ -28,7 +28,7 @@ dependencies {
 
     // Testing
     testImplementation(project(":orbit-2-test"))
-    GroupedDependencies.testsImplementationJUnit5.forEach { testImplementation(it) }
+    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
     GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
 }
 
