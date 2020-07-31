@@ -18,17 +18,26 @@ package com.babylon.orbit2.rxjava1
 
 import com.babylon.orbit2.Stream
 import rx.Observable
+import rx.Subscription
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Consume a [Stream] as an RxJava 1 [Observable].
  */
-/*fun <T> Stream<T>.asRx1Observable() =
-    Observable.create<T> { emitter ->
-        val closeable = observe {
-            if (!emitter.isDisposed) {
-                emitter.onNext(it)
-            }
+fun <T> Stream<T>.asRx1Observable() = Observable.unsafeCreate<T> { emitter ->
+    val unsubscribed = AtomicBoolean(false)
+    val closeable = observe {
+        if (!emitter.isUnsubscribed) {
+            emitter.onNext(it)
         }
-        emitter.setCancellable { closeable.close() }
     }
-*/
+    emitter.add(object : Subscription {
+        override fun isUnsubscribed() = unsubscribed.get()
+
+        override fun unsubscribe() {
+            unsubscribed.set(true)
+            closeable.close()
+            emitter.onCompleted()
+        }
+    })
+}
