@@ -9,11 +9,11 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.mattdolan.babylon.app.common.ShadowScrollBehavior">
+        app:layout_behavior=".app.common.ShadowScrollBehavior">
 
         <fragment
             android:id="@+id/fragment"
-            android:name="com.mattdolan.babylon.app.features.postdetails.ui.PostDetailsFragment"
+            android:name="com.babylon.orbit2.sample.posts.app.features.postdetails.ui.PostDetailsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".app.features.postdetails.ui.PostDetailsActivity"

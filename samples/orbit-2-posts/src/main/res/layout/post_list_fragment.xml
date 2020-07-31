@@ -7,5 +7,5 @@
     android:clipToPadding="false"
     android:padding="1dp"
     android:scrollbars="vertical"
-    tools:context=".app.features.postlist.ui.PostListFragment"
+    tools:context="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListFragment"
     tools:listitem="@layout/post_list_item" />

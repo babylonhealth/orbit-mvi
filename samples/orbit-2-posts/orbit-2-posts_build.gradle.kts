@@ -69,15 +69,12 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1")
     testImplementation("com.squareup.retrofit2:retrofit-mock:2.9.0")
-    androidTestImplementation("com.squareup.retrofit2:retrofit-mock:2.9.0")
 
     // Testing
     testImplementation("junit:junit:4.13")
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation("org.mockito:mockito-inline:3.4.6")
     testImplementation("org.robolectric:robolectric:4.3.1")
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation("androidx.test:runner:1.2.0")
 
     // Debugging
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.4")
@@ -92,6 +89,5 @@ dependencies {
     kapt("androidx.room:room-compiler:2.2.5")
     testImplementation("androidx.room:room-testing:2.2.5")
 
-    implementation("androidx.multidex:multidex:2.0.1")
     implementation("com.android.support.constraint:constraint-layout:1.1.3")
 }
