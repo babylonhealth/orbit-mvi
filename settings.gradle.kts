@@ -23,7 +23,8 @@ include(
     "orbit-2-viewmodel",
     "orbit-2-test",
     "samples:orbit-2-calculator",
-    "samples:orbit-2-stocklist"
+    "samples:orbit-2-stocklist",
+    "samples:orbit-2-posts"
 )
 
 fun renameBuildFileToModuleName(project: ProjectDescriptor) {
