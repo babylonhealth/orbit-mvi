@@ -2,9 +2,9 @@
 
 - [Orbit 2 RxJava3 plugin](#orbit-2-rxjava3-plugin)
   - [transformRx3Observable](#transformrx3observable)
-  - [transformSingle](#transformrx3single)
-  - [transformMaybe](#transformrx3maybe)
-  - [transformCompletable](#transformrx3completable)
+  - [transformRx3Single](#transformrx3single)
+  - [transformRx3Maybe](#transformrx3maybe)
+  - [transformRx3Completable](#transformrx3completable)
 
 The RxJava3 plugin provides RxJava 3 operators.
 
