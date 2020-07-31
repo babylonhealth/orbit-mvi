@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".app.features.postlist.ui.PostListActivity">
+    tools:context="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListActivity">
 
     <fragment
         android:id="@+id/content"
-        android:name="com.mattdolan.babylon.app.features.postlist.ui.PostListFragment"
+        android:name="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.mattdolan.babylon.app.common.ShadowScrollBehavior"
+        app:layout_behavior=".app.common.ShadowScrollBehavior"
         tools:layout="@layout/post_list_fragment" />
 
     <com.google.android.material.appbar.AppBarLayout

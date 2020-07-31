@@ -5,7 +5,7 @@
     android:id="@+id/postdetails"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".app.features.postdetails.ui.PostDetailsFragment">
+    tools:context="com.babylon.orbit2.sample.posts.app.features.postdetails.ui.PostDetailsFragment">
 
     <ImageView
         android:id="@+id/post_avatar"
