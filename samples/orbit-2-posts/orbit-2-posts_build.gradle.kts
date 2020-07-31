@@ -45,6 +45,12 @@ android {
 }
 
 dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(project(":orbit-2-core"))
+    implementation(project(":orbit-2-coroutines"))
+    implementation(project(":orbit-2-livedata"))
+    implementation(project(":orbit-2-viewmodel"))
+
     // Kotlin
     implementation(ProjectDependencies.kotlinCoroutines)
 
@@ -62,6 +68,8 @@ dependencies {
     implementation("androidx.paging:paging-runtime-ktx:2.1.2")
     implementation("com.google.android.material:material:1.1.0")
     implementation("com.github.bumptech.glide:glide:4.11.0")
+    implementation(ProjectDependencies.groupie)
+    implementation(ProjectDependencies.groupieKotlinAndroidExtensions)
 
     // Networking
     implementation("com.squareup.okhttp3:okhttp:4.8.0")
