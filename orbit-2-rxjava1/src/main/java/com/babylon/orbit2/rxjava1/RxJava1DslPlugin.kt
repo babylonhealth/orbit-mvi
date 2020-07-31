@@ -22,10 +22,12 @@ import com.babylon.orbit2.OrbitDslPlugin
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import rx.Observable
 import rx.Observer
@@ -76,7 +78,7 @@ object RxJava1DslPlugin : OrbitDslPlugin {
 }
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-private fun <T : Any> Observable<T>.asFlow(): Flow<T> = kotlinx.coroutines.flow.callbackFlow {
+private fun <T : Any> Observable<T>.asFlow(): Flow<T> = callbackFlow {
     val observer = object : Observer<T> {
         override fun onError(e: Throwable?) {
             close(e)
@@ -95,7 +97,7 @@ private fun <T : Any> Observable<T>.asFlow(): Flow<T> = kotlinx.coroutines.flow.
     awaitClose { subscription.unsubscribe() }
 }
 
-private suspend fun <T> Single<T>.await(): T = kotlinx.coroutines.suspendCancellableCoroutine { cont ->
+private suspend fun <T> Single<T>.await(): T = suspendCancellableCoroutine { cont ->
     val subscription = subscribe(object : SingleSubscriber<T>() {
         override fun onSuccess(t: T) {
             cont.resume(t)
