@@ -45,7 +45,6 @@ object Versions {
     const val desugar = "1.0.10"
 
     // Testing
-    const val spek = "2.0.12"
     const val junitPlatform = "1.6.2"
     const val assertJ = "3.16.1"
     const val mockitoKotlin = "2.2.0"
@@ -107,8 +106,6 @@ object ProjectDependencies {
     // Test prerequisites
     const val androidXTesting =
         "androidx.arch.core:core-testing:${Versions.androidxTesting}"
-    const val spekDsl = "org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}"
-    const val spekRunner = "org.spekframework.spek2:spek-runner-junit5:${Versions.spek}"
     const val junitPlatformConsole =
         "org.junit.platform:junit-platform-console:${Versions.junitPlatform}"
     const val assertJ = "org.assertj:assertj-core:${Versions.assertJ}"
@@ -133,7 +130,6 @@ object GroupedDependencies {
         ProjectDependencies.junitPlatformConsole,
         ProjectDependencies.junitJupiterApi,
         ProjectDependencies.junitJupiterParams,
-        ProjectDependencies.spekDsl,
         ProjectDependencies.kotlinReflect,
         ProjectDependencies.assertJ,
         ProjectDependencies.mockitoKotlin,
@@ -151,7 +147,6 @@ object GroupedDependencies {
     )
 
     val testsRuntime = listOf(
-        ProjectDependencies.spekRunner,
         ProjectDependencies.junitJupiterEngine
     )
 }
