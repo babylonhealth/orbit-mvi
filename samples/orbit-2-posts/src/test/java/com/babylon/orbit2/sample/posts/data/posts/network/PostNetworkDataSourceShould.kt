@@ -5,8 +5,8 @@ import com.babylon.orbit2.sample.posts.data.posts.common.model.PostData
 import com.babylon.orbit2.sample.posts.data.posts.common.model.UserData
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import retrofit2.Retrofit
 import retrofit2.mock.BehaviorDelegate
 import retrofit2.mock.MockRetrofit
@@ -17,7 +17,7 @@ class PostNetworkDataSourceShould {
     private lateinit var behavior: NetworkBehavior
     private lateinit var api: TypicodeService
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockNetworkApi()
     }

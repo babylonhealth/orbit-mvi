@@ -1,7 +1,7 @@
 package com.babylon.orbit2.sample.posts.data.posts.database
 
 import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class AvatarUrlGeneratorShould {
     @Test

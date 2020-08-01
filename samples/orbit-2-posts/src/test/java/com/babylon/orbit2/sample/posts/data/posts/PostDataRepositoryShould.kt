@@ -8,61 +8,53 @@ import com.babylon.orbit2.sample.posts.data.posts.database.PostDataOverview
 import com.babylon.orbit2.sample.posts.data.posts.database.PostDataOverviewMapper
 import com.babylon.orbit2.sample.posts.data.posts.database.PostDatabaseDataSource
 import com.babylon.orbit2.sample.posts.data.posts.network.PostNetworkDataSource
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.anyList
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations.initMocks
 
 class PostDataRepositoryShould {
 
-    @Mock
-    private lateinit var networkDataSource: PostNetworkDataSource
-
-    @Mock
-    private lateinit var databaseDataSource: PostDatabaseDataSource
-
-    @Mock
-    private lateinit var dataOverviewMapper: PostDataOverviewMapper
-
-    @Mock
-    private lateinit var dataDetailMapper: PostDataDetailMapper
-
-    private lateinit var repository: PostDataRepository
-
-    @Before
-    fun setup() {
-        initMocks(this)
-
-        repository = PostDataRepository(
-            networkDataSource,
-            databaseDataSource,
-            dataOverviewMapper,
-            dataDetailMapper
-        )
+    private val networkDataSource = mock<PostNetworkDataSource> {
+        onBlocking { getPosts() } doReturn emptyList()
+        onBlocking { getComments() } doReturn emptyList()
+        onBlocking { getUsers() } doReturn emptyList()
     }
+
+    private val databaseDataSource = mock<PostDatabaseDataSource>()
+
+    private val dataOverviewMapper = mock<PostDataOverviewMapper>()
+
+    private val dataDetailMapper = mock<PostDataDetailMapper>()
+
+    private val repository = PostDataRepository(
+        networkDataSource,
+        databaseDataSource,
+        dataOverviewMapper,
+        dataDetailMapper
+    )
 
     private fun mockEmptyDatabase() {
         runBlocking {
-            `when`(databaseDataSource.getOverviews())
+            whenever(databaseDataSource.getOverviews())
                 .then { listOf<PostDataOverview>() }
-            `when`(databaseDataSource.getPost(anyInt()))
+            whenever(databaseDataSource.getPost(anyInt()))
                 .then { null }
-            `when`(databaseDataSource.isPopulated())
+            whenever(databaseDataSource.isPopulated())
                 .then { false }
         }
     }
 
     private fun mockPopulatedDatabase() {
         runBlocking {
-            `when`(databaseDataSource.getOverviews())
+            whenever(databaseDataSource.getOverviews())
                 .then { listOf(PostDataOverview(1, "title", "name", "email", 5)) }
-            `when`(databaseDataSource.getPost(anyInt()))
+            whenever(databaseDataSource.getPost(anyInt()))
                 .then {
                     PostDataDetail().apply {
                         post = PostData(1, 1, "title", "body")
@@ -70,7 +62,7 @@ class PostDataRepositoryShould {
                         comments = listOf()
                     }
                 }
-            `when`(databaseDataSource.isPopulated())
+            whenever(databaseDataSource.isPopulated())
                 .then { true }
         }
     }

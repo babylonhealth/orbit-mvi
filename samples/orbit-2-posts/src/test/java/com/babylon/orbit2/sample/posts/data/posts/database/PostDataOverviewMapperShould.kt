@@ -1,22 +1,19 @@
 package com.babylon.orbit2.sample.posts.data.posts.database
 
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
 
 class PostDataOverviewMapperShould {
-    @Mock
-    private lateinit var avatarUrlGenerator: AvatarUrlGenerator
 
-    @Before
+    private val avatarUrlGenerator = mock<AvatarUrlGenerator>()
+
+    @BeforeEach
     fun setupMocks() {
-        MockitoAnnotations.initMocks(this)
-
-        `when`(avatarUrlGenerator.generateUrl(anyString()))
+        whenever(avatarUrlGenerator.generateUrl(anyString()))
             .then { (it.getArgument(0) as String).reversed() }
     }
 
