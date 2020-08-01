@@ -13,7 +13,7 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import com.babylon.orbit2.sample.posts.R
 
-class SeparatorDecoration(context: Context, @DimenRes margin_start: Int, @DimenRes margin_end: Int) :
+class SeparatorDecoration(context: Context, @DimenRes marginStart: Int, @DimenRes marginEnd: Int) :
     RecyclerView.ItemDecoration() {
     private val paint = Paint()
     private val thickness: Int
@@ -24,8 +24,8 @@ class SeparatorDecoration(context: Context, @DimenRes margin_start: Int, @DimenR
         paint.color = ContextCompat.getColor(context, R.color.separator)
 
         thickness = context.resources.getDimensionPixelSize(R.dimen.separator_thickness)
-        startMargin = context.resources.getDimensionPixelSize(margin_start)
-        endMargin = context.resources.getDimensionPixelSize(margin_end)
+        startMargin = context.resources.getDimensionPixelSize(marginStart)
+        endMargin = context.resources.getDimensionPixelSize(marginEnd)
 
         paint.strokeWidth = thickness.toFloat()
     }

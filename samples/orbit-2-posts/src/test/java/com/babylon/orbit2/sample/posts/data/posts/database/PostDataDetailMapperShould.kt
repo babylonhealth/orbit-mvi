@@ -50,7 +50,6 @@ class PostDataDetailMapperShould {
         // then an exception is thrown
     }
 
-
     @Test
     fun `map when no comments`() {
         // given we configure details with no comments

@@ -4,10 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import com.babylon.orbit2.sample.posts.R
+import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import kotlinx.android.synthetic.main.post_details_activity.*
-
 
 class PostDetailsActivity : AppCompatActivity() {
 
