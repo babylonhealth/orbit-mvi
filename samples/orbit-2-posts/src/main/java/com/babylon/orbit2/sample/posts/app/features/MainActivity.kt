@@ -14,21 +14,29 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.sample.posts.app.features.postlist.ui
+package com.babylon.orbit2.sample.posts.app.features
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.babylon.orbit2.sample.posts.R
-import kotlinx.android.synthetic.main.post_list_activity.*
 
-class PostListActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.post_list_activity)
+        setContentView(R.layout.main_activity)
 
-        setSupportActionBar(toolbar)
+        findViewById<Toolbar>(R.id.toolbar).apply {
+            setSupportActionBar(this)
+        }
 
-        setTitle(R.string.post_list_title)
+        setupActionBarWithNavController(navController)
     }
+
+    override fun onSupportNavigateUp() = navController.navigateUp()
 }

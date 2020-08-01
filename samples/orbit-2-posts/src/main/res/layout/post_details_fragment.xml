@@ -7,37 +7,6 @@
     android:layout_height="wrap_content"
     tools:context="com.babylon.orbit2.sample.posts.app.features.postdetails.ui.PostDetailsFragment">
 
-    <ImageView
-        android:id="@+id/post_avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/emptyContentDescription"
-        android:transitionName="post_avatar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="UnusedAttribute"
-        tools:srcCompat="@tools:sample/avatars"
-        tools:targetApi="lollipop" />
-
-    <TextView
-        android:id="@+id/post_username"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
-        android:transitionName="post_username"
-        app:layout_constraintBottom_toBottomOf="@+id/post_avatar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/post_avatar"
-        app:layout_constraintTop_toTopOf="@+id/post_avatar"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:ignore="UnusedAttribute"
-        tools:text="@sample/posts.json/data/post_username"
-        tools:targetApi="lollipop" />
-
     <TextView
         android:id="@+id/post_title"
         android:layout_width="0dp"
@@ -49,10 +18,10 @@
         android:transitionName="post_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/post_avatar"
+        app:layout_constraintTop_toTopOf="parent"
         tools:ignore="UnusedAttribute"
-        tools:text="@sample/posts.json/data/post_title"
-        tools:targetApi="lollipop" />
+        tools:targetApi="lollipop"
+        tools:text="@sample/posts.json/data/post_title" />
 
     <TextView
         android:id="@+id/post_body"

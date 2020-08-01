@@ -16,13 +16,19 @@
 
 package com.babylon.orbit2.sample.posts.app.features.postdetails.ui
 
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
+import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.babylon.orbit2.livedata.state
 import com.babylon.orbit2.sample.posts.R
@@ -31,19 +37,19 @@ import com.babylon.orbit2.sample.posts.app.features.postdetails.viewmodel.PostDe
 import com.babylon.orbit2.sample.posts.app.features.postdetails.viewmodel.PostDetailsViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.post_details_fragment.*
 import org.koin.androidx.viewmodel.ext.android.stateViewModel
 import org.koin.core.parameter.parametersOf
 
+
 class PostDetailsFragment : Fragment() {
 
-    private val viewModel: PostDetailsViewModel by stateViewModel {
-        parametersOf(
-            activity?.intent?.getIntExtra(PostDetailsActivity.POST_ID_EXTRA, -1) ?: -1
-        )
-    }
+    private val args: PostDetailsFragmentArgs by navArgs()
+    private val viewModel: PostDetailsViewModel by stateViewModel { parametersOf(args.id) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,10 +78,32 @@ class PostDetailsFragment : Fragment() {
 
         viewModel.container.state.observe(viewLifecycleOwner, Observer {
             if (it is PostDetailState.Details) {
-                Glide.with(this).load(it.post.avatarUrl)
-                    .apply(RequestOptions.circleCropTransform()).into(post_avatar)
+                (activity as AppCompatActivity?)?.supportActionBar?.apply {
+                    title = it.post.username
 
-                post_username.text = it.post.username
+                    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, resources.displayMetrics)
+
+                    Glide.with(requireContext()).load(it.post.avatarUrl)
+                        .apply(RequestOptions.overrideOf(px.toInt()))
+                        .apply(RequestOptions.circleCropTransform()).into(object : CustomTarget<Drawable>() {
+                            override fun onLoadCleared(placeholder: Drawable?) {
+                                placeholder?.let(::setLogo)
+                            }
+
+                            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                                val logo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    LayerDrawable(arrayOf(resource)).apply {
+                                        setLayerInsetRight(0, px.toInt())
+                                    }
+                                } else {
+                                    resource
+                                }
+
+                                setLogo(logo)
+                            }
+                        })
+                }
+
                 post_title.text = it.post.title
                 post_body.text = it.post.body
 

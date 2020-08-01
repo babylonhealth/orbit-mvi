@@ -20,13 +20,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.babylon.orbit2.livedata.sideEffect
 import com.babylon.orbit2.livedata.state
 import com.babylon.orbit2.sample.posts.R
 import com.babylon.orbit2.sample.posts.app.common.SeparatorDecoration
+import com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel.OpenPostNavigationEvent
 import com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel.PostListViewModel
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
@@ -43,8 +46,9 @@ class PostListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel.container.sideEffect.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                activity?.let(it::navigate)
+            when (it) {
+                is OpenPostNavigationEvent ->
+                    findNavController().navigate(PostListFragmentDirections.actionListFragmentToDetailFragment(it.post.id))
             }
         })
 
@@ -53,6 +57,11 @@ class PostListFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        (activity as AppCompatActivity?)?.supportActionBar?.apply {
+            setTitle(R.string.app_name)
+            setLogo(R.drawable.ic_orbit_toolbar)
+        }
 
         content.layoutManager = LinearLayoutManager(activity)
         content.addItemDecoration(SeparatorDecoration(requireActivity(), R.dimen.separator_margin_start_icon, R.dimen.separator_margin_end))

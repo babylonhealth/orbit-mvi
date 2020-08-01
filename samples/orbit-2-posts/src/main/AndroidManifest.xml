@@ -15,16 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListActivity">
+        <activity android:name="com.babylon.orbit2.sample.posts.app.features.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.babylon.orbit2.sample.posts.app.features.postdetails.ui.PostDetailsActivity"
-            android:parentActivityName="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListActivity" />
     </application>
 
 </manifest>

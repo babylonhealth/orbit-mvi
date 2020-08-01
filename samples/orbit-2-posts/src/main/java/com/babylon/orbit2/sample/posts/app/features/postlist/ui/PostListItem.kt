@@ -18,7 +18,6 @@ package com.babylon.orbit2.sample.posts.app.features.postlist.ui
 
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.app.ActivityOptionsCompat
 import com.babylon.orbit2.sample.posts.R
 import com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel.PostListViewModel
 import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
@@ -53,8 +52,7 @@ data class PostListItem(private val post: PostOverview, private val viewModel: P
         )
 
         viewHolder.itemView.setOnClickListener {
-            val options = ActivityOptionsCompat.makeBasic()
-            viewModel.onPostClicked(post, options)
+            viewModel.onPostClicked(post)
         }
     }
 }
