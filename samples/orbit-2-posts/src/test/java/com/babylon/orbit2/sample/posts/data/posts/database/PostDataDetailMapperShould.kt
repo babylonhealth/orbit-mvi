@@ -3,51 +3,51 @@ package com.babylon.orbit2.sample.posts.data.posts.database
 import com.babylon.orbit2.sample.posts.data.posts.common.model.CommentData
 import com.babylon.orbit2.sample.posts.data.posts.common.model.PostData
 import com.babylon.orbit2.sample.posts.data.posts.common.model.UserData
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
 
 class PostDataDetailMapperShould {
 
-    @Mock
-    private lateinit var avatarUrlGenerator: AvatarUrlGenerator
+    private val avatarUrlGenerator = mock<AvatarUrlGenerator>()
 
-    @Before
+    @BeforeEach
     fun setupMocks() {
-        MockitoAnnotations.initMocks(this)
-
-        Mockito.`when`(avatarUrlGenerator.generateUrl(anyString()))
+        whenever(avatarUrlGenerator.generateUrl(anyString()))
             .then { (it.getArgument(0) as String).reversed() }
     }
 
-    @Test(expected = UninitializedPropertyAccessException::class)
+    @Test
     fun `throw exception when not initialised`() {
-        // given we create an empty detail object
-        val postData = PostDataDetail()
+        assertThrows<UninitializedPropertyAccessException> {
+            // given we create an empty detail object
+            val postData = PostDataDetail()
 
-        // when we try and convert it
-        PostDataDetailMapper(avatarUrlGenerator).convert(postData)
+            // when we try and convert it
+            PostDataDetailMapper(avatarUrlGenerator).convert(postData)
 
-        // then an exception is thrown
+            // then an exception is thrown
+        }
     }
 
-    @Test(expected = IndexOutOfBoundsException::class)
     fun `throw exception when no linked user`() {
-        // given we create a detail object without a user
-        val postData = PostDataDetail().apply {
-            post = PostData(1, 1, "title", "body")
-            users = listOf()
-            comments = listOf()
+        assertThrows<IndexOutOfBoundsException> {
+            // given we create a detail object without a user
+            val postData = PostDataDetail().apply {
+                post = PostData(1, 1, "title", "body")
+                users = listOf()
+                comments = listOf()
+            }
+
+            // when we try and convert it
+            PostDataDetailMapper(avatarUrlGenerator).convert(postData)
+
+            // then an exception is thrown
         }
-
-        // when we try and convert it
-        PostDataDetailMapper(avatarUrlGenerator).convert(postData)
-
-        // then an exception is thrown
     }
 
     @Test

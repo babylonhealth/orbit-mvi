@@ -1,6 +1,8 @@
 package com.babylon.orbit2.sample.posts.data.posts.database
 
+import android.content.Context
 import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import com.babylon.orbit2.sample.posts.data.posts.common.model.CommentData
 import com.babylon.orbit2.sample.posts.data.posts.common.model.PostData
 import com.babylon.orbit2.sample.posts.data.posts.common.model.UserData
@@ -13,11 +15,10 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = "src/main/AndroidManifest.xml", application = android.app.Application::class)
+@Config(manifest = "src/main/AndroidManifest.xml", application = android.app.Application::class, sdk = [28])
 class PostDatabaseDataSourceShould {
 
     private lateinit var database: Database
@@ -25,7 +26,7 @@ class PostDatabaseDataSourceShould {
 
     @Before
     fun setUp() {
-        val context = RuntimeEnvironment.application
+        val context = ApplicationProvider.getApplicationContext<Context>()
         database = Room.inMemoryDatabaseBuilder(context, Database::class.java)
             .allowMainThreadQueries().build()
         dao = database.postDao()

@@ -55,11 +55,11 @@ dependencies {
     implementation(ProjectDependencies.kotlinCoroutines)
 
     // UI
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation(ProjectDependencies.androidxAppCompat)
     implementation("androidx.vectordrawable:vectordrawable:1.1.0")
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation(ProjectDependencies.androidxAnnotation)
     implementation("androidx.recyclerview:recyclerview:1.1.0")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
+    implementation(ProjectDependencies.androidxConstrainLayout)
     implementation("androidx.core:core-ktx:1.3.1")
     implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.arch.core:core-common:2.1.0")
@@ -79,9 +79,11 @@ dependencies {
     testImplementation("com.squareup.retrofit2:retrofit-mock:2.9.0")
 
     // Testing
-    testImplementation("junit:junit:4.13")
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
-    testImplementation("org.mockito:mockito-inline:3.4.6")
+    testImplementation(project(":orbit-2-test"))
+    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
+    GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
+    testImplementation("androidx.test:core-ktx:1.2.0")
+    testImplementation(ProjectDependencies.androidXTesting)
     testImplementation("org.robolectric:robolectric:4.3.1")
 
     // Debugging
