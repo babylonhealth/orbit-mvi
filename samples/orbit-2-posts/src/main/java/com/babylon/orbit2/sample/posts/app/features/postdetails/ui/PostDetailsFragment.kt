@@ -20,7 +20,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,7 +43,6 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.post_details_fragment.*
 import org.koin.androidx.viewmodel.ext.android.stateViewModel
 import org.koin.core.parameter.parametersOf
-
 
 class PostDetailsFragment : Fragment() {
 
@@ -81,10 +79,8 @@ class PostDetailsFragment : Fragment() {
                 (activity as AppCompatActivity?)?.supportActionBar?.apply {
                     title = it.post.username
 
-                    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, resources.displayMetrics)
-
                     Glide.with(requireContext()).load(it.post.avatarUrl)
-                        .apply(RequestOptions.overrideOf(px.toInt()))
+                        .apply(RequestOptions.overrideOf(resources.getDimensionPixelSize(R.dimen.toolbar_logo_size)))
                         .apply(RequestOptions.circleCropTransform()).into(object : CustomTarget<Drawable>() {
                             override fun onLoadCleared(placeholder: Drawable?) {
                                 placeholder?.let(::setLogo)
@@ -93,7 +89,7 @@ class PostDetailsFragment : Fragment() {
                             override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                                 val logo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     LayerDrawable(arrayOf(resource)).apply {
-                                        setLayerInsetRight(0, px.toInt())
+                                        setLayerInsetRight(0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end))
                                     }
                                 } else {
                                     resource
