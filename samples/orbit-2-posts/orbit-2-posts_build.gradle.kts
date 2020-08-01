@@ -19,6 +19,7 @@ plugins {
     kotlin("android")
     kotlin("kapt")
     id("kotlin-android-extensions")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -69,6 +70,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.11.0")
     implementation(ProjectDependencies.groupie)
     implementation(ProjectDependencies.groupieKotlinAndroidExtensions)
+    implementation(ProjectDependencies.androidxNavigationFragmentKtx)
+    implementation(ProjectDependencies.androidxNavigationUiKtx)
 
     // Networking
     implementation("com.squareup.okhttp3:okhttp:4.8.0")

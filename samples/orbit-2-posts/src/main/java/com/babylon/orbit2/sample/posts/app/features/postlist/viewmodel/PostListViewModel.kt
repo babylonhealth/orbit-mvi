@@ -16,7 +16,6 @@
 
 package com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel
 
-import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.babylon.orbit2.ContainerHost
@@ -51,9 +50,9 @@ class PostListViewModel(
         }
     }
 
-    fun onPostClicked(post: PostOverview, transitionOptions: ActivityOptionsCompat) = orbit {
+    fun onPostClicked(post: PostOverview) = orbit {
         sideEffect {
-            post(OpenPostNavigationEvent(post, transitionOptions))
+            post(OpenPostNavigationEvent(post))
         }
     }
 }

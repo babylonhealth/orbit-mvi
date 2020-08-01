@@ -3,19 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListActivity">
+    android:layout_height="match_parent">
 
-    <fragment
-        android:id="@+id/content"
-        android:name="com.babylon.orbit2.sample.posts.app.features.postlist.ui.PostListFragment"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior=".app.common.ShadowScrollBehavior"
-        tools:layout="@layout/post_list_fragment" />
+        app:layout_behavior=".app.common.ShadowScrollBehavior">
+
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/nav_graph"
+            tools:ignore="FragmentTagUsage" />
+
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
