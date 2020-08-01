@@ -16,7 +16,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
-
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = "src/main/AndroidManifest.xml", application = android.app.Application::class)
 class PostDatabaseDataSourceShould {
@@ -51,7 +50,6 @@ class PostDatabaseDataSourceShould {
             assertNull(dao.getPost(1))
         }
     }
-
 
     @Test
     fun `provide overview data`() {
@@ -90,7 +88,6 @@ class PostDatabaseDataSourceShould {
             assertEquals(0, overviews.first { it.id == 2 }.comments)
         }
     }
-
 
     @Test
     fun `provide detailed data`() {

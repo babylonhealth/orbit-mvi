@@ -35,7 +35,6 @@ class PostDataRepositoryShould {
 
     private lateinit var repository: PostDataRepository
 
-
     @Before
     fun setup() {
         initMocks(this)

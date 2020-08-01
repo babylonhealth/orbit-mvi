@@ -22,7 +22,8 @@ class PostListFragment : Fragment() {
     private val viewModel: PostListViewModel by stateViewModel()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         viewModel.container.sideEffect.observe(viewLifecycleOwner, Observer {
