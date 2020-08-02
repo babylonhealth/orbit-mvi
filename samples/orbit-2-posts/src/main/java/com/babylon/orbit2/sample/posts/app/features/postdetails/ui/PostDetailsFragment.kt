@@ -18,7 +18,6 @@ package com.babylon.orbit2.sample.posts.app.features.postdetails.ui
 
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -87,12 +86,8 @@ class PostDetailsFragment : Fragment() {
                             }
 
                             override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                                val logo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    LayerDrawable(arrayOf(resource)).apply {
-                                        setLayerInsetRight(0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end))
-                                    }
-                                } else {
-                                    resource
+                                val logo = LayerDrawable(arrayOf(resource)).apply {
+                                    setLayerInset(0, 0, 0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end), 0)
                                 }
 
                                 setLogo(logo)
