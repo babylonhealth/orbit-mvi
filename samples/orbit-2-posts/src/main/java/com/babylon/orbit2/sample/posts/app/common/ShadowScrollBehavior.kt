@@ -24,31 +24,30 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.AppBarLayout
 import com.babylon.orbit2.sample.posts.R
+import com.google.android.material.appbar.AppBarLayout
 
 /**
  * Ensures Toolbar is not elevated when a recyclerview or nestedscrollview is scrolled to the top
  */
 @Suppress("unused")
-class ShadowScrollBehavior(context: Context, attrs: AttributeSet) :
-    AppBarLayout.ScrollingViewBehavior(context, attrs) {
+class ShadowScrollBehavior(context: Context, attrs: AttributeSet) : AppBarLayout.ScrollingViewBehavior(context, attrs) {
 
     @SuppressLint("PrivateResource")
-    private val maxElevation =
-        context.resources.getDimensionPixelSize(R.dimen.design_appbar_elevation).toFloat()
+    private val maxElevation = context.resources.getDimensionPixelSize(R.dimen.design_appbar_elevation).toFloat()
 
     override fun onDependentViewChanged(parent: CoordinatorLayout, child: View, dependency: View):
             Boolean {
         if (dependency is AppBarLayout) {
-            if (child is NestedScrollView) {
-                setElevation(child, dependency)
-                addScrollListener(child, dependency)
-            }
-
-            if (child is RecyclerView) {
-                setElevation(child, dependency)
-                addScrollListener(child, dependency)
+            when (child) {
+                is NestedScrollView -> {
+                    setElevation(child, dependency)
+                    addScrollListener(child, dependency)
+                }
+                is RecyclerView -> {
+                    setElevation(child, dependency)
+                    addScrollListener(child, dependency)
+                }
             }
         }
 
