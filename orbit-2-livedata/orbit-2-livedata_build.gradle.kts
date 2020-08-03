@@ -31,5 +31,5 @@ dependencies {
     testImplementation(ProjectDependencies.androidXTesting)
     testImplementation(ProjectDependencies.kotlinCoroutines)
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
-    GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
+    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
 }

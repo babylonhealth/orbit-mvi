@@ -29,7 +29,7 @@ dependencies {
 
     // Testing
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
-    GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
+    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
 }
 
 // Fix lack of source code when publishing pure Kotlin projects

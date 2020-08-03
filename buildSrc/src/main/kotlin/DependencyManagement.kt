@@ -134,8 +134,4 @@ object GroupedDependencies {
         ProjectDependencies.kotlinFixture,
         ProjectDependencies.assertJ
     )
-
-    val testsRuntime = listOf(
-        ProjectDependencies.junitJupiterEngine
-    )
 }
