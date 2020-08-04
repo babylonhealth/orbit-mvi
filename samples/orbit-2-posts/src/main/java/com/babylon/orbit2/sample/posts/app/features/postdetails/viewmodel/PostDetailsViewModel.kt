@@ -21,17 +21,19 @@ import androidx.lifecycle.ViewModel
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.coroutines.transformSuspend
 import com.babylon.orbit2.reduce
+import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import com.babylon.orbit2.sample.posts.domain.repositories.PostRepository
+import com.babylon.orbit2.sample.posts.domain.repositories.Status
 import com.babylon.orbit2.sideEffect
 import com.babylon.orbit2.viewmodel.container
 
 class PostDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
-    private val postId: Int
+    private val postOverview: PostOverview
 ) : ViewModel(), ContainerHost<PostDetailState, Nothing> {
 
-    override val container = container<PostDetailState, Nothing>(PostDetailState.NoDetailsAvailable, savedStateHandle) {
+    override val container = container<PostDetailState, Nothing>(PostDetailState.NoDetailsAvailable(postOverview), savedStateHandle) {
         orbit {
             sideEffect {
                 if (state !is PostDetailState.Details) {
@@ -43,9 +45,12 @@ class PostDetailsViewModel(
 
     private fun loadDetails() = orbit {
         transformSuspend {
-            postRepository.getDetail(postId)?.let { PostDetailState.Details(it) } ?: PostDetailState.NoDetailsAvailable
+            postRepository.getDetail(postOverview.id)
         }.reduce {
-            event
+            when (val status = event) {
+                is Status.Success -> PostDetailState.Details(state.postOverview, status.data)
+                is Status.Failure -> PostDetailState.NoDetailsAvailable(state.postOverview)
+            }
         }
     }
 }

@@ -38,18 +38,12 @@ data class PostListItem(private val post: PostOverview, private val viewModel: P
         val avatar: ImageView = viewHolder.itemView.findViewById(R.id.post_avatar)
         val title: TextView = viewHolder.itemView.findViewById(R.id.post_title)
         val username: TextView = viewHolder.itemView.findViewById(R.id.post_username)
-        val comments: TextView = viewHolder.itemView.findViewById(R.id.post_comments)
 
         Glide.with(viewHolder.itemView.context).load(post.avatarUrl)
             .apply(RequestOptions.circleCropTransform()).into(avatar)
 
         title.text = post.title
         username.text = post.username
-        comments.text = viewHolder.itemView.context.resources.getQuantityString(
-            R.plurals.comments,
-            post.comments,
-            post.comments
-        )
 
         viewHolder.itemView.setOnClickListener {
             viewModel.onPostClicked(post)

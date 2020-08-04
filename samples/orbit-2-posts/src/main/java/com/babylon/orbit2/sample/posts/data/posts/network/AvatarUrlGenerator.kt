@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.sample.posts.data.posts.database
+package com.babylon.orbit2.sample.posts.data.posts.network
 
 class AvatarUrlGenerator {
     fun generateUrl(email: String) = "https://api.adorable.io/avatars/285/$email"

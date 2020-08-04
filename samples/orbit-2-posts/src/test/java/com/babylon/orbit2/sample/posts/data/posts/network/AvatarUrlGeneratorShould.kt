@@ -14,21 +14,16 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.sample.posts.data.posts.database
+package com.babylon.orbit2.sample.posts.data.posts.network
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.babylon.orbit2.sample.posts.data.posts.common.model.CommentData
-import com.babylon.orbit2.sample.posts.data.posts.common.model.PostData
-import com.babylon.orbit2.sample.posts.data.posts.common.model.UserData
+import com.babylon.orbit2.sample.posts.data.posts.network.AvatarUrlGenerator
+import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Test
 
-class PostDataDetail {
-    @Embedded
-    lateinit var post: PostData
-
-    @Relation(parentColumn = "userId", entityColumn = "id")
-    lateinit var users: List<UserData>
-
-    @Relation(parentColumn = "id", entityColumn = "postId")
-    lateinit var comments: List<CommentData>
+class AvatarUrlGeneratorShould {
+    @Test
+    fun `generate url based on parameter`() {
+        val actual = AvatarUrlGenerator().generateUrl("info@mattdolan.com")
+        assertEquals("https://api.adorable.io/avatars/285/info@mattdolan.com", actual)
+    }
 }

@@ -83,7 +83,7 @@ dependencies {
     // Testing
     testImplementation(project(":orbit-2-test"))
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
-    GroupedDependencies.testsRuntime.forEach { testRuntimeOnly(it) }
+    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
     testImplementation("androidx.test:core-ktx:1.2.0")
     testImplementation(ProjectDependencies.androidXTesting)
     testImplementation("org.robolectric:robolectric:4.3.1")

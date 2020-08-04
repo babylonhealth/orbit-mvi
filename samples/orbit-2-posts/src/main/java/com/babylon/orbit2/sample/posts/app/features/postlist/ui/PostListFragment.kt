@@ -48,7 +48,7 @@ class PostListFragment : Fragment() {
         viewModel.container.sideEffect.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is OpenPostNavigationEvent ->
-                    findNavController().navigate(PostListFragmentDirections.actionListFragmentToDetailFragment(it.post.id))
+                    findNavController().navigate(PostListFragmentDirections.actionListFragmentToDetailFragment(it.post))
             }
         })
 

@@ -14,12 +14,9 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.sample.posts.data.posts.database
+package com.babylon.orbit2.sample.posts.domain.repositories
 
-data class PostDataOverview(
-    val id: Int,
-    val title: String,
-    val name: String,
-    val email: String,
-    val comments: Int
-)
+sealed class Status<T : Any> {
+    data class Success<T : Any>(val data: T) : Status<T>()
+    data class Failure<T : Any>(val exception: Exception) : Status<T>()
+}

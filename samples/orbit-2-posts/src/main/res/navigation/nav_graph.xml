@@ -24,7 +24,7 @@
         android:label="@string/app_name"
         tools:layout="@layout/post_details_fragment">
         <argument
-            android:name="id"
-            app:argType="integer" />
+            android:name="overview"
+            app:argType="com.babylon.orbit2.sample.posts.domain.repositories.PostOverview" />
     </fragment>
 </navigation>

@@ -16,41 +16,64 @@
 
 package com.babylon.orbit2.sample.posts.data.posts
 
-import com.babylon.orbit2.sample.posts.data.posts.database.PostDataDetailMapper
-import com.babylon.orbit2.sample.posts.data.posts.database.PostDataOverviewMapper
-import com.babylon.orbit2.sample.posts.data.posts.database.PostDatabaseDataSource
+import com.babylon.orbit2.sample.posts.data.posts.network.AvatarUrlGenerator
 import com.babylon.orbit2.sample.posts.data.posts.network.PostNetworkDataSource
+import com.babylon.orbit2.sample.posts.domain.repositories.PostComment
 import com.babylon.orbit2.sample.posts.domain.repositories.PostDetail
 import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import com.babylon.orbit2.sample.posts.domain.repositories.PostRepository
+import com.babylon.orbit2.sample.posts.domain.repositories.Status
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class PostDataRepository(
     private val networkDataSource: PostNetworkDataSource,
-    private val databaseDataSource: PostDatabaseDataSource,
-    private val overviewMapper: PostDataOverviewMapper,
-    private val detailMapper: PostDataDetailMapper
+    private val avatarUrlGenerator: AvatarUrlGenerator
 ) : PostRepository {
     override suspend fun getOverviews(): List<PostOverview> {
-        populateDatabaseFromNetwork()
+        return coroutineScope {
+            val posts = async { networkDataSource.getPosts() }
+            val users = async { networkDataSource.getUsers() }
 
-        return databaseDataSource.getOverviews().map(overviewMapper::convert)
-    }
+            posts.await().map { post ->
+                val user = users.await().first { it.id == post.userId }
 
-    private suspend fun populateDatabaseFromNetwork() {
-        if (!databaseIsPopulated()) {
-            val posts = networkDataSource.getPosts()
-            val users = networkDataSource.getUsers()
-            val comments = networkDataSource.getComments()
-
-            databaseDataSource.replaceAllData(posts, users, comments)
+                PostOverview(
+                    post.id,
+                    avatarUrlGenerator.generateUrl(user.email),
+                    post.title,
+                    user.username
+                )
+            }
         }
     }
 
-    override suspend fun getDetail(id: Int): PostDetail? {
-        populateDatabaseFromNetwork()
+    override suspend fun getDetail(id: Int): Status<PostDetail> {
+        return coroutineScope {
+            when (val postData = networkDataSource.getPost(id)) {
+                is Status.Success -> {
+                    val comments = async {
+                        networkDataSource.getComments()
+                            .filter { it.postId == postData.data.id }
+                    }
 
-        return databaseDataSource.getPost(id)?.let(detailMapper::convert)
+                    Status.Success(
+                        PostDetail(
+                            postData.data.id,
+                            postData.data.body,
+                            comments.await().map {
+                                PostComment(
+                                    it.id,
+                                    it.name,
+                                    it.email,
+                                    it.body
+                                )
+                            }
+                        )
+                    )
+                }
+                is Status.Failure -> Status.Failure<PostDetail>(postData.exception)
+            }
+        }
     }
-
-    private suspend fun databaseIsPopulated() = databaseDataSource.isPopulated()
 }

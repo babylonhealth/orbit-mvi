@@ -18,12 +18,16 @@ package com.babylon.orbit2.sample.posts.app.features.postdetails.viewmodel
 
 import android.os.Parcelable
 import com.babylon.orbit2.sample.posts.domain.repositories.PostDetail
+import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import kotlinx.android.parcel.Parcelize
 
 sealed class PostDetailState : Parcelable {
-    @Parcelize
-    data class Details(val post: PostDetail) : PostDetailState()
+
+    abstract val postOverview: PostOverview
 
     @Parcelize
-    object NoDetailsAvailable : PostDetailState()
+    data class Details(override val postOverview: PostOverview, val post: PostDetail) : PostDetailState()
+
+    @Parcelize
+    data class NoDetailsAvailable(override val postOverview: PostOverview) : PostDetailState()
 }

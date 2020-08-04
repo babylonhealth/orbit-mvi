@@ -17,16 +17,13 @@
 package com.babylon.orbit2.sample.posts.app.di
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.room.Room
 import com.babylon.orbit2.sample.posts.app.features.postdetails.viewmodel.PostDetailsViewModel
 import com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel.PostListViewModel
 import com.babylon.orbit2.sample.posts.data.posts.PostDataRepository
-import com.babylon.orbit2.sample.posts.data.posts.database.AvatarUrlGenerator
-import com.babylon.orbit2.sample.posts.data.posts.database.Database
-import com.babylon.orbit2.sample.posts.data.posts.database.PostDataDetailMapper
-import com.babylon.orbit2.sample.posts.data.posts.database.PostDataOverviewMapper
+import com.babylon.orbit2.sample.posts.data.posts.network.AvatarUrlGenerator
 import com.babylon.orbit2.sample.posts.data.posts.network.PostNetworkDataSource
 import com.babylon.orbit2.sample.posts.data.posts.network.TypicodeService
+import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import com.babylon.orbit2.sample.posts.domain.repositories.PostRepository
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -39,7 +36,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 fun module() = module {
     viewModel { (savedStateHandle: SavedStateHandle) -> PostListViewModel(savedStateHandle, get()) }
 
-    viewModel { (savedStateHandle: SavedStateHandle, postId: Int) -> PostDetailsViewModel(savedStateHandle, get(), postId) }
+    viewModel { (savedStateHandle: SavedStateHandle, postOverview: PostOverview) -> PostDetailsViewModel(savedStateHandle, get(), postOverview) }
 
     single {
         ObjectMapper().registerKotlinModule().configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -55,15 +52,7 @@ fun module() = module {
 
     single { PostNetworkDataSource(get()) }
 
-    single { Room.databaseBuilder(get(), Database::class.java, "main-database").build() }
-
-    single { get<Database>().postDao() }
-
     single { AvatarUrlGenerator() }
 
-    single { PostDataOverviewMapper(get()) }
-
-    single { PostDataDetailMapper(get()) }
-
-    single<PostRepository> { PostDataRepository(get(), get(), get(), get()) }
+    single<PostRepository> { PostDataRepository(get(), get()) }
 }

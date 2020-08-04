@@ -46,7 +46,9 @@ import org.koin.core.parameter.parametersOf
 class PostDetailsFragment : Fragment() {
 
     private val args: PostDetailsFragmentArgs by navArgs()
-    private val viewModel: PostDetailsViewModel by stateViewModel { parametersOf(args.id) }
+    private val viewModel: PostDetailsViewModel by stateViewModel { parametersOf(args.overview) }
+    private var initialised: Boolean = false
+    private val adapter = GroupAdapter<GroupieViewHolder>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,43 +72,46 @@ class PostDetailsFragment : Fragment() {
             )
         )
 
-        val adapter = GroupAdapter<GroupieViewHolder>()
         post_comments_list.adapter = adapter
 
-        viewModel.container.state.observe(viewLifecycleOwner, Observer {
-            if (it is PostDetailState.Details) {
-                (activity as AppCompatActivity?)?.supportActionBar?.apply {
-                    title = it.post.username
+        viewModel.container.state.observe(viewLifecycleOwner, Observer { render(it) })
+    }
 
-                    Glide.with(requireContext()).load(it.post.avatarUrl)
-                        .apply(RequestOptions.overrideOf(resources.getDimensionPixelSize(R.dimen.toolbar_logo_size)))
-                        .apply(RequestOptions.circleCropTransform()).into(object : CustomTarget<Drawable>() {
-                            override fun onLoadCleared(placeholder: Drawable?) {
-                                placeholder?.let(::setLogo)
+    private fun render(state: PostDetailState) {
+        if (!initialised) {
+            initialised = true
+            (activity as AppCompatActivity?)?.supportActionBar?.apply {
+                title = state.postOverview.username
+                Glide.with(requireContext()).load(state.postOverview.avatarUrl)
+                    .apply(RequestOptions.overrideOf(resources.getDimensionPixelSize(R.dimen.toolbar_logo_size)))
+                    .apply(RequestOptions.circleCropTransform()).into(object : CustomTarget<Drawable>() {
+                        override fun onLoadCleared(placeholder: Drawable?) {
+                            placeholder?.let(::setLogo)
+                        }
+
+                        override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                            val logo = LayerDrawable(arrayOf(resource)).apply {
+                                setLayerInset(0, 0, 0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end), 0)
                             }
 
-                            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                                val logo = LayerDrawable(arrayOf(resource)).apply {
-                                    setLayerInset(0, 0, 0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end), 0)
-                                }
-
-                                setLogo(logo)
-                            }
-                        })
-                }
-
-                post_title.text = it.post.title
-                post_body.text = it.post.body
-
-                val comments = it.post.comments.size
-                post_comment_count.text = context?.resources?.getQuantityString(
-                    R.plurals.comments,
-                    comments,
-                    comments
-                )
-
-                adapter.update(it.post.comments.map(::PostCommentItem))
+                            setLogo(logo)
+                        }
+                    })
             }
-        })
+            post_title.text = state.postOverview.title
+        }
+
+        if (state is PostDetailState.Details) {
+            post_body.text = state.post.body
+
+            val comments = state.post.comments.size
+            post_comment_count.text = context?.resources?.getQuantityString(
+                R.plurals.comments,
+                comments,
+                comments
+            )
+
+            adapter.update(state.post.comments.map(::PostCommentItem))
+        }
     }
 }

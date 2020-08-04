@@ -151,8 +151,16 @@ class PostNetworkDataSourceShould {
             )
         )
 
+        override suspend fun post(id: Int): PostData {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun posts(): List<PostData> {
             return delegate.returningResponse(posts).posts()
+        }
+
+        override suspend fun user(id: Int): UserData {
+            TODO("Not yet implemented")
         }
 
         override suspend fun users(): List<UserData> {
@@ -161,6 +169,10 @@ class PostNetworkDataSourceShould {
 
         override suspend fun comments(): List<CommentData> {
             return delegate.returningResponse(comments).comments()
+        }
+
+        override suspend fun comments(postId: Int): List<CommentData> {
+            TODO("Not yet implemented")
         }
     }
 }
