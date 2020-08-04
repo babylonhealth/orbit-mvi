@@ -20,11 +20,11 @@ include(
     "orbit-2-livedata",
     "orbit-2-rxjava2",
     "orbit-2-rxjava3",
-    "orbit-2-viewmodel",
     "orbit-2-test",
+    "orbit-2-viewmodel",
     "samples:orbit-2-calculator",
-    "samples:orbit-2-stocklist",
-    "samples:orbit-2-posts"
+    "samples:orbit-2-posts",
+    "samples:orbit-2-stocklist"
 )
 
 fun renameBuildFileToModuleName(project: ProjectDescriptor) {
