@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class AvatarUrlGeneratorTest {
     @Test
     fun `generate url based on parameter`() {
-        val actual = AvatarUrlGenerator().generateUrl("info@mattdolan.com")
-        assertEquals("https://api.adorable.io/avatars/285/info@mattdolan.com", actual)
+        val actual = AvatarUrlGenerator().generateUrl("peopleandperformance@babylonhealth.com")
+        assertEquals("https://api.adorable.io/avatars/285/peopleandperformance@babylonhealth.com", actual)
     }
 }
