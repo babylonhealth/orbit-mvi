@@ -6,27 +6,22 @@ This sample implements a simple master-detail application using
 - The application uses Koin for dependency injection which is initialised in
   [PostsApplication](src/main/java/com/babylon/orbit2/sample/posts/app//PostsApplication.kt).
 
-- [CalculatorActivity](src/main/java/com/babylon/orbit2/sample/calculator/CalculatorActivity.kt)
-  uses the [Data Binding Library](https://developer.android.com/topic/libraries/data-binding)
-  to provide the [CalculatorViewModel](src/main/java/com/babylon/orbit2/sample/calculator/CalculatorViewModel.kt)
-  to the layout [activity_main.xml](src/main/res/layout/activity_main.xml). The
-  layout accesses the current state through LiveData.
+- [PostListViewModel](src/main/java/com/babylon/orbit2/sample/posts/app/features/postlist/viewmodel/PostListViewModel.kt)
+  loads a list of posts. Upon clicking a post it navigates to the
+  [PostDetailsFragment](src/main/java/com/babylon/orbit2/sample/posts/app/features/postdetails/ui/PostDetailsFragment.kt)
+  which displays the details of the clicked post.
 
-- [CalculatorViewModel](src/main/java/com/babylon/orbit2/sample/calculator/CalculatorViewModel.kt)
-  uses a `SavedStateHandle` for retaining the current state. It implements a
-  private [ContainerHost](../../orbit-2-core/src/main/java/com/babylon/orbit2/ContainerHost.kt)
-  so the internal implementation of [CalculatorState](src/main/java/com/babylon/orbit2/sample/calculator/CalculatorState.kt)
-  is not exposed.
+- Navigation between the list and the detail view uses Jetpack's
+  [Navigation](https://developer.android.com/guide/navigation) and
+  [SafeArgs](https://developer.android.com/guide/navigation/navigation-pass-data#Safe-args).
+  [PostListViewModel](src/main/java/com/babylon/orbit2/sample/posts/app/features/postlist/viewmodel/PostListViewModel.kt)
+  posts a side effect which
+  [PostListFragment](src/main/java/com/babylon/orbit2/sample/posts/app/features/postlist/ui/PostListFragment.kt)
+  observes and sends to the `NavController`.
 
-## How the calculator works
+- The state is accessed in the fragments through `LiveData`.
 
-The calculator itself is based off the principle of two registers, x and y. In
-short:
-
-- Digits are stored in the x register.
-- The x register is rendered to screen unless it is empty in which case we
-  render the y register.
-- Plus, minus, multiply and divide operators transfer data from x to y register
-  and then clears x. The operator is stored as it is not actioned immediately.
-- Equals operator performs the calculation using the stored operator and the
-  values in the x and y registers.
+- [PostListViewModel](src/main/java/com/babylon/orbit2/sample/posts/app/features/postlist/viewmodel/PostListViewModel.kt)
+  and
+  [PostDetailsViewModel](src/main/java/com/babylon/orbit2/sample/posts/app/features/postdetails/viewmodel/PostDetailsViewModel.kt)
+  use a `SavedStateHandle` for retaining the current state.
