@@ -29,7 +29,7 @@ import retrofit2.mock.MockRetrofit
 import retrofit2.mock.NetworkBehavior
 import java.util.concurrent.TimeUnit
 
-class PostNetworkDataSourceShould {
+class PostNetworkDataSourceTest {
     private lateinit var behavior: NetworkBehavior
     private lateinit var api: TypicodeService
 
@@ -127,7 +127,7 @@ class PostNetworkDataSourceShould {
             .networkBehavior(behavior)
             .build()
             .create(TypicodeService::class.java)
-            .let(PostNetworkDataSourceShould::MockApi)
+            .let(PostNetworkDataSourceTest::MockApi)
     }
 
     class MockApi(private val delegate: BehaviorDelegate<TypicodeService>) :

@@ -33,12 +33,8 @@ class PostListViewModel(
 ) : ViewModel(), ContainerHost<PostListState, NavigationEvent> {
 
     override val container = container<PostListState, NavigationEvent>(PostListState(), savedStateHandle) {
-        orbit {
-            sideEffect {
-                if (state.overviews.isEmpty()) {
-                    loadOverviews()
-                }
-            }
+        if (it.overviews.isEmpty()) {
+            loadOverviews()
         }
     }
 

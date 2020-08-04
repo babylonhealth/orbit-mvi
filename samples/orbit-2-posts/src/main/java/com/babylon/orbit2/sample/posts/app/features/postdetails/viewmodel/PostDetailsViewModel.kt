@@ -24,7 +24,6 @@ import com.babylon.orbit2.reduce
 import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
 import com.babylon.orbit2.sample.posts.domain.repositories.PostRepository
 import com.babylon.orbit2.sample.posts.domain.repositories.Status
-import com.babylon.orbit2.sideEffect
 import com.babylon.orbit2.viewmodel.container
 
 class PostDetailsViewModel(
@@ -34,12 +33,8 @@ class PostDetailsViewModel(
 ) : ViewModel(), ContainerHost<PostDetailState, Nothing> {
 
     override val container = container<PostDetailState, Nothing>(PostDetailState.NoDetailsAvailable(postOverview), savedStateHandle) {
-        orbit {
-            sideEffect {
-                if (state !is PostDetailState.Details) {
-                    loadDetails()
-                }
-            }
+        if (it !is PostDetailState.Details) {
+            loadDetails()
         }
     }
 

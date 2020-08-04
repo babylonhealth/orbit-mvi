@@ -16,11 +16,10 @@
 
 package com.babylon.orbit2.sample.posts.data.posts.network
 
-import com.babylon.orbit2.sample.posts.data.posts.network.AvatarUrlGenerator
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Test
 
-class AvatarUrlGeneratorShould {
+class AvatarUrlGeneratorTest {
     @Test
     fun `generate url based on parameter`() {
         val actual = AvatarUrlGenerator().generateUrl("info@mattdolan.com")

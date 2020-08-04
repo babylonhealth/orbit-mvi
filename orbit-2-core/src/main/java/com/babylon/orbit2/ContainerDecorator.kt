@@ -14,11 +14,18 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.sample.posts.app.features.postlist.viewmodel
+package com.babylon.orbit2
 
-import com.babylon.orbit2.sample.posts.app.common.NavigationEvent
-import com.babylon.orbit2.sample.posts.domain.repositories.PostOverview
-
-data class OpenPostNavigationEvent(
-    val post: PostOverview
-) : NavigationEvent
+/**
+ * A decorator applying additional logic to a [Container].
+ *
+ * @param STATE The container's state type.
+ * @param SIDE_EFFECT The type of side effects posted by this container. Can be [Nothing] if this
+ * container never posts side effects.
+ */
+interface ContainerDecorator<STATE : Any, SIDE_EFFECT : Any> : Container<STATE, SIDE_EFFECT> {
+    /**
+     * The wrapped container.
+     */
+    val actual: Container<STATE, SIDE_EFFECT>
+}
