@@ -68,7 +68,7 @@ object ProjectDependencies {
     const val detektFormatting = "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detektPlugin}"
 
     // Test prerequisites
-    const val androidXTesting = "androidx.arch.core:core-testing:${Versions.androidxTesting}"
+    const val androidxTesting = "androidx.arch.core:core-testing:${Versions.androidxTesting}"
     const val junitPlatformConsole = "org.junit.platform:junit-platform-console:${Versions.junitPlatform}"
     const val assertJ = "org.assertj:assertj-core:${Versions.assertJ}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
