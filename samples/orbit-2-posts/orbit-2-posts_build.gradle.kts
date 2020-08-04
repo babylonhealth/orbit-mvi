@@ -34,7 +34,6 @@ android {
         applicationId = "com.babylon.orbit2.sample.posts"
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         getByName("release") {

@@ -28,7 +28,6 @@ android {
         versionCode = 1
         versionName = "1.0"
         applicationId = "com.babylon.orbit2.sample.calculator"
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         getByName("release") {
@@ -49,11 +48,10 @@ android {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    //implementation(project(":orbit-2-core"))
+    implementation(project(":orbit-2-core"))
     implementation(project(":orbit-2-livedata"))
     implementation(project(":orbit-2-viewmodel"))
 
-    //implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("com.google.android.material:material:1.1.0")
     implementation("org.koin:koin-androidx-viewmodel:2.1.6")

@@ -29,7 +29,6 @@ android {
         versionCode = 1
         versionName = "1.0"
         applicationId = "com.babylon.orbit2.sample.stocklist"
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         getByName("release") {
