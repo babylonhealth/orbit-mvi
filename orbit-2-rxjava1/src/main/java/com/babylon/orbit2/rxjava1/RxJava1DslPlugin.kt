@@ -29,10 +29,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import rx.Completable
+import rx.CompletableSubscriber
 import rx.Observable
 import rx.Observer
 import rx.Single
 import rx.SingleSubscriber
+import rx.Subscription
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -68,7 +71,7 @@ object RxJava1DslPlugin : OrbitDslPlugin {
             is RxJava1Completable -> flow.onEach {
                 with(operator) {
                     withContext(containerContext.backgroundDispatcher) {
-                        createContext(it).block().toSingle {}.await()
+                        createContext(it).block().suspendAwait()
                     }
                 }
             }
@@ -99,13 +102,16 @@ private fun <T> Observable<T>.asFlow(): Flow<T> = callbackFlow {
 
 private suspend fun <T> Single<T>.await(): T = suspendCancellableCoroutine { cont ->
     val subscription = subscribe(object : SingleSubscriber<T>() {
-        override fun onSuccess(t: T) {
-            cont.resume(t)
-        }
-
-        override fun onError(error: Throwable) {
-            cont.resumeWithException(error)
-        }
+        override fun onSuccess(t: T) = cont.resume(t)
+        override fun onError(error: Throwable) = cont.resumeWithException(error)
     })
     cont.invokeOnCancellation { subscription.unsubscribe() }
+}
+
+private suspend fun Completable.suspendAwait(): Unit = suspendCancellableCoroutine { cont ->
+    subscribe(object : CompletableSubscriber {
+        override fun onSubscribe(d: Subscription) = cont.invokeOnCancellation { d.unsubscribe() }
+        override fun onCompleted() = cont.resume(Unit)
+        override fun onError(e: Throwable) = cont.resumeWithException(e)
+    })
 }
