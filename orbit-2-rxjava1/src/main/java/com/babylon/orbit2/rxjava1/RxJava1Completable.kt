@@ -23,7 +23,7 @@ import com.babylon.orbit2.Orbit2Dsl
 import com.babylon.orbit2.OrbitDslPlugins
 import rx.Completable
 
-internal class RxJava1Completable<S : Any, E : Any>(
+internal class RxJava1Completable<S : Any, E>(
     val block: suspend Context<S, E>.() -> Completable
 ) : Operator<S, E>
 
@@ -36,7 +36,7 @@ internal class RxJava1Completable<S : Any, E : Any>(
  * @param block the lambda returning a new [Completable] given the current state and event
  */
 @Orbit2Dsl
-fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.transformRx1Completable(
+fun <S : Any, SE : Any, E> Builder<S, SE, E>.transformRx1Completable(
     block: suspend Context<S, E>.() -> Completable
 ): Builder<S, SE, E> {
     OrbitDslPlugins.register(RxJava1DslPlugin)

@@ -46,20 +46,20 @@ import kotlin.coroutines.resumeWithException
 object RxJava1DslPlugin : OrbitDslPlugin {
 
     @Suppress("UNCHECKED_CAST", "EXPERIMENTAL_API_USAGE")
-    override fun <S : Any, E : Any, SE : Any> apply(
+    override fun <S : Any, E, SE : Any> apply(
         containerContext: OrbitDslPlugin.ContainerContext<S, SE>,
         flow: Flow<E>,
         operator: Operator<S, E>,
         createContext: (event: E) -> Context<S, E>
-    ): Flow<Any> {
+    ): Flow<Any?> {
         return when (operator) {
             is RxJava1Observable<*, *, *> -> flow.flatMapConcat {
-                with(operator as RxJava1Observable<S, E, Any>) {
+                with(operator as RxJava1Observable<S, E, Any?>) {
                     createContext(it).block()
                 }.asFlow().flowOn(containerContext.backgroundDispatcher)
             }
             is RxJava1Single<*, *, *> -> flow.map {
-                with(operator as RxJava1Single<S, E, Any>) {
+                with(operator as RxJava1Single<S, E, Any?>) {
                     withContext(containerContext.backgroundDispatcher) {
                         createContext(it).block().await()
                     }
@@ -78,7 +78,7 @@ object RxJava1DslPlugin : OrbitDslPlugin {
 }
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-private fun <T : Any> Observable<T>.asFlow(): Flow<T> = callbackFlow {
+private fun <T> Observable<T>.asFlow(): Flow<T> = callbackFlow {
     val observer = object : Observer<T> {
         override fun onError(e: Throwable?) {
             close(e)

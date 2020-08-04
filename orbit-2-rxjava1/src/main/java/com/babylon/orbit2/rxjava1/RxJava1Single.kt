@@ -23,7 +23,7 @@ import com.babylon.orbit2.Orbit2Dsl
 import com.babylon.orbit2.OrbitDslPlugins
 import rx.Single
 
-internal class RxJava1Single<S : Any, E : Any, E2 : Any>(
+internal class RxJava1Single<S : Any, E, E2>(
     val block: Context<S, E>.() -> Single<E2>
 ) : Operator<S, E>
 
@@ -36,7 +36,7 @@ internal class RxJava1Single<S : Any, E : Any, E2 : Any>(
  * @param block the lambda returning a new [Single] given the current state and event
  */
 @Orbit2Dsl
-fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformRx1Single(
+fun <S : Any, SE : Any, E, E2> Builder<S, SE, E>.transformRx1Single(
     block: Context<S, E>.() -> Single<E2>
 ): Builder<S, SE, E2> {
     OrbitDslPlugins.register(RxJava1DslPlugin)
