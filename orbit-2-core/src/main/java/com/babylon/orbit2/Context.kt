@@ -23,4 +23,12 @@ package com.babylon.orbit2
  * @property event The current event being processed
  */
 @Orbit2Dsl
-data class Context<STATE : Any, EVENT>(val state: STATE, val event: EVENT)
+interface Context<STATE : Any, EVENT> {
+    val state: STATE
+    val event: EVENT
+
+    /**
+     * The current state which can change throughout execution of the operator
+     */
+    fun volatileState(): STATE
+}

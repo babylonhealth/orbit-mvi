@@ -32,22 +32,13 @@ internal class Reduce<S : Any, E>(val block: Context<S, E>.() -> Any) :
 
 /**
  * Represents the current context in which an [Operator] is executing.
- *
- * @property state The current state captured at the point when the operator is executed
- * @property event The current event being processed
  */
 @Orbit2Dsl
-data class SideEffectContext<S : Any, SE : Any, E>(
-    val state: S,
-    val event: E,
-    private val postSideEffect: (SE) -> Unit
-) {
+interface SideEffectContext<S : Any, SE : Any, E> : Context<S, E> {
     /**
      * Posts a side effect to [Container.sideEffectStream].
      */
-    fun post(event: SE) {
-        postSideEffect(event)
-    }
+    fun post(event: SE)
 }
 
 /**
@@ -132,11 +123,12 @@ object BaseDslPlugin : OrbitDslPlugin {
             is SideEffect<*, *, *> -> flow.onEach {
                 with(operator as SideEffect<S, SE, E>) {
                     createContext(it).let { context ->
-                        SideEffectContext(
-                            context.state,
-                            context.event,
-                            containerContext.postSideEffect
-                        )
+                        object : SideEffectContext<S, SE, E> {
+                            override val state = context.state
+                            override val event = context.event
+                            override fun volatileState() = context.state
+                            override fun post(event: SE) = containerContext.postSideEffect(event)
+                        }
                     }
                         .block()
                 }
