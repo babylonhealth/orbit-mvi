@@ -126,7 +126,7 @@ object BaseDslPlugin : OrbitDslPlugin {
                         object : SideEffectContext<S, SE, E> {
                             override val state = context.state
                             override val event = context.event
-                            override fun volatileState() = context.state
+                            override fun volatileState() = context.volatileState()
                             override fun post(event: SE) = containerContext.postSideEffect(event)
                         }
                     }
