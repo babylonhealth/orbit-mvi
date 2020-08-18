@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -72,84 +71,6 @@ class RealContainerTest {
             container.orbit {
                 transform {
                     runBlocking {
-                        val initialState = volatileState()
-
-                        stateChangedMutex.withLock {
-                            delay(10)
-                            assertNotEquals(initialState, volatileState())
-                            completionMutex.unlock()
-                        }
-                    }
-                }
-            }
-
-            container.orbit {
-                reduce {
-                    runBlocking {
-                        delay(50)
-                        state.copy(value = state.value + 1).also {
-                            stateChangedMutex.unlock()
-                        }
-                    }
-                }
-            }
-
-            withTimeout(500) {
-                completionMutex.withLock { }
-            }
-        }
-    }
-
-    @Test
-    fun `state is not volatile in side effects`() {
-        runBlocking {
-            val container = scope.createContainer()
-
-            val stateChangedMutex = Mutex(locked = true)
-            val completionMutex = Mutex(locked = true)
-
-            container.orbit {
-                sideEffect {
-                    launch {
-                        val initialState = state
-
-                        stateChangedMutex.withLock {
-                            delay(10)
-                            assertEquals(initialState, state)
-                            completionMutex.unlock()
-                        }
-                    }
-                }
-            }
-
-            container.orbit {
-                reduce {
-                    runBlocking {
-                        delay(50)
-                        state.copy(value = state.value + 1).also {
-                            stateChangedMutex.unlock()
-                        }
-                    }
-                }
-            }
-
-            withTimeout(500) {
-                completionMutex.withLock { }
-            }
-        }
-    }
-
-    @Test
-    fun `volatile state changes mid-flow in side effects`() {
-        runBlocking {
-            val container = scope.createContainer()
-
-            val stateChangedMutex = Mutex(locked = true)
-            val completionMutex = Mutex(locked = true)
-
-            container.orbit {
-                sideEffect {
-                    launch {
                         val initialState = volatileState()
 
                         stateChangedMutex.withLock {

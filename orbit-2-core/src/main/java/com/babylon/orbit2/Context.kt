@@ -26,7 +26,13 @@ package com.babylon.orbit2
 interface Context<STATE : Any, EVENT> {
     val state: STATE
     val event: EVENT
+}
 
+/**
+ * Represents the current context in which an [Operator] is executing with access to the [volatileState].
+ */
+@Orbit2Dsl
+interface VolatileContext<STATE : Any, EVENT> : Context<STATE, EVENT> {
     /**
      * The current state which can change throughout execution of the operator
      */

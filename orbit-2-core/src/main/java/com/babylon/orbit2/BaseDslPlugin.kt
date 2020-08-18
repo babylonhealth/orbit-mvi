@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 
-internal class Transform<S : Any, E, E2>(val block: Context<S, E>.() -> E2) :
+internal class Transform<S : Any, E, E2>(val block: VolatileContext<S, E>.() -> E2) :
     Operator<S, E2>
 
 internal class SideEffect<S : Any, SE : Any, E>(val block: SideEffectContext<S, SE, E>.() -> Unit) :
@@ -49,7 +49,7 @@ interface SideEffectContext<S : Any, SE : Any, E> : Context<S, E> {
  * @param block the lambda returning a new event given the current state and event
  */
 @Orbit2Dsl
-fun <S : Any, SE : Any, E, E2> Builder<S, SE, E>.transform(block: Context<S, E>.() -> E2): Builder<S, SE, E2> {
+fun <S : Any, SE : Any, E, E2> Builder<S, SE, E>.transform(block: VolatileContext<S, E>.() -> E2): Builder<S, SE, E2> {
     return Builder(
         stack + Transform(
             block
@@ -109,7 +109,7 @@ object BaseDslPlugin : OrbitDslPlugin {
         containerContext: OrbitDslPlugin.ContainerContext<S, SE>,
         flow: Flow<E>,
         operator: Operator<S, E>,
-        createContext: (event: E) -> Context<S, E>
+        createContext: (event: E) -> VolatileContext<S, E>
     ): Flow<Any?> {
         @Suppress("UNCHECKED_CAST")
         return when (operator) {
@@ -126,7 +126,6 @@ object BaseDslPlugin : OrbitDslPlugin {
                         object : SideEffectContext<S, SE, E> {
                             override val state = context.state
                             override val event = context.event
-                            override fun volatileState() = context.volatileState()
                             override fun post(event: SE) = containerContext.postSideEffect(event)
                         }
                     }
