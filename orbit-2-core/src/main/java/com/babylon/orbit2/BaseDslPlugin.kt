@@ -31,17 +31,6 @@ internal class Reduce<S : Any, E>(val block: Context<S, E>.() -> Any) :
     Operator<S, E>
 
 /**
- * Represents the current context in which an [Operator] is executing.
- */
-@Orbit2Dsl
-interface SideEffectContext<S : Any, SE : Any, E> : Context<S, E> {
-    /**
-     * Posts a side effect to [Container.sideEffectStream].
-     */
-    fun post(event: SE)
-}
-
-/**
  * The basic transformer maps the incoming state and event into a new event.
  *
  * The transformer executes on an `IO` dispatcher by default.
