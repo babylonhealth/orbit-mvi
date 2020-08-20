@@ -30,6 +30,10 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
 class OrbitTestingTest {
+    companion object {
+        const val TIMEOUT = 200L
+    }
+    
     val fixture = kotlinFixture()
 
     @Suppress("unused")
@@ -55,7 +59,7 @@ class OrbitTestingTest {
             testSubject.something(action)
             testSubject.something(action2)
 
-            testSubject.assert(timeoutMillis = 100L) {
+            testSubject.assert(timeoutMillis = TIMEOUT) {
                 states(
                     { copy(count = action) },
                     { copy(count = action2) }
@@ -78,7 +82,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                 }
             }
 
@@ -104,7 +108,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     states(
                         { copy(count = action) },
                         { copy(count = action2) },
@@ -136,7 +140,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     states(
                         { copy(count = action) },
                         { copy(count = action2) },
@@ -167,7 +171,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     states(
                         { copy(count = action2) },
                         { copy(count = action3) }
@@ -196,7 +200,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     states(
                         { copy(count = action2) },
                         { copy(count = action3) }
@@ -224,7 +228,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     states(
                         { copy(count = action2) },
                         { copy(count = action) }
@@ -254,7 +258,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
             testSubject.something(action3)
 
-            testSubject.assert(timeoutMillis = 100L) {
+            testSubject.assert(timeoutMillis = TIMEOUT) {
                 states(
                     { copy(count = action) },
                     { copy(count = action2) },
@@ -279,7 +283,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     states(
                         { copy(count = 0) },
                         { copy(count = action) }
@@ -325,7 +329,7 @@ class OrbitTestingTest {
 
             sideEffects.forEach { testSubject.something(it) }
 
-            testSubject.assert(timeoutMillis = 100L) {
+            testSubject.assert(timeoutMillis = TIMEOUT) {
                 postedSideEffects(sideEffects)
             }
         }
@@ -344,7 +348,7 @@ class OrbitTestingTest {
             sideEffects.forEach { testSubject.something(it) }
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     postedSideEffects(sideEffects2)
                 }
             }
@@ -366,7 +370,7 @@ class OrbitTestingTest {
 
             sideEffects.forEach { testSubject.something(it) }
 
-            testSubject.assert(timeoutMillis = 100L) {
+            testSubject.assert(timeoutMillis = TIMEOUT) {
                 postedSideEffects(sideEffects)
 
                 sideEffects.forEach {
@@ -389,7 +393,7 @@ class OrbitTestingTest {
             sideEffects.forEach { testSubject.something(it) }
 
             assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = 100L) {
+                testSubject.assert(timeoutMillis = TIMEOUT) {
                     postedSideEffects(sideEffects)
 
                     sideEffects2.forEach {
