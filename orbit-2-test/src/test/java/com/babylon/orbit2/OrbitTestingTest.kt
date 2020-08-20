@@ -26,23 +26,36 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 class OrbitTestingTest {
     val fixture = kotlinFixture()
 
+    @Suppress("unused")
+    enum class BlockingModeTests(val blocking: Boolean) {
+        BLOCKING(true),
+        NON_BLOCKING(false)
+    }
+
     @Nested
     inner class StateTests {
 
-        @Test
-        fun `succeeds if emitted states match expected states`() {
-            val testSubject = StateTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `succeeds if emitted states match expected states`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
             testSubject.something(action)
             testSubject.something(action2)
 
-            testSubject.assert {
+            testSubject.assert(timeoutMillis = 100L) {
                 states(
                     { copy(count = action) },
                     { copy(count = action2) }
@@ -50,9 +63,14 @@ class OrbitTestingTest {
             }
         }
 
-        @Test
-        fun `fails if more states emitted than expected`() {
-            val testSubject = StateTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if more states emitted than expected`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
@@ -60,7 +78,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                 }
             }
 
@@ -70,9 +88,14 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `fails if one more state expected than emitted`() {
-            val testSubject = StateTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if one more state expected than emitted`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
@@ -81,7 +104,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     states(
                         { copy(count = action) },
                         { copy(count = action2) },
@@ -96,9 +119,14 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `fails if two more states expected than emitted`() {
-            val testSubject = StateTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if two more states expected than emitted`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
@@ -108,7 +136,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     states(
                         { copy(count = action) },
                         { copy(count = action2) },
@@ -124,9 +152,13 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `fails if first emitted state does not match expected`() {
-            val testSubject = StateTestMiddleware().test(State())
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if first emitted state does not match expected`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
@@ -135,7 +167,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     states(
                         { copy(count = action2) },
                         { copy(count = action3) }
@@ -149,9 +181,13 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `fails if second emitted state does not match expected`() {
-            val testSubject = StateTestMiddleware().test(State())
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if second emitted state does not match expected`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
@@ -160,7 +196,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     states(
                         { copy(count = action2) },
                         { copy(count = action3) }
@@ -174,9 +210,13 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `fails if expected states are out of order`() {
-            val testSubject = StateTestMiddleware().test(State())
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if expected states are out of order`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
@@ -184,7 +224,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     states(
                         { copy(count = action2) },
                         { copy(count = action) }
@@ -198,9 +238,14 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `succeeds with dropped assertions`() {
-            val testSubject = StateTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `succeeds with dropped assertions`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
@@ -209,7 +254,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
             testSubject.something(action3)
 
-            testSubject.assert {
+            testSubject.assert(timeoutMillis = 100L) {
                 states(
                     { copy(count = action) },
                     { copy(count = action2) },
@@ -219,9 +264,14 @@ class OrbitTestingTest {
             }
         }
 
-        @Test
-        fun `fails if dropped assertions mean extra states are observed`() {
-            val testSubject = StateTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if dropped assertions mean extra states are observed`(testCase: BlockingModeTests) {
+            val testSubject = StateTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
@@ -229,7 +279,7 @@ class OrbitTestingTest {
             testSubject.something(action2)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     states(
                         { copy(count = 0) },
                         { copy(count = action) }
@@ -263,28 +313,38 @@ class OrbitTestingTest {
 
     @Nested
     inner class SideEffectTests {
-        @Test
-        fun `succeeds if posted side effects match expected side effects`() {
-            val testSubject = SideEffectTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `succeeds if posted side effects match expected side effects`(testCase: BlockingModeTests) {
+            val testSubject = SideEffectTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val sideEffects = fixture<List<Int>>()
 
             sideEffects.forEach { testSubject.something(it) }
 
-            testSubject.assert {
+            testSubject.assert(timeoutMillis = 100L) {
                 postedSideEffects(sideEffects)
             }
         }
 
-        @Test
-        fun `fails if posted side effects do not match expected side effects`() {
-            val testSubject = SideEffectTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if posted side effects do not match expected side effects`(testCase: BlockingModeTests) {
+            val testSubject = SideEffectTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val sideEffects = fixture<List<Int>>()
             val sideEffects2 = fixture<List<Int>>()
 
             sideEffects.forEach { testSubject.something(it) }
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     postedSideEffects(sideEffects2)
                 }
             }
@@ -294,14 +354,19 @@ class OrbitTestingTest {
             )
         }
 
-        @Test
-        fun `succeeds if loopbacks match`() {
-            val testSubject = SideEffectTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `succeeds if loopbacks match`(testCase: BlockingModeTests) {
+            val testSubject = SideEffectTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val sideEffects = fixture<List<Int>>()
 
             sideEffects.forEach { testSubject.something(it) }
 
-            testSubject.assert {
+            testSubject.assert(timeoutMillis = 100L) {
                 postedSideEffects(sideEffects)
 
                 sideEffects.forEach {
@@ -310,16 +375,21 @@ class OrbitTestingTest {
             }
         }
 
-        @Test
-        fun `fails if loopbacks do not match`() {
-            val testSubject = SideEffectTestMiddleware().test(State(), false)
+        @ParameterizedTest
+        @EnumSource(BlockingModeTests::class)
+        fun `fails if loopbacks do not match`(testCase: BlockingModeTests) {
+            val testSubject = SideEffectTestMiddleware().test(
+                initialState = State(),
+                isolateFlow = false,
+                blocking = testCase.blocking
+            )
             val sideEffects = fixture<List<Int>>()
             val sideEffects2 = fixture<List<Int>>()
 
             sideEffects.forEach { testSubject.something(it) }
 
             assertThrows<AssertionError> {
-                testSubject.assert {
+                testSubject.assert(timeoutMillis = 100L) {
                     postedSideEffects(sideEffects)
 
                     sideEffects2.forEach {
@@ -331,8 +401,7 @@ class OrbitTestingTest {
 
         private inner class SideEffectTestMiddleware :
             ContainerHost<State, Int> {
-            override val container =
-                CoroutineScope(Dispatchers.Unconfined).container<State, Int>(State())
+            override val container = CoroutineScope(Dispatchers.Unconfined).container<State, Int>(State())
 
             fun something(action: Int): Unit = orbit {
                 sideEffect {

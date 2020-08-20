@@ -51,7 +51,7 @@ class ExampleActivity: AppCompatActivity() {
 ## transformLiveData
 
 ``` kotlin
-fun subscribeToLocationUpdates(): Observable<LocationUpdate> { ... }
+fun subscribeToLocationUpdates(): LiveData<LocationUpdate>()
 
 class ExampleViewModel : ContainerHost<ExampleState, ExampleSideEffect> {
     ...

@@ -33,7 +33,6 @@ dependencies {
     testImplementation(ProjectDependencies.androidxTesting)
     testImplementation(ProjectDependencies.kotlinCoroutines)
     testImplementation(ProjectDependencies.kotlinCoroutinesTest)
-    testImplementation(ProjectDependencies.robolectric)
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
     testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
 }
