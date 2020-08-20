@@ -83,12 +83,15 @@ class OrbitTestingTest {
 
             val throwable = assertThrows<AssertionError> {
                 testSubject.assert(timeoutMillis = TIMEOUT) {
+                    states(
+                        { copy(count = action) }
+                    )
                 }
             }
 
             assertThat(throwable.message).contains(
-                "Expected 0 states but more were emitted:\n" +
-                        "[State(count=$action), State(count=$action2)]"
+                "Expected 1 states but more were emitted:\n" +
+                        "[State(count=$action2)]"
             )
         }
 
