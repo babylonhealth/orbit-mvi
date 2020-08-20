@@ -33,7 +33,7 @@ class OrbitTestingTest {
     companion object {
         const val TIMEOUT = 200L
     }
-    
+
     val fixture = kotlinFixture()
 
     @Suppress("unused")
