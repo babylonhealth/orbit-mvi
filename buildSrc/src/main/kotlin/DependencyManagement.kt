@@ -62,7 +62,7 @@ object ProjectDependencies {
     const val androidxLifecycleComponents = "androidx.lifecycle:lifecycle-extensions:${Versions.androidxLifecycles}"
     const val androidxLifecycleSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.androidxLifecycles}"
     const val androidxLifecycleKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.androidxLifecycles}"
-    const val androidxLiveDataeKtx = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.androidxLifecycles}"
+    const val androidxLiveDataKtx = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.androidxLifecycles}"
     const val androidxEspressoIdlingResource = "androidx.test.espresso:espresso-idling-resource:${Versions.androidxEspresso}"
     const val androidxEspressoCore = "androidx.test.espresso:espresso-core:${Versions.androidxEspresso}"
 

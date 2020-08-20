@@ -22,7 +22,7 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(ProjectDependencies.androidxLifecycleComponents)
-    implementation(ProjectDependencies.androidxLiveDataeKtx)
+    implementation(ProjectDependencies.androidxLiveDataKtx)
     implementation(ProjectDependencies.kotlinCoroutines)
     implementation(ProjectDependencies.kotlinCoroutinesAndroid)
 
