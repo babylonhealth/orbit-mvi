@@ -22,6 +22,9 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(ProjectDependencies.androidxLifecycleComponents)
+    implementation(ProjectDependencies.androidxLiveDataeKtx)
+    implementation(ProjectDependencies.kotlinCoroutines)
+    implementation(ProjectDependencies.kotlinCoroutinesAndroid)
 
     api(project(":orbit-2-core"))
 
@@ -29,6 +32,8 @@ dependencies {
     testImplementation(project(":orbit-2-test"))
     testImplementation(ProjectDependencies.androidxTesting)
     testImplementation(ProjectDependencies.kotlinCoroutines)
+    testImplementation(ProjectDependencies.kotlinCoroutinesTest)
+    testImplementation(ProjectDependencies.robolectric)
     GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
     testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
 }
