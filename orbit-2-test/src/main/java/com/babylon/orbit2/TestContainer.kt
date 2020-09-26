@@ -36,16 +36,14 @@ class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
 ) {
     private val dispatched = AtomicBoolean(false)
 
-    override fun orbit(
-        init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
-    ) {
+    override fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit) {
         if (!isolateFlow || dispatched.compareAndSet(false, true)) {
             if (blocking) {
                 runBlocking {
-                    collectFlow(init)
+                    orbitFlow(pluginContext)
                 }
             } else {
-                super.orbit(init)
+                super.orbit(orbitFlow)
             }
         }
     }

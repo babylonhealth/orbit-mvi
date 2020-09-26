@@ -16,5 +16,29 @@
 
 package com.babylon.orbit2
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+
 @Orbit2Dsl
-class Builder<S : Any, SE : Any, E>(val stack: List<Operator<S, *>> = emptyList())
+class Builder<S : Any, SE : Any, E>(val stack: List<Operator<S, *>> = emptyList()) {
+    @Suppress("UNCHECKED_CAST")
+    fun build(
+        pluginContext: OrbitDslPlugin.ContainerContext<S, SE>
+    ): Flow<Any?> {
+        return stack.fold(flowOf(Unit)) { flow: Flow<Any?>, operator: Operator<S, *> ->
+            OrbitDslPlugins.plugins.fold(flow) { flow2: Flow<Any?>, plugin: OrbitDslPlugin ->
+                plugin.apply(
+                    pluginContext,
+                    flow2,
+                    operator as Operator<S, Any?>
+                ) {
+                    object : VolatileContext<S, Any?> {
+                        override val state = volatileState()
+                        override val event = it
+                        override fun volatileState() = pluginContext.state
+                    }
+                }
+            }
+        }
+    }
+}

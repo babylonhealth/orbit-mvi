@@ -262,11 +262,14 @@ class BaseDslPluginIdlingTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): Container<TestState, Int> {
-        return container(
-            initialState = TestState(0),
-            settings = Container.Settings(idlingRegistry = testIdlingResource)
-        )
+    private fun CoroutineScope.createContainer(): ContainerHost<RealContainerTest.TestState, Int> {
+        return object : ContainerHost<RealContainerTest.TestState, Int> {
+            override val container: Container<RealContainerTest.TestState, Int> = container(
+                initialState = RealContainerTest.TestState(0),
+                settings = Container.Settings(idlingRegistry = testIdlingResource)
+
+            )
+        }
     }
 
     data class TestState(val value: Int)

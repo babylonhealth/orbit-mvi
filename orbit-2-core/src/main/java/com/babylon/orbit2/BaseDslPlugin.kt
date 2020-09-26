@@ -123,9 +123,7 @@ object BaseDslPlugin : OrbitDslPlugin {
             }
             is Reduce -> flow.onEach { event ->
                 containerContext.withIdling(operator) {
-                    containerContext.setState(
-                        createContext(event).block() as S
-                    )
+                    containerContext.state = createContext(event).block() as S
                 }
             }
             else -> flow

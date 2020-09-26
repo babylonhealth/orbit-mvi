@@ -16,24 +16,19 @@
 
 package com.babylon.orbit2
 
-/**
- * Represents the current context in which an [Operator] is executing.
- *
- * @property state The state captured at the point when the operator is executed
- * @property event The current event being processed
- */
 @Orbit2Dsl
-interface Context<STATE : Any, EVENT> {
-    val state: STATE
-    val event: EVENT
+class SimpleSyntax<S : Any, SE : Any>(internal val containerContext: OrbitDslPlugin.ContainerContext<S, SE>) {
+    val state: S get() = containerContext.state
+//    val volatileState: S
+//        get() = containerContext.state
 }
 
-/**
- * Represents the current context in which an [Operator] is executing.
- *
- * @property state The state captured at the point when the operator is executed
- */
-@Orbit2Dsl
-interface SimpleContext<STATE : Any> {
-    val state: STATE
+suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.reduce(reducer: suspend () -> S) {
+    containerContext.apply {
+        state = reducer()
+    }
+}
+
+fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: SE) {
+    containerContext.postSideEffect(sideEffect)
 }

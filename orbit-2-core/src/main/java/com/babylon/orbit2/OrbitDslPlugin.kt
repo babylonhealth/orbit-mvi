@@ -32,8 +32,13 @@ interface OrbitDslPlugin {
 
     class ContainerContext<S : Any, SE : Any>(
         val backgroundDispatcher: CoroutineDispatcher,
-        val setState: (S) -> Unit,
         val postSideEffect: (SE) -> Unit,
-        val settings: Container.Settings
-    )
+        val settings: Container.Settings,
+        private val getState: () -> S,
+        private val setState: (S) -> Unit
+    ) {
+        var state: S
+            get() = getState()
+            set(s) = setState(s)
+    }
 }

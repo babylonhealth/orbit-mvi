@@ -2,6 +2,7 @@ package com.babylon.orbit2.viewmodel
 
 import androidx.test.espresso.IdlingRegistry
 import com.babylon.orbit2.Container
+import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.coroutines.transformSuspend
 import kotlinx.coroutines.CoroutineScope
@@ -303,11 +304,13 @@ class AndroidIdlingResourceTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): Container<TestState, Int> {
-        return container(
-            initialState = TestState(0),
-            settings = Container.Settings(idlingRegistry = AndroidIdlingResource())
-        )
+    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+        return object : ContainerHost<TestState, Int> {
+            override val container: Container<TestState, Int> = container(
+                initialState = TestState(0),
+                settings = Container.Settings(idlingRegistry = AndroidIdlingResource())
+            )
+        }
     }
 
     data class TestState(val value: Int)

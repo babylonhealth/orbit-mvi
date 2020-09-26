@@ -25,7 +25,6 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
@@ -45,9 +44,8 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     private val internalStateFlow = MutableStateFlow(initialState)
     private val sideEffectChannel = Channel<SIDE_EFFECT>(settings.sideEffectBufferSize)
     private val sideEffectMutex = Mutex()
-    private val pluginContext = OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>(
+    protected val pluginContext = OrbitDslPlugin.ContainerContext(
         backgroundDispatcher = backgroundDispatcher,
-        setState = { internalStateFlow.value = it },
         postSideEffect = { event: SIDE_EFFECT ->
             scope.launch {
                 // Ensure side effect ordering
@@ -56,7 +54,9 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                 }
             }
         },
-        settings = settings
+        settings = settings,
+        getState = { internalStateFlow.value },
+        setState = { internalStateFlow.value = it }
     )
 
     init {
@@ -78,30 +78,22 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     override val sideEffectStream = sideEffectFlow.asStream()
 
-    override fun orbit(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) {
-        scope.launch {
-            collectFlow(init)
-        }
+//    override fun orbit(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) {
+//        scope.launch {
+//            collectFlow(init)
+//        }
+//    }
+
+    override fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit) {
+        scope.launch { orbitFlow(pluginContext) }
     }
 
     @Suppress("UNCHECKED_CAST")
     suspend fun collectFlow(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) {
         Builder<STATE, SIDE_EFFECT, Unit>()
-            .init().stack.fold(flowOf(Unit)) { flow: Flow<Any?>, operator: Operator<STATE, *> ->
-                OrbitDslPlugins.plugins.fold(flow) { flow2: Flow<Any?>, plugin: OrbitDslPlugin ->
-                    plugin.apply(
-                        pluginContext,
-                        flow2,
-                        operator as Operator<STATE, Any?>
-                    ) {
-                        object : VolatileContext<STATE, Any?> {
-                            override val state = currentState
-                            override val event = it
-                            override fun volatileState() = currentState
-                        }
-                    }
-                }
-            }.collect()
+            .init()
+            .build(pluginContext)
+            .collect()
     }
 
     companion object {

@@ -99,10 +99,12 @@ class RealContainerTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): Container<TestState, Int> {
-        return container(
-            initialState = TestState(0)
-        )
+    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+        return object : ContainerHost<TestState, Int> {
+            override val container: Container<TestState, Int> = container(
+                initialState = TestState(0)
+            )
+        }
     }
 
     data class TestState(val value: Int)

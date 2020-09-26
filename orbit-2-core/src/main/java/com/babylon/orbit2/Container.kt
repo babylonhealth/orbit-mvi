@@ -80,9 +80,11 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
      *
      * @param init lambda returning the operator chain that represents the flow
      */
-    fun orbit(
-        init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
-    )
+//    fun orbit(
+//        init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
+//    )
+
+    fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit)
 
     /**
      * Represents additional settings to create the container with.

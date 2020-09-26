@@ -16,14 +16,12 @@
 
 package com.babylon.orbit2
 
-import kotlinx.coroutines.flow.collect
-
 /**
  * Apply this interface to anything you want to become an orbit container host.
  * Typically this will be an Android ViewModel but it can be applied to simple presenters etc.
  *
  */
-interface ContainerHost<STATE : Any, SIDE_EFFECT : Any> : ContainerHostBase<STATE, SIDE_EFFECT> {
+interface ContainerHostBase<STATE : Any, SIDE_EFFECT : Any> {
     /**
      * The orbit [Container] instance.
      *
@@ -33,20 +31,5 @@ interface ContainerHost<STATE : Any, SIDE_EFFECT : Any> : ContainerHostBase<STAT
      * override val container = Container.create<MyState, MySideEffect>(initialState)
      * ```
      */
-    override val container: Container<STATE, SIDE_EFFECT>
-
-    /**
-     * Build and execute an orbit flow on [container] using the [Builder] and
-     * associated DSL functions.
-     *
-     * @param init lambda returning the operator chain that represents the flow
-     */
-    @Orbit2Dsl
-    fun orbit(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) =
-        container.orbit {
-            Builder<STATE, SIDE_EFFECT, Unit>()
-                .init()
-                .build(it)
-                .collect()
-        }
+    val container: Container<STATE, SIDE_EFFECT>
 }

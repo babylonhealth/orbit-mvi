@@ -2,6 +2,7 @@ package com.babylon.orbit2.livedata
 
 import androidx.lifecycle.liveData
 import com.babylon.orbit2.Container
+import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.idling.IdlingResource
 import kotlinx.coroutines.CoroutineScope
@@ -98,11 +99,13 @@ class LiveDataDslPluginIdlingTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): Container<TestState, Int> {
-        return container(
-            initialState = TestState(0),
-            settings = Container.Settings(idlingRegistry = testIdlingResource)
-        )
+    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+        return object : ContainerHost<TestState, Int> {
+            override val container: Container<TestState, Int> = container(
+                initialState = TestState(0),
+                settings = Container.Settings(idlingRegistry = testIdlingResource)
+            )
+        }
     }
 
     private data class TestState(val value: Int)
