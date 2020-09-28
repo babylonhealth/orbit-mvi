@@ -44,22 +44,6 @@ class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
             emitAll(actual.sideEffectFlow)
         }
 
-    override val stateStream: Stream<STATE>
-        get() = object : Stream<STATE> {
-            override fun observe(lambda: (STATE) -> Unit): Closeable {
-                runOnCreate()
-                return actual.stateStream.observe(lambda)
-            }
-        }
-
-    override val sideEffectStream: Stream<SIDE_EFFECT>
-        get() = object : Stream<SIDE_EFFECT> {
-            override fun observe(lambda: (SIDE_EFFECT) -> Unit): Closeable {
-                runOnCreate()
-                return actual.sideEffectStream.observe(lambda)
-            }
-        }
-
     override fun orbit(
         init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
     ) = runOnCreate().also { actual.orbit(init) }
