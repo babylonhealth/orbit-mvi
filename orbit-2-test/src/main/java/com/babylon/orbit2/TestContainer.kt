@@ -16,6 +16,7 @@
 
 package com.babylon.orbit2
 
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -36,7 +37,7 @@ class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
 ) {
     private val dispatched = AtomicBoolean(false)
 
-    override fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit) {
+    override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
         if (!isolateFlow || dispatched.compareAndSet(false, true)) {
             if (blocking) {
                 runBlocking {

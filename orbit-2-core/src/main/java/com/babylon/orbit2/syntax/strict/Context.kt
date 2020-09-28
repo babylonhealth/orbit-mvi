@@ -14,7 +14,10 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
+
+import com.babylon.orbit2.syntax.Operator
+import com.babylon.orbit2.syntax.Orbit2Dsl
 
 /**
  * Represents the current context in which an [Operator] is executing.
@@ -26,14 +29,4 @@ package com.babylon.orbit2
 interface Context<STATE : Any, EVENT> {
     val state: STATE
     val event: EVENT
-}
-
-/**
- * Represents the current context in which an [Operator] is executing.
- *
- * @property state The state captured at the point when the operator is executed
- */
-@Orbit2Dsl
-interface SimpleContext<STATE : Any> {
-    val state: STATE
 }

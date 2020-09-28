@@ -16,9 +16,9 @@
 
 package com.babylon.orbit2.rxjava3
 
-import com.babylon.orbit2.Operator
-import com.babylon.orbit2.OrbitDslPlugin
-import com.babylon.orbit2.VolatileContext
+import com.babylon.orbit2.syntax.Operator
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
+import com.babylon.orbit2.syntax.strict.VolatileContext
 import com.babylon.orbit2.idling.withIdling
 import com.babylon.orbit2.idling.withIdlingFlow
 import kotlinx.coroutines.flow.Flow

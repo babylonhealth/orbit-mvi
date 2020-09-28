@@ -16,6 +16,7 @@
 
 package com.babylon.orbit2
 
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
@@ -78,22 +78,8 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     override val sideEffectStream = sideEffectFlow.asStream()
 
-//    override fun orbit(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) {
-//        scope.launch {
-//            collectFlow(init)
-//        }
-//    }
-
-    override fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit) {
-        scope.launch { orbitFlow(pluginContext) }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    suspend fun collectFlow(init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>) {
-        Builder<STATE, SIDE_EFFECT, Unit>()
-            .init()
-            .build(pluginContext)
-            .collect()
+    override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
+        scope.launch { pluginContext.orbitFlow() }
     }
 
     companion object {

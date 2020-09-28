@@ -21,7 +21,8 @@ import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.RealContainer
-import com.babylon.orbit2.sideEffect
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.sideEffect
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

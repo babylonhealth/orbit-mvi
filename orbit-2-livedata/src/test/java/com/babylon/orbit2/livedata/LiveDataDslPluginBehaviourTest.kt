@@ -20,10 +20,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.OrbitDslPlugins
 import com.babylon.orbit2.assert
 import com.babylon.orbit2.container
-import com.babylon.orbit2.reduce
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugins
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

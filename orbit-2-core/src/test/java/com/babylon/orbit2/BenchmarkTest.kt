@@ -17,6 +17,8 @@
 package com.babylon.orbit2
 
 import com.appmattus.kotlinfixture.kotlinFixture
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -38,11 +40,11 @@ internal class BenchmarkTest {
 
         val actions = fixture.asSequence<Int>().distinct().take(100_000)
 
-            GlobalScope.launch {
-                actions.forEach {
-                    middleware.reducer(it)
-                }
+        GlobalScope.launch {
+            actions.forEach {
+                middleware.reducer(it)
             }
+        }
 
         val millisReducing = measureTimeMillis {
             middleware.latch.await(10, TimeUnit.SECONDS)

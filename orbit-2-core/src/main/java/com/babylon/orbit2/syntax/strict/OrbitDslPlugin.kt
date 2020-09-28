@@ -14,8 +14,10 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
+import com.babylon.orbit2.Container
+import com.babylon.orbit2.syntax.Operator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 

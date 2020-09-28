@@ -21,7 +21,7 @@ package com.babylon.orbit2.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerDecorator
-import com.babylon.orbit2.OrbitDslPlugin
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import com.babylon.orbit2.Stream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -59,6 +59,6 @@ internal class SavedStateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
     override val sideEffectStream: Stream<SIDE_EFFECT>
         get() = actual.sideEffectStream
 
-    override fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit) =
+    override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) =
         actual.orbit(orbitFlow)
 }

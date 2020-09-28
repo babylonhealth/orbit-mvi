@@ -20,7 +20,8 @@ import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.RealContainer
-import com.babylon.orbit2.reduce
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import io.reactivex.Completable
 import io.reactivex.Maybe

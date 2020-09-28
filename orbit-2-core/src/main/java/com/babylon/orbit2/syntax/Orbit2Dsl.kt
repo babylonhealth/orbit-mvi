@@ -14,8 +14,7 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax
 
-interface Operator<S : Any, E> {
-    val registerIdling: Boolean
-}
+@DslMarker
+annotation class Orbit2Dsl

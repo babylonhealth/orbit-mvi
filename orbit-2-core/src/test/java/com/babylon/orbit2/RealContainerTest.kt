@@ -1,5 +1,8 @@
 package com.babylon.orbit2
 
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
+import com.babylon.orbit2.syntax.strict.transform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
