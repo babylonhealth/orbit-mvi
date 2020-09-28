@@ -19,7 +19,6 @@ package com.babylon.orbit2
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Suppress("OverridingDeprecatedMember", "DEPRECATION")
