@@ -14,8 +14,10 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
+import com.babylon.orbit2.Container
+import com.babylon.orbit2.syntax.Operator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 
@@ -32,8 +34,13 @@ interface OrbitDslPlugin {
 
     class ContainerContext<S : Any, SE : Any>(
         val backgroundDispatcher: CoroutineDispatcher,
-        val setState: (S) -> Unit,
         val postSideEffect: (SE) -> Unit,
-        val settings: Container.Settings
-    )
+        val settings: Container.Settings,
+        private val getState: () -> S,
+        private val setState: (S) -> Unit
+    ) {
+        var state: S
+            get() = getState()
+            set(s) = setState(s)
+    }
 }

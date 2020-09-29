@@ -14,16 +14,16 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.simple
+
+import com.babylon.orbit2.syntax.Orbit2Dsl
 
 /**
- * Represents the current context in which an [Operator] is executing.
+ * Represents the current context in which a simple orbit is executing.
  *
- * @property state The state captured at the point when the operator is executed
- * @property event The current event being processed
+ * @property state The current state of the container
  */
 @Orbit2Dsl
-interface Context<STATE : Any, EVENT> {
+interface SimpleContext<STATE : Any> {
     val state: STATE
-    val event: EVENT
 }

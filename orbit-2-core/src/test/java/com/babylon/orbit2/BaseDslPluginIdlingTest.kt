@@ -1,6 +1,10 @@
 package com.babylon.orbit2
 
 import com.babylon.orbit2.idling.IdlingResource
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
+import com.babylon.orbit2.syntax.strict.sideEffect
+import com.babylon.orbit2.syntax.strict.transform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -28,7 +32,7 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `idle when nothing running`() {
         runBlocking {
-            scope.createContainer()
+            scope.createContainerHost()
             delay(50)
         }
 
@@ -38,11 +42,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `transform not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transform {
                     runBlocking {
                         mutex.unlock()
@@ -62,11 +66,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `transform idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transform(registerIdling = false) {
                     runBlocking {
                         mutex.unlock()
@@ -86,11 +90,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `transform idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transform {
                     mutex.unlock()
                 }
@@ -107,11 +111,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `sideEffect not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 sideEffect {
                     runBlocking {
                         mutex.unlock()
@@ -131,11 +135,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `sideEffect idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 sideEffect(registerIdling = false) {
                     runBlocking {
                         mutex.unlock()
@@ -155,11 +159,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `sideEffect idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 sideEffect {
                     runBlocking {
                         mutex.unlock()
@@ -178,11 +182,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `reduce not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 reduce {
                     runBlocking {
                         mutex.unlock()
@@ -203,11 +207,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `reduce idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 reduce(registerIdling = false) {
                     runBlocking {
                         mutex.unlock()
@@ -228,11 +232,11 @@ class BaseDslPluginIdlingTest {
     @Test
     fun `reduce idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 reduce {
                     runBlocking {
                         mutex.unlock()
@@ -262,11 +266,14 @@ class BaseDslPluginIdlingTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): Container<TestState, Int> {
-        return container(
-            initialState = TestState(0),
-            settings = Container.Settings(idlingRegistry = testIdlingResource)
-        )
+    private fun CoroutineScope.createContainerHost(): ContainerHost<RealContainerTest.TestState, Int> {
+        return object : ContainerHost<RealContainerTest.TestState, Int> {
+            override val container: Container<RealContainerTest.TestState, Int> = container(
+                initialState = RealContainerTest.TestState(0),
+                settings = Container.Settings(idlingRegistry = testIdlingResource)
+
+            )
+        }
     }
 
     data class TestState(val value: Int)

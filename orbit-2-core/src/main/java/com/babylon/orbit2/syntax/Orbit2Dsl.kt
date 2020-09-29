@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax
 
-@Orbit2Dsl
-class Builder<S : Any, SE : Any, E>(val stack: List<Operator<S, *>> = emptyList())
+@DslMarker
+annotation class Orbit2Dsl

@@ -14,9 +14,12 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
+import com.babylon.orbit2.Container
 import com.babylon.orbit2.idling.withIdling
+import com.babylon.orbit2.syntax.Operator
+import com.babylon.orbit2.syntax.Orbit2Dsl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -54,9 +57,9 @@ fun <S : Any, SE : Any, E, E2> Builder<S, SE, E>.transform(
  * to as one-off events that are awkward to represent as part of the state - typically things
  * like navigation, showing transient views like toasts etc.
  *
- * These are delivered through [Container.sideEffectStream] by calling [SideEffectContext.post].
+ * These are delivered through [Container.sideEffectFlow] by calling [SideEffectContext.post].
  *
- * Side effects are passthrough operators. This means that after applying
+ * Side effects are pass-through operators. This means that after applying
  * a side effect, the upstream event flows unmodified downstream.
  *
  * @param registerIdling When true tracks the block's idling state, default: true
@@ -73,7 +76,7 @@ fun <S : Any, SE : Any, E> Builder<S, SE, E>.sideEffect(
 /**
  * Reducers reduce the current state and incoming events to produce a new state.
  *
- * Reducers are passthrough operators. This means that after applying
+ * Reducers are pass-through operators. This means that after applying
  * a reducer, the upstream event flows unmodified downstream.
  *
  * @param registerIdling When true tracks the block's idling state, default: true
@@ -123,9 +126,7 @@ object BaseDslPlugin : OrbitDslPlugin {
             }
             is Reduce -> flow.onEach { event ->
                 containerContext.withIdling(operator) {
-                    containerContext.setState(
-                        createContext(event).block() as S
-                    )
+                    containerContext.state = createContext(event).block() as S
                 }
             }
             else -> flow

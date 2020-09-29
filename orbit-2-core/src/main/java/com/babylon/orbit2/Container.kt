@@ -18,6 +18,7 @@ package com.babylon.orbit2
 
 import com.babylon.orbit2.idling.IdlingResource
 import com.babylon.orbit2.idling.NoopIdlingResource
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 
@@ -42,7 +43,7 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
     val stateFlow: Flow<STATE>
 
     /**
-     * A [Flow] of one-off side effects posted from [Builder.sideEffect]. Caches side effects when there are no collectors.
+     * A [Flow] of one-off side effects posted from [Container]. Caches side effects when there are no collectors.
      * The size of the cache can be controlled via Container [Settings] and determines if and when the orbit thread suspends when you
      * post a side effect. The default is unlimited. You don't have to touch this unless you are posting many side effects which could result in
      * [OutOfMemoryError].
@@ -64,7 +65,7 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
     val stateStream: Stream<STATE>
 
     /**
-     * A [Stream] of one-off side effects posted from [Builder.sideEffect].
+     * A [Stream] of one-off side effects posted from [Container].
      * Depending on the [Settings] this container has been instantiated with, can support
      * side effect caching when there are no listeners (default).
      * Emissions come in on the main coroutine dispatcher if installed, with the default dispatcher as the fallback. However,
@@ -75,14 +76,11 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
     val sideEffectStream: Stream<SIDE_EFFECT>
 
     /**
-     * Builds and executes an orbit flow using the [Builder] and
-     * associated DSL functions.
+     * Executes an orbit flow. The flows are built in the [ContainerHost] using your chosen syntax.
      *
-     * @param init lambda returning the operator chain that represents the flow
+     * @param orbitFlow lambda returning the suspend function representing the flow
      */
-    fun orbit(
-        init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
-    )
+    fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit)
 
     /**
      * Represents additional settings to create the container with.
