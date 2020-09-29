@@ -45,11 +45,11 @@ internal class CoroutineDslPluginThreadingTest {
         val action = fixture<Int>()
 
         val middleware = Middleware()
-        val testStreamObserver = middleware.container.stateFlow.test()
+        val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.suspend(action)
 
-        testStreamObserver.awaitCount(2)
+        testFlowObserver.awaitCount(2)
         assertThat(middleware.threadName).startsWith(BACKGROUND_THREAD_PREFIX)
     }
 
@@ -58,11 +58,11 @@ internal class CoroutineDslPluginThreadingTest {
         val action = fixture<Int>()
 
         val middleware = Middleware()
-        val testStreamObserver = middleware.container.stateFlow.test()
+        val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.flow(action)
 
-        testStreamObserver.awaitCount(5)
+        testFlowObserver.awaitCount(5)
         assertThat(middleware.threadName).startsWith(BACKGROUND_THREAD_PREFIX)
     }
 

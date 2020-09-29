@@ -36,7 +36,7 @@ internal class BenchmarkTest {
     fun benchmark() {
         val x = 100_000
         val middleware = BenchmarkMiddleware(x)
-        val testStreamObserver = middleware.container.stateFlow.test()
+        val testFlowObserver = middleware.container.stateFlow.test()
 
         val actions = fixture.asSequence<Int>().distinct().take(100_000)
 
@@ -50,7 +50,7 @@ internal class BenchmarkTest {
             middleware.latch.await(10, TimeUnit.SECONDS)
         }
 
-        println(testStreamObserver.values.size)
+        println(testFlowObserver.values.size)
         println(millisReducing)
         val reduction: Float = millisReducing.toFloat() / x
         println(reduction)

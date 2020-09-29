@@ -269,9 +269,10 @@ first class citizen in Orbit.
 This functionality is commonly used for things like truly one-off events,
 navigation, logging, analytics etc.
 
-You may use the `post` method within `sideEffect` in order to send the value to
-a [Container](src/main/java/com/babylon/orbit2/Container.kt)'s side effect
-stream. Use this for view-related side effects like Toasts, Navigation, etc.
+You may use the `post` method within `sideEffect` in order to send the
+value to a [Container](src/main/java/com/babylon/orbit2/Container.kt)'s
+side effect flow. Use this for view-related side effects like Toasts,
+Navigation, etc.
 
 Side effects are pass-through operators. This means that after applying
 a side effect, the upstream event is passed through unmodified to downstream
