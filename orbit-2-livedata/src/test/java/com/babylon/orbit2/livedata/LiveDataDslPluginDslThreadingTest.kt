@@ -62,11 +62,11 @@ internal class LiveDataDslPluginDslThreadingTest {
     fun `livedata transformation runs on IO dispatcher`() {
         val action = fixture<Int>()
 
-        val container = scope.createContainer()
-        val sideEffects = container.container.sideEffectFlow.test()
+        val containerHost = scope.createContainerHost()
+        val sideEffects = containerHost.container.sideEffectFlow.test()
         var threadName = ""
 
-        container.orbit {
+        containerHost.orbit {
             transformLiveData {
                 liveData {
                     threadName = Thread.currentThread().name
@@ -82,12 +82,12 @@ internal class LiveDataDslPluginDslThreadingTest {
 
     private data class TestState(val id: Int)
 
-    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+    private fun CoroutineScope.createContainerHost(): ContainerHost<TestState, Int> {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = RealContainer(
                 initialState = TestState(0),
                 settings = Container.Settings(),
-                parentScope = this@createContainer,
+                parentScope = this@createContainerHost,
                 backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
             )
         }

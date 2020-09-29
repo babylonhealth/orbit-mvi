@@ -27,12 +27,12 @@ class RealContainerTest {
     @Test
     fun `state is not volatile`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val stateChangedMutex = Mutex(locked = true)
             val completionMutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transform {
                     runBlocking {
                         val initialState = state
@@ -46,7 +46,7 @@ class RealContainerTest {
                 }
             }
 
-            container.orbit {
+            containerHost.orbit {
                 reduce {
                     runBlocking {
                         delay(50)
@@ -66,7 +66,7 @@ class RealContainerTest {
     @Test
     fun `volatile state changes mid-flow`() {
         runBlocking {
-            val container = scope.createContainer()
+            val container = scope.createContainerHost()
 
             val stateChangedMutex = Mutex(locked = true)
             val completionMutex = Mutex(locked = true)
@@ -102,7 +102,7 @@ class RealContainerTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+    private fun CoroutineScope.createContainerHost(): ContainerHost<TestState, Int> {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = container(
                 initialState = TestState(0)

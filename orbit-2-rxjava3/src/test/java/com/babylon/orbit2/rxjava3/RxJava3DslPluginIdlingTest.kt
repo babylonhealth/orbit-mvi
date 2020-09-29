@@ -36,7 +36,7 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `idle when nothing running`() {
         runBlocking {
-            scope.createContainer()
+            scope.createContainerHost()
             delay(50)
         }
 
@@ -46,11 +46,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Single not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Single {
                     runBlocking {
                         mutex.unlock()
@@ -71,11 +71,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Single idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Single(registerIdling = false) {
                     runBlocking {
                         mutex.unlock()
@@ -96,11 +96,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Single idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Single {
                     runBlocking {
                         mutex.unlock()
@@ -120,11 +120,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Completable not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Completable {
                     runBlocking {
                         mutex.unlock()
@@ -145,11 +145,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Completable idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Completable(registerIdling = false) {
                     runBlocking {
                         mutex.unlock()
@@ -170,11 +170,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Completable idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Completable {
                     runBlocking {
                         mutex.unlock()
@@ -194,11 +194,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Observable not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Observable(registerIdling = true) {
                     Observable.fromCallable {
                         runBlocking {
@@ -220,11 +220,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Observable idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Observable(registerIdling = false) {
                     Observable.fromCallable {
                         runBlocking {
@@ -246,11 +246,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Observable idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Observable(registerIdling = true) {
                     Observable.fromCallable {
                         mutex.unlock()
@@ -269,11 +269,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Maybe not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Maybe {
                     runBlocking {
                         mutex.unlock()
@@ -294,11 +294,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Maybe idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Maybe(registerIdling = false) {
                     runBlocking {
                         mutex.unlock()
@@ -319,11 +319,11 @@ class RxJava3DslPluginIdlingTest {
     @Test
     fun `transformRx3Maybe idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformRx3Maybe {
                     runBlocking {
                         mutex.unlock()
@@ -353,7 +353,7 @@ class RxJava3DslPluginIdlingTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+    private fun CoroutineScope.createContainerHost(): ContainerHost<TestState, Int> {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = container(
                 initialState = TestState(0),

@@ -25,10 +25,10 @@ interface ContainerHost<STATE : Any, SIDE_EFFECT : Any> {
     /**
      * The orbit [Container] instance.
      *
-     * Use the [container] factory functions to easily obtain a [Container].
+     * Use factory functions to easily obtain a [Container] instance.
      *
      * ```
-     * override val container = Container.create<MyState, MySideEffect>(initialState)
+     * override val container = scope.container<MyState, MySideEffect>(initialState)
      * ```
      */
     val container: Container<STATE, SIDE_EFFECT>

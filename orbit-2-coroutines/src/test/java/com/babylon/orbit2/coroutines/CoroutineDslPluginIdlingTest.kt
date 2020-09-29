@@ -33,7 +33,7 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `idle when nothing running`() {
         runBlocking {
-            scope.createContainer()
+            scope.createContainerHost()
             delay(50)
         }
 
@@ -43,11 +43,11 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `transformSuspend not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformSuspend {
                     mutex.unlock()
                     delay(50)
@@ -65,11 +65,11 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `transformSuspend idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformSuspend(registerIdling = false) {
                     mutex.unlock()
                     delay(50)
@@ -87,11 +87,11 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `transformSuspend idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformSuspend {
                     mutex.unlock()
                 }
@@ -108,11 +108,11 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `transformFlow not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformFlow(registerIdling = true) {
                     flow<Int> {
                         mutex.unlock()
@@ -132,11 +132,11 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `transformFlow idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformFlow(registerIdling = false) {
                     flow<Int> {
                         mutex.unlock()
@@ -156,11 +156,11 @@ class CoroutineDslPluginIdlingTest {
     @Test
     fun `transformFlow idle after running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformFlow(registerIdling = true) {
                     flow<Int> {
                         mutex.unlock()
@@ -189,7 +189,7 @@ class CoroutineDslPluginIdlingTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+    private fun CoroutineScope.createContainerHost(): ContainerHost<TestState, Int> {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = container(
                 initialState = TestState(0),

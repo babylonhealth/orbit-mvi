@@ -60,10 +60,6 @@ class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
                 return actual.sideEffectStream.observe(lambda)
             }
         }
-//
-//    override fun orbit(
-//        init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
-//    ) = runOnCreate().also { actual.orbit(init) }
 
     private fun runOnCreate() {
         if (created.compareAndSet(false, true)) {

@@ -47,7 +47,7 @@ class LiveDataDslPluginIdlingTest {
 
     @Test
     fun `idle when nothing running`() {
-        scope.createContainer()
+        scope.createContainerHost()
 
         assertTrue(testIdlingResource.isIdle())
     }
@@ -55,11 +55,11 @@ class LiveDataDslPluginIdlingTest {
     @Test
     fun `transformLiveData not idle when actively running`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformLiveData(registerIdling = true) {
                     liveData<Nothing> {
                         mutex.unlock()
@@ -79,11 +79,11 @@ class LiveDataDslPluginIdlingTest {
     @Test
     fun `transformLiveData idle when actively running with registration disabled`() {
         runBlocking {
-            val container = scope.createContainer()
+            val containerHost = scope.createContainerHost()
 
             val mutex = Mutex(locked = true)
 
-            container.orbit {
+            containerHost.orbit {
                 transformLiveData(registerIdling = false) {
                     liveData<Nothing> {
                         mutex.unlock()
@@ -100,7 +100,7 @@ class LiveDataDslPluginIdlingTest {
         }
     }
 
-    private fun CoroutineScope.createContainer(): ContainerHost<TestState, Int> {
+    private fun CoroutineScope.createContainerHost(): ContainerHost<TestState, Int> {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = container(
                 initialState = TestState(0),
