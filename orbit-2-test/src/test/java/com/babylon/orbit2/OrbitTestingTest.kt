@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.EnumSource
 
 class OrbitTestingTest {
     companion object {
-        const val TIMEOUT = 1000L
+        const val TIMEOUT = 5000L
     }
 
     val fixture = kotlinFixture()
