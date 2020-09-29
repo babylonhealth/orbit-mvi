@@ -74,10 +74,6 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     override val sideEffectFlow: Flow<SIDE_EFFECT> get() = sideEffectChannel.receiveAsFlow()
 
-    override val stateStream = stateFlow.asStream()
-
-    override val sideEffectStream = sideEffectFlow.asStream()
-
     override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
         scope.launch { pluginContext.orbitFlow() }
     }

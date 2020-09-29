@@ -156,12 +156,6 @@ object TestHarness {
 }
 
 /**
- * Allows you to put a [Stream] into test mode.
- */
-@Suppress("DEPRECATION")
-fun <T : Any> Stream<T>.test() = TestStreamObserver(this)
-
-/**
  * Allows you to put a [Flow] into test mode.
  */
 fun <T> Flow<T>.test() = TestFlowObserver(this)

@@ -59,7 +59,7 @@ class ViewModelExtensionsKtTest {
         val something = fixture<Int>()
         val savedStateHandle = SavedStateHandle()
         val middleware = Middleware(savedStateHandle, initialState)
-        val testStateObserver = middleware.container.stateStream.test()
+        val testStateObserver = middleware.container.stateFlow.test()
 
         middleware.something(something)
 
@@ -99,7 +99,7 @@ class ViewModelExtensionsKtTest {
         }
 
         // Used to trigger execution of onCreate
-        middleware.container.stateStream.observe { }
+        middleware.container.stateFlow.test().awaitCount(1)
 
         assertThat(onCreateState).isEqualTo(savedState)
     }
@@ -115,7 +115,7 @@ class ViewModelExtensionsKtTest {
         }
 
         // Used to trigger execution of onCreate
-        middleware.container.stateStream.observe { }
+        middleware.container.stateFlow.test().awaitCount(1)
 
         assertThat(onCreateState).isEqualTo(initialState)
     }

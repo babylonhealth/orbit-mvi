@@ -20,7 +20,6 @@ import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Suppress("OverridingDeprecatedMember", "DEPRECATION")
@@ -43,22 +42,6 @@ class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
         get() = flow {
             runOnCreate()
             emitAll(actual.sideEffectFlow)
-        }
-
-    override val stateStream: Stream<STATE>
-        get() = object : Stream<STATE> {
-            override fun observe(lambda: (STATE) -> Unit): Closeable {
-                runOnCreate()
-                return actual.stateStream.observe(lambda)
-            }
-        }
-
-    override val sideEffectStream: Stream<SIDE_EFFECT>
-        get() = object : Stream<SIDE_EFFECT> {
-            override fun observe(lambda: (SIDE_EFFECT) -> Unit): Closeable {
-                runOnCreate()
-                return actual.sideEffectStream.observe(lambda)
-            }
         }
 
     private fun runOnCreate() {
