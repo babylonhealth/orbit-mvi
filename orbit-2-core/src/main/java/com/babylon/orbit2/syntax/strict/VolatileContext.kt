@@ -14,7 +14,18 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
-@DslMarker
-annotation class Orbit2Dsl
+import com.babylon.orbit2.syntax.Operator
+import com.babylon.orbit2.syntax.Orbit2Dsl
+
+/**
+ * Represents the current context in which an [Operator] is executing with access to the [volatileState].
+ */
+@Orbit2Dsl
+interface VolatileContext<STATE : Any, EVENT> : Context<STATE, EVENT> {
+    /**
+     * The current state which can change throughout execution of the operator
+     */
+    fun volatileState(): STATE
+}

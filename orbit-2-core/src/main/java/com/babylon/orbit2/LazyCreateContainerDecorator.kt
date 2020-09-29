@@ -16,6 +16,7 @@
 
 package com.babylon.orbit2
 
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -43,13 +44,13 @@ class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
             emitAll(actual.sideEffectFlow)
         }
 
-    override fun orbit(
-        init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
-    ) = runOnCreate().also { actual.orbit(init) }
-
     private fun runOnCreate() {
         if (created.compareAndSet(false, true)) {
             onCreate(actual.currentState)
         }
+    }
+
+    override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
+        runOnCreate().also { actual.orbit(orbitFlow) }
     }
 }

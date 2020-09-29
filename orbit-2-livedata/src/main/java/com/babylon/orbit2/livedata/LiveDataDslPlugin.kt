@@ -17,9 +17,9 @@
 package com.babylon.orbit2.livedata
 
 import androidx.lifecycle.asFlow
-import com.babylon.orbit2.Operator
-import com.babylon.orbit2.OrbitDslPlugin
-import com.babylon.orbit2.VolatileContext
+import com.babylon.orbit2.syntax.Operator
+import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
+import com.babylon.orbit2.syntax.strict.VolatileContext
 import com.babylon.orbit2.idling.withIdlingFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat

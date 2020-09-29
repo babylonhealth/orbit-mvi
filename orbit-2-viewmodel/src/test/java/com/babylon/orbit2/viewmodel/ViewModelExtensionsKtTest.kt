@@ -21,7 +21,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.reduce
+import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import kotlinx.android.parcel.Parcelize
 import org.assertj.core.api.Assertions.assertThat

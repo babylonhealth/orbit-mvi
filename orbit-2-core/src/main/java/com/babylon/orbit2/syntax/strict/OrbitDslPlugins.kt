@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
 /**
  * Orbit DSL plugin registry. In order for DSL extensions to work they need to be registered here
@@ -35,7 +35,7 @@ object OrbitDslPlugins {
      */
     fun register(plugin: OrbitDslPlugin) {
         if (!plugins.contains(plugin)) {
-            plugins += plugin
+            plugins = plugins + plugin
         }
     }
 

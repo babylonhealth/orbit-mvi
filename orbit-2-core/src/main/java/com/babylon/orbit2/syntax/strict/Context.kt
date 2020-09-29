@@ -14,8 +14,19 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
-interface Operator<S : Any, E> {
-    val registerIdling: Boolean
+import com.babylon.orbit2.syntax.Operator
+import com.babylon.orbit2.syntax.Orbit2Dsl
+
+/**
+ * Represents the current context in which an [Operator] is executing.
+ *
+ * @property state The state captured at the point when the operator is executed
+ * @property event The current event being processed
+ */
+@Orbit2Dsl
+interface Context<STATE : Any, EVENT> {
+    val state: STATE
+    val event: EVENT
 }
