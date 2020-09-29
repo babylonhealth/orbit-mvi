@@ -24,9 +24,6 @@ import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.reduce
 import com.babylon.orbit2.test
 import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -101,7 +98,7 @@ class ViewModelExtensionsKtTest {
         }
 
         // Used to trigger execution of onCreate
-        runBlocking { middleware.container.stateFlow.take(1).collect { } }
+        middleware.container.stateFlow.test().awaitCount(1)
 
         assertThat(onCreateState).isEqualTo(savedState)
     }
@@ -117,7 +114,7 @@ class ViewModelExtensionsKtTest {
         }
 
         // Used to trigger execution of onCreate
-        runBlocking { middleware.container.stateFlow.take(1).collect { } }
+        middleware.container.stateFlow.test().awaitCount(1)
 
         assertThat(onCreateState).isEqualTo(initialState)
     }
