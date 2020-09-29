@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.EnumSource
 
 class OrbitTestingTest {
     companion object {
-        const val TIMEOUT = 1000L
+        const val TIMEOUT = 5000L
     }
 
     val fixture = kotlinFixture()
@@ -60,8 +60,11 @@ class OrbitTestingTest {
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             testSubject.assert(timeoutMillis = TIMEOUT) {
                 states(
@@ -82,16 +85,11 @@ class OrbitTestingTest {
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
-
-            // Await two states before checking
-            testSubject.assert(timeoutMillis = TIMEOUT) {
-                states(
-                    { copy(count = action) },
-                    { copy(count = action2) }
-                )
-            }
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
                 testSubject.assert(timeoutMillis = TIMEOUT) {
@@ -119,11 +117,14 @@ class OrbitTestingTest {
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = TIMEOUT) {
+                testSubject.assert(timeoutMillis = 1000L) {
                     states(
                         { copy(count = action) },
                         { copy(count = action2) },
@@ -151,11 +152,14 @@ class OrbitTestingTest {
             val action3 = fixture<Int>()
             val action4 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
-                testSubject.assert(timeoutMillis = TIMEOUT) {
+                testSubject.assert(timeoutMillis = 1000L) {
                     states(
                         { copy(count = action) },
                         { copy(count = action2) },
@@ -183,8 +187,11 @@ class OrbitTestingTest {
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
                 testSubject.assert(timeoutMillis = TIMEOUT) {
@@ -213,8 +220,11 @@ class OrbitTestingTest {
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
                 testSubject.assert(timeoutMillis = TIMEOUT) {
@@ -242,8 +252,11 @@ class OrbitTestingTest {
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
                 testSubject.assert(timeoutMillis = TIMEOUT) {
@@ -272,11 +285,15 @@ class OrbitTestingTest {
             val action2 = fixture<Int>()
             val action3 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
             testSubject.something(action3)
+            testStateObserver.awaitCount(4)
 
-            testSubject.assert(timeoutMillis = TIMEOUT) {
+            testSubject.assert(timeoutMillis = 1000L) {
                 states(
                     { copy(count = action) },
                     { copy(count = action2) },
@@ -297,8 +314,11 @@ class OrbitTestingTest {
             val action = fixture<Int>()
             val action2 = fixture<Int>()
 
+            val testStateObserver = testSubject.container.stateFlow.test()
             testSubject.something(action)
+            testStateObserver.awaitCount(2)
             testSubject.something(action2)
+            testStateObserver.awaitCount(3)
 
             val throwable = assertThrows<AssertionError> {
                 testSubject.assert(timeoutMillis = TIMEOUT) {
