@@ -14,47 +14,38 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.internal
 
+import com.babylon.orbit2.Container
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.plus
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
-    private val settings: Container.Settings,
-    orbitDispatcher: CoroutineDispatcher = DEFAULT_DISPATCHER,
-    backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    parentScope: CoroutineScope
+    parentScope: CoroutineScope,
+    private val settings: Container.Settings
 ) : Container<STATE, SIDE_EFFECT> {
-    private val scope = parentScope + orbitDispatcher
+    private val scope = parentScope + settings.orbitDispatcher
+
     private val internalStateFlow = MutableStateFlow(initialState)
+    override val currentState: STATE
+        get() = internalStateFlow.value
+    override val stateFlow = internalStateFlow
+
     private val sideEffectChannel = Channel<SIDE_EFFECT>(settings.sideEffectBufferSize)
-    private val sideEffectMutex = Mutex()
-    protected val pluginContext = OrbitDslPlugin.ContainerContext(
-        backgroundDispatcher = backgroundDispatcher,
-        postSideEffect = { event: SIDE_EFFECT ->
-            scope.launch {
-                // Ensure side effect ordering
-                sideEffectMutex.withLock {
-                    sideEffectChannel.send(event)
-                }
-            }
-        },
+    override val sideEffectFlow = sideEffectChannel.receiveAsFlow()
+
+    protected val pluginContext = OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>(
         settings = settings,
+        postSideEffect = { sideEffectChannel.send(it) },
         getState = { internalStateFlow.value },
         setState = { internalStateFlow.value = it }
     )
@@ -67,23 +58,7 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
         }
     }
 
-    override val currentState: STATE
-        get() = internalStateFlow.value
-
-    override val stateFlow = internalStateFlow
-
-    override val sideEffectFlow: Flow<SIDE_EFFECT> get() = sideEffectChannel.receiveAsFlow()
-
     override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
         scope.launch { pluginContext.orbitFlow() }
-    }
-
-    companion object {
-        // To be replaced by the new API when it hits:
-        // https://github.com/Kotlin/kotlinx.coroutines/issues/261
-        @Suppress("EXPERIMENTAL_API_USAGE")
-        private val DEFAULT_DISPATCHER by lazy {
-            newSingleThreadContext("orbit")
-        }
     }
 }

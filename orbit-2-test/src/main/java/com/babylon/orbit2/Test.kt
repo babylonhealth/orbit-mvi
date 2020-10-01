@@ -16,6 +16,7 @@
 
 package com.babylon.orbit2
 
+import com.babylon.orbit2.internal.LazyCreateContainerDecorator
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify

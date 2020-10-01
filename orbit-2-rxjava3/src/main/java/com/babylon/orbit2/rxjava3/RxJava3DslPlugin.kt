@@ -51,26 +51,26 @@ object RxJava3DslPlugin : OrbitDslPlugin {
         return when (operator) {
             is RxJava3Observable<*, *, *> -> flow.flatMapConcat {
                 containerContext.withIdlingFlow(operator as RxJava3Observable<S, E, Any>) {
-                    createContext(it).block().asFlow().flowOn(containerContext.backgroundDispatcher)
+                    createContext(it).block().asFlow().flowOn(containerContext.settings.backgroundDispatcher)
                 }
             }
             is RxJava3Single<*, *, *> -> flow.map {
                 containerContext.withIdling(operator as RxJava3Single<S, E, Any>) {
-                    withContext(containerContext.backgroundDispatcher) {
+                    withContext(containerContext.settings.backgroundDispatcher) {
                         createContext(it).block().await()
                     }
                 }
             }
             is RxJava3Maybe<*, *, *> -> flow.mapNotNull {
                 containerContext.withIdling(operator as RxJava3Maybe<S, E, Any>) {
-                    withContext(containerContext.backgroundDispatcher) {
+                    withContext(containerContext.settings.backgroundDispatcher) {
                         createContext(it).block().await()
                     }
                 }
             }
             is RxJava3Completable -> flow.onEach {
                 containerContext.withIdling(operator) {
-                    withContext(containerContext.backgroundDispatcher) {
+                    withContext(containerContext.settings.backgroundDispatcher) {
                         createContext(it).block().await()
                     }
                 }

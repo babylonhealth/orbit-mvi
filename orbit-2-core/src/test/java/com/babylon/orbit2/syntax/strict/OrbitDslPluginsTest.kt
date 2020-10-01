@@ -14,14 +14,10 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.strict
 
 import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.syntax.Operator
-import com.babylon.orbit2.syntax.strict.BaseDslPlugin
-import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
-import com.babylon.orbit2.syntax.strict.OrbitDslPlugins
-import com.babylon.orbit2.syntax.strict.VolatileContext
 import kotlinx.coroutines.flow.Flow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach

@@ -14,15 +14,16 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.internal
 
+import com.babylon.orbit2.Container
+import com.babylon.orbit2.ContainerDecorator
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.atomic.AtomicBoolean
 
-@Suppress("OverridingDeprecatedMember", "DEPRECATION")
 class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
     override val actual: Container<STATE, SIDE_EFFECT>,
     val onCreate: (state: STATE) -> Unit

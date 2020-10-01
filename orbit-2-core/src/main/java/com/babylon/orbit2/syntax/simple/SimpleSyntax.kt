@@ -57,7 +57,7 @@ suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.reduce(reducer: suspend Simp
  * @param sideEffect the side effect to post through the side effect flow
  */
 @Orbit2Dsl
-fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: SE) {
+suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: SE) {
     containerContext.postSideEffect(sideEffect)
 }
 
@@ -69,5 +69,5 @@ fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: SE) {
 @Orbit2Dsl
 fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.orbit(init: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit) =
     container.orbit {
-        SimpleSyntax(it).init()
+        SimpleSyntax(this).init()
     }

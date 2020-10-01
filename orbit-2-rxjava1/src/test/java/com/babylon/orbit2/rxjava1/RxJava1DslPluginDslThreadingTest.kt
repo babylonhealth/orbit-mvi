@@ -19,7 +19,7 @@ package com.babylon.orbit2.rxjava1
 import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.RealContainer
+import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
@@ -86,9 +86,10 @@ internal class RxJava1DslPluginDslThreadingTest {
         @Suppress("EXPERIMENTAL_API_USAGE")
         override val container = RealContainer<TestState, String>(
             initialState = TestState(42),
-            settings = Container.Settings(),
             parentScope = CoroutineScope(Dispatchers.Unconfined),
-            backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+            settings = Container.Settings(
+                backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+            )
         )
         lateinit var threadName: String
 

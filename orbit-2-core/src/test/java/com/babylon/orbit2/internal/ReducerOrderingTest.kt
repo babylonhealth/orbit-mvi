@@ -14,29 +14,32 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.internal
 
-import com.babylon.orbit2.syntax.strict.orbit
-import com.babylon.orbit2.syntax.strict.reduce
+import com.babylon.orbit2.Container
+import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.coroutines.EmptyCoroutineContext
 
 internal class ReducerOrderingTest {
 
     @Test
     fun `reductions are applied in sequence`() {
         runBlocking {
-            val middleware = ThreeReducersMiddleware()
-            val testStateObserver = middleware.container.stateFlow.test()
+            val container = RealContainer<TestState, Nothing>(
+                initialState = TestState(),
+                parentScope = CoroutineScope(EmptyCoroutineContext),
+                settings = Container.Settings()
+            )
+            val testStateObserver = container.stateFlow.test()
             val expectedStates = mutableListOf(
                 TestState(
                     emptyList()
                 )
             )
-
             for (i in 0 until 1119) {
                 val value = (i % 3)
                 expectedStates.add(
@@ -44,9 +47,9 @@ internal class ReducerOrderingTest {
                 )
 
                 when (value) {
-                    0 -> middleware.one()
-                    1 -> middleware.two()
-                    2 -> middleware.three()
+                    0 -> container.one()
+                    1 -> container.two()
+                    2 -> container.three()
                     else -> throw IllegalStateException("misconfigured test")
                 }
             }
@@ -59,28 +62,15 @@ internal class ReducerOrderingTest {
 
     private data class TestState(val ids: List<Int> = emptyList())
 
-    private class ThreeReducersMiddleware : ContainerHost<TestState, String> {
-        override val container =
-            CoroutineScope(Dispatchers.Unconfined).container<TestState, String>(
-                TestState()
-            )
+    private fun Container<TestState, Nothing>.one() = orbit {
+        state = state.copy(ids = state.ids + 1)
+    }
 
-        fun one() = orbit {
-            reduce {
-                state.copy(ids = state.ids + 1)
-            }
-        }
+    private fun Container<TestState, Nothing>.two() = orbit {
+        state = state.copy(ids = state.ids + 2)
+    }
 
-        fun two() = orbit {
-            reduce {
-                state.copy(ids = state.ids + 2)
-            }
-        }
-
-        fun three() = orbit {
-            reduce {
-                state.copy(ids = state.ids + 3)
-            }
-        }
+    private fun Container<TestState, Nothing>.three() = orbit {
+        state = state.copy(ids = state.ids + 3)
     }
 }

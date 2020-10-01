@@ -28,7 +28,10 @@ import kotlinx.coroutines.withContext
 internal class Transform<S : Any, E, E2>(override val registerIdling: Boolean, val block: VolatileContext<S, E>.() -> E2) :
     Operator<S, E2>
 
-internal class SideEffect<S : Any, SE : Any, E>(override val registerIdling: Boolean, val block: SideEffectContext<S, SE, E>.() -> Unit) :
+internal class SideEffect<S : Any, SE : Any, E>(
+    override val registerIdling: Boolean,
+    val block: suspend SideEffectContext<S, SE, E>.() -> Unit
+) :
     Operator<S, E>
 
 internal class Reduce<S : Any, E>(override val registerIdling: Boolean, val block: Context<S, E>.() -> Any) :
@@ -68,7 +71,7 @@ fun <S : Any, SE : Any, E, E2> Builder<S, SE, E>.transform(
 @Orbit2Dsl
 fun <S : Any, SE : Any, E> Builder<S, SE, E>.sideEffect(
     registerIdling: Boolean = true,
-    block: SideEffectContext<S, SE, E>.() -> Unit
+    block: suspend SideEffectContext<S, SE, E>.() -> Unit
 ): Builder<S, SE, E> {
     return Builder(stack + SideEffect(registerIdling, block))
 }
@@ -108,7 +111,7 @@ object BaseDslPlugin : OrbitDslPlugin {
         return when (operator) {
             is Transform<*, *, *> -> flow.map {
                 containerContext.withIdling(operator as Transform<S, E, Any>) {
-                    withContext(containerContext.backgroundDispatcher) {
+                    withContext(containerContext.settings.backgroundDispatcher) {
                         createContext(it).block()
                     }
                 }
@@ -119,7 +122,7 @@ object BaseDslPlugin : OrbitDslPlugin {
                         object : SideEffectContext<S, SE, E> {
                             override val state = context.state
                             override val event = context.event
-                            override fun post(event: SE) = containerContext.postSideEffect(event)
+                            override suspend fun post(event: SE) = containerContext.postSideEffect(event)
                         }
                     }.block()
                 }

@@ -20,7 +20,7 @@ import androidx.lifecycle.liveData
 import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.RealContainer
+import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.sideEffect
 import com.babylon.orbit2.test
@@ -86,9 +86,10 @@ internal class LiveDataDslPluginDslThreadingTest {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = RealContainer(
                 initialState = TestState(0),
-                settings = Container.Settings(),
                 parentScope = this@createContainerHost,
-                backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+                settings = Container.Settings(
+                    backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+                )
             )
         }
     }

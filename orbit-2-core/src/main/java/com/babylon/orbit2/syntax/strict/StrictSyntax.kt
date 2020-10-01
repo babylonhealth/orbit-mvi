@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.collect
 @Orbit2Dsl
 fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.orbit(
     init: Builder<STATE, SIDE_EFFECT, Unit>.() -> Builder<STATE, SIDE_EFFECT, *>
-) = container.orbit { context ->
+) = container.orbit {
     Builder<STATE, SIDE_EFFECT, Unit>()
         .init()
-        .build(context)
+        .build(this)
         .collect()
 }

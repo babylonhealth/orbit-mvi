@@ -18,7 +18,6 @@ package com.babylon.orbit2.syntax.strict
 
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.syntax.Operator
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -33,9 +32,8 @@ interface OrbitDslPlugin {
     ): Flow<Any?>
 
     class ContainerContext<S : Any, SE : Any>(
-        val backgroundDispatcher: CoroutineDispatcher,
-        val postSideEffect: (SE) -> Unit,
         val settings: Container.Settings,
+        val postSideEffect: suspend (SE) -> Unit,
         private val getState: () -> S,
         private val setState: (S) -> Unit
     ) {

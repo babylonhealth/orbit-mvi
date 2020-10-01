@@ -28,7 +28,6 @@ import kotlinx.android.parcel.Parcelize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-@Suppress("DEPRECATION")
 class ViewModelExtensionsKtTest {
     private val fixture = kotlinFixture()
 

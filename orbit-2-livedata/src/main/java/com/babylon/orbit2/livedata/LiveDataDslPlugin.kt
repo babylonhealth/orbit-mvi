@@ -42,7 +42,7 @@ object LiveDataDslPlugin : OrbitDslPlugin {
         return when (operator) {
             is LiveDataOperator<*, *, *> -> flow.flatMapConcat {
                 containerContext.withIdlingFlow(operator as LiveDataOperator<S, E, Any>) {
-                    createContext(it).block().asFlow().flowOn(containerContext.backgroundDispatcher)
+                    createContext(it).block().asFlow().flowOn(containerContext.settings.backgroundDispatcher)
                 }
             }
             else -> flow

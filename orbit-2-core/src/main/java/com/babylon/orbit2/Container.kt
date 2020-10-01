@@ -19,8 +19,11 @@ package com.babylon.orbit2
 import com.babylon.orbit2.idling.IdlingResource
 import com.babylon.orbit2.idling.NoopIdlingResource
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.newSingleThreadContext
 
 /**
  * The heart of the Orbit MVI system. Represents an MVI container with its input and outputs.
@@ -59,7 +62,7 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
      *
      * @param orbitFlow lambda returning the suspend function representing the flow
      */
-    fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit)
+    fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit)
 
     /**
      * Represents additional settings to create the container with.
@@ -71,6 +74,17 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
      */
     class Settings(
         val sideEffectBufferSize: Int = Channel.UNLIMITED,
-        val idlingRegistry: IdlingResource = NoopIdlingResource()
-    )
+        val idlingRegistry: IdlingResource = NoopIdlingResource(),
+        val orbitDispatcher: CoroutineDispatcher = DEFAULT_DISPATCHER,
+        val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    ) {
+        companion object {
+            // To be replaced by the new API when it hits:
+            // https://github.com/Kotlin/kotlinx.coroutines/issues/261
+            @Suppress("EXPERIMENTAL_API_USAGE")
+            private val DEFAULT_DISPATCHER by lazy {
+                newSingleThreadContext("orbit")
+            }
+        }
+    }
 }
