@@ -75,16 +75,7 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
     class Settings(
         val sideEffectBufferSize: Int = Channel.UNLIMITED,
         val idlingRegistry: IdlingResource = NoopIdlingResource(),
-        val orbitDispatcher: CoroutineDispatcher = DEFAULT_DISPATCHER,
+        val orbitDispatcher: CoroutineDispatcher = Dispatchers.Default,
         val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    ) {
-        companion object {
-            // To be replaced by the new API when it hits:
-            // https://github.com/Kotlin/kotlinx.coroutines/issues/261
-            @Suppress("EXPERIMENTAL_API_USAGE")
-            private val DEFAULT_DISPATCHER by lazy {
-                newSingleThreadContext("orbit")
-            }
-        }
-    }
+    )
 }

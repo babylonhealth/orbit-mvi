@@ -19,13 +19,18 @@ package com.babylon.orbit2.internal
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
@@ -42,12 +47,19 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     private val sideEffectChannel = Channel<SIDE_EFFECT>(settings.sideEffectBufferSize)
     override val sideEffectFlow = sideEffectChannel.receiveAsFlow()
+    private val mutex = Mutex()
 
     protected val pluginContext = OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>(
         settings = settings,
         postSideEffect = { sideEffectChannel.send(it) },
-        getState = { internalStateFlow.value },
-        setState = { internalStateFlow.value = it }
+        getState = {
+            internalStateFlow.value
+        },
+        reduce = { reducer ->
+            mutex.withLock {
+                internalStateFlow.value = reducer(internalStateFlow.value)
+            }
+        }
     )
 
     init {
@@ -59,6 +71,12 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     }
 
     override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
-        scope.launch { pluginContext.orbitFlow() }
+        channel.sendBlocking(orbitFlow)
+    }
+
+    private val channel = scope.actor<suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit>(capacity = 64) {
+        for (msg in channel) {
+            launch(Dispatchers.Unconfined) { pluginContext.msg() }
+        }
     }
 }

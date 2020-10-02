@@ -35,10 +35,9 @@ interface OrbitDslPlugin {
         val settings: Container.Settings,
         val postSideEffect: suspend (SE) -> Unit,
         private val getState: () -> S,
-        private val setState: (S) -> Unit
+        val reduce: suspend (suspend (S) -> S) -> Unit
     ) {
-        var state: S
+        val state: S
             get() = getState()
-            set(s) = setState(s)
     }
 }

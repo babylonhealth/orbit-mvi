@@ -129,7 +129,15 @@ object BaseDslPlugin : OrbitDslPlugin {
             }
             is Reduce -> flow.onEach { event ->
                 containerContext.withIdling(operator) {
-                    containerContext.state = createContext(event).block() as S
+                    containerContext.reduce { reducerState ->
+                        object : Context<S, E> {
+                            override val state: S
+                                get() = reducerState
+                            override val event: E
+                                get() = event
+
+                        }.block() as S
+                    }
                 }
             }
             else -> flow

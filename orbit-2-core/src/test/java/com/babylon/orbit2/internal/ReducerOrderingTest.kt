@@ -63,14 +63,20 @@ internal class ReducerOrderingTest {
     private data class TestState(val ids: List<Int> = emptyList())
 
     private fun Container<TestState, Nothing>.one() = orbit {
-        state = state.copy(ids = state.ids + 1)
+        reduce {
+            it.copy(ids = state.ids + 1)
+        }
     }
 
     private fun Container<TestState, Nothing>.two() = orbit {
-        state = state.copy(ids = state.ids + 2)
+        reduce {
+            it.copy(ids = state.ids + 2)
+        }
     }
 
     private fun Container<TestState, Nothing>.three() = orbit {
-        state = state.copy(ids = state.ids + 3)
+        reduce {
+            it.copy(ids = state.ids + 3)
+        }
     }
 }

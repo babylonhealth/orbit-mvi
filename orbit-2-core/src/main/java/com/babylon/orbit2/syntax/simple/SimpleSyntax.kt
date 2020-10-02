@@ -38,10 +38,11 @@ class SimpleSyntax<S : Any, SE : Any>(internal val containerContext: OrbitDslPlu
 @Orbit2Dsl
 suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.reduce(reducer: suspend SimpleContext<S>.() -> S) {
     containerContext.apply {
-        state = object : SimpleContext<S> {
-            override val state: S
-                get() = this@reduce.state
-        }.reducer()
+        reduce { reducerState ->
+            object : SimpleContext<S> {
+                override val state: S = reducerState
+            }.reducer()
+        }
     }
 }
 
