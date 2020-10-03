@@ -38,14 +38,6 @@ internal class ContainerThreadingTest {
         container.orbit {
             delay(Long.MAX_VALUE)
         }
-
-        container.orbit {
-            delay(Long.MAX_VALUE)
-        }
-
-        container.orbit {
-            delay(Long.MAX_VALUE)
-        }
         container.orbit {
             reduce { newState }
         }

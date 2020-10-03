@@ -63,12 +63,12 @@ suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: S
 }
 
 /**
- * Build and execute an orbit flow on [Container].
+ * Build and execute an intent on [Container].
  *
- * @param init lambda returning the operator chain that represents the flow
+ * @param transformer lambda representing the transformer
  */
 @Orbit2Dsl
-fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.orbit(init: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit) =
+fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.intent(transformer: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit) =
     container.orbit {
-        SimpleSyntax(this).init()
+        SimpleSyntax(this).transformer()
     }
