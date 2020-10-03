@@ -137,7 +137,6 @@ internal class SideEffectTest {
         assertThat(testSideEffectObserver2.values).containsExactlyElementsOf((0..999).toList())
     }
 
-
     private fun Container<Unit, Int>.someFlow(action: Int) = orbit {
         postSideEffect(action)
     }

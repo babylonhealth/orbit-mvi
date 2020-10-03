@@ -23,7 +23,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.newSingleThreadContext
 
 /**
  * The heart of the Orbit MVI system. Represents an MVI container with its input and outputs.

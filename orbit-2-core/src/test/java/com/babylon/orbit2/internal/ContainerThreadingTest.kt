@@ -44,6 +44,5 @@ internal class ContainerThreadingTest {
 
         observer.awaitCount(2)
         assertThat(container.currentState).isEqualTo(newState)
-
     }
 }

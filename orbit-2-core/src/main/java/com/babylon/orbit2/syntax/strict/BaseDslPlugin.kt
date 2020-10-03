@@ -135,7 +135,6 @@ object BaseDslPlugin : OrbitDslPlugin {
                                 get() = reducerState
                             override val event: E
                                 get() = event
-
                         }.block() as S
                     }
                 }
