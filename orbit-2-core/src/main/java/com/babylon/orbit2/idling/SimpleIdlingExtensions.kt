@@ -11,4 +11,3 @@ suspend fun <STATE : Any, SIDE_EFFECT : Any> OrbitDslPlugin.ContainerContext<STA
         if (registerIdling) settings.idlingRegistry.decrement()
     }
 }
-
