@@ -20,6 +20,8 @@ package com.babylon.orbit2
  * Apply this interface to anything you want to become an orbit container host.
  * Typically this will be an Android ViewModel but it can be applied to simple presenters etc.
  *
+ * Extension functions `intent` and `orbit` are provided as a convenient way of launching orbit
+ * flows on the container.
  */
 interface ContainerHost<STATE : Any, SIDE_EFFECT : Any> {
     /**
