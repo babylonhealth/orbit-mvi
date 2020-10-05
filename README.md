@@ -32,26 +32,12 @@ here.](https://github.com/babylonhealth/orbit-mvi/tree/orbit/main)
 Orbit 2 is a simple scaffolding you can build a Redux/MVI-like architecture
 around.
 
-In Orbit 2 we have taken the best features of Orbit 1 and rewritten the rest
-from scratch.
+In Orbit 2 we have taken the [best features of Orbit 1](history.md) and
+rewritten the rest from scratch.
 
-### Powerful and flexible design 🏋️‍♀️ 🤸‍♂️
-
-- Integrates best practices from our 2+ years of experience with MVI
-- Powered by coroutines
 - Easy to use, type-safe, extensible API
-
-### Works with any async/stream framework 🔀
-
 - Coroutine, RxJava (1 2 & 3!) and LiveData operator support
-
-### Orbit ❤️ Android
-
-- Subscribe to state and side effects through Flow
 - ViewModel support, along with SavedState!
-
-### Testing 🤖
-
 - Unit test framework designed in step with the framework
 - Built-in espresso idling resource support
 
@@ -158,6 +144,42 @@ class CalculatorActivity: AppCompatActivity() {
 
 ```
 
+## Syntax
+
+There are two orbit syntaxes to choose from.
+
+We recommend using the [simple syntax](simple-syntax.md) if you're just
+starting out or using coroutines exclusively in your codebase. The
+[strict syntax](strict-syntax.md) is most useful when used in a codebase
+with mixed RxJava and coroutines.
+
+``` kotlin
+class MyViewModel: ContainerHost<MyState, MySideEffect>, ViewModel() {
+
+    override val container = container<MyState, MySideEffect>(MyState())
+
+    // Simple
+    fun loadDataForId(id: Int) = intent {
+        postSideEffect(MySideEffect.Toast("Loading data for $id!"))
+
+        val result = repository.loadData(id)
+
+        reduce {
+            state.copy(data = result)
+        }
+    }
+
+    // Strict
+    fun loadDataForId(id: Int) = orbit {
+        sideEffect { post(MySideEffect.Toast("Loading data for $id!")) }
+            .transformSuspend { repository.loadData(id) }
+            .reduce {
+                state.copy(data = result)
+            }
+    }
+}
+```
+
 ## Modules
 
 Orbit 2 is a modular framework. The Core module provides basic Orbit
@@ -186,120 +208,6 @@ testImplementation("com.babylon.orbit2:orbit-test:<latest-version>")
 ```
 
 [![Download](https://api.bintray.com/packages/babylonpartners/maven/orbit-core/images/download.svg)](https://bintray.com/babylonpartners/maven/orbit-core/_latestVersion)
-
-## Syntax
-
-There are two orbit syntaxes to choose from.
-
-We recommend using the simple syntax if you're just starting out as it's the
-most up-to-date one. However, if you want to use Orbit in an existing project we
-recommend you read about both and make your choice based on what's more suitable.
-
-### Simple syntax
-
-This syntax integrates with the coroutine framework to bring you something that
-you will be very comfortable with if you already use coroutines for your
-project. On the other hand, it's slightly easier to make mistakes if you don't
-know how to use coroutines effectively. For example, blocking code in
-`intent` can block your `Container`.
-
-Pros:
-
-- Extremely light and flexible
-- Your MVI logic executes in a suspend function
-- Interoperability with e.g. RxJava achieved through standard Kotlin libraries
-  
-Cons:
-  
-- Your code has to conform to coroutine best practices
-
-``` kotlin
-class MyViewModel: ContainerHost<MyState, MySideEffect>, ViewModel() {
-
-    override val container = container<MyState, MySideEffect>(MyState())
-
-    fun loadDataForId(id: Int) = intent {
-        postSideEffect(MySideEffect.Toast("Loading data for $id!"))
-
-        val result = repository.loadData(id)
-
-        reduce {
-            state.copy(data = result)
-        }
-    }
-}
-
-```
-
-### Strict syntax
-
-The _classic_ orbit syntax is based on streams. It's close to how MVI is often
-portrayed - a reactive cycle. This syntax is great if you're in a legacy code
-base with lots of RxJava. Especially if you're thinking of migrating to
-coroutines, since you can mix and match both. However it's not as flexible as
-the simple syntax due to being stream-based. It's strictness can be an advantage
-in larger teams.
-
-Pros:
-
-- Relatively simple
-- Hard to make mistakes
-- Familiar if you use streams a lot
-- Great for code-bases where RxJava and coroutines are mixed
-  
-Cons:
-  
-- Control-flow logic (e.g. reducing conditionally) is awkward to create
-- Not as readable or flexible as the simple syntax
-- Interoperability with e.g. RxJava achieved through extra orbit modules
-
-``` kotlin
-class MyViewModel: ContainerHost<MyState, MySideEffect>, ViewModel() {
-
-    override val container = container<MyState, MySideEffect>(MyState())
-
-    fun loadDataForId(id: Int) = orbit {
-        sideEffect { post(MySideEffect.Toast("Loading data for $id!")) }
-            .transformSuspend { repository.loadData(id) }
-            .reduce {
-                state.copy(data = result)
-            }
-    }
-}
-
-```
-
-## A bit of history
-
-We originally set out to create Orbit with the following principles in mind:
-
-- Simple
-- Flexible
-- Testable
-- Designed for, but not limited to Android
-
-Orbit 1 was our first attempt at this, and while it worked well in general, it
-fell short of our expectations when it came to its flexibility and testability.
-It did not support coroutines with support hard to incorporate, as it was
-rigidly dependent on RxJava 2. The users were not shielded from this either. As
-we were migrating to coroutines ourselves, this was increasing the complexity
-of our code.
-
-We thought we had taken Orbit 1 as far as we could. Having learned a great deal
-about MVI in Orbit 1, we set out to take another shot at this. We resolved to
-keep the good things of Orbit 1 and redesign it from the ground up to live up
-to our standards as Orbit 2. We think - hopefully, finally - we hit the sweet
-spot.
-
-We stand on the shoulders of giants:
-
-- [Managing State with RxJava by Jake Wharton](https://www.reddit.com/r/androiddev/comments/656ter/managing_state_with_rxjava_by_jake_wharton/)
-- [RxFeedback](https://github.com/NoTests/RxFeedback.kt)
-- [Mosby MVI](https://github.com/sockeqwe/mosby)
-- [MvRx](https://github.com/airbnb/MvRx)
-
-Thank you so much to everyone in the community for the support, whether direct
-or not.
 
 ## Contributing
 

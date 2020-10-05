@@ -12,16 +12,12 @@ It provides all the basic parts of Orbit.
   - [Orbit container](#orbit-container)
     - [Subscribing to the container](#subscribing-to-the-container)
     - [ContainerHost](#containerhost)
-  - [Syntax](#syntax)
-    - [Simple syntax](#simple-syntax)
-    - [Strict syntax](#strict-syntax)
   - [Core Orbit operators](#core-orbit-operators)
     - [Transformation](#transformation)
-    - [Reduce](#reduce)
-      - [In the strict syntax](#in-the-strict-syntax)
+    - [Reduction](#reduction)
     - [Side effect](#side-effect)
-      - [In the strict syntax](#in-the-strict-syntax-1)
-    - [Operator context](#operator-context)
+    - [Operator context in the simple syntax](#operator-context-in-the-simple-syntax)
+    - [Operator context in the strict syntax](#operator-context-in-the-strict-syntax)
   - [Container factories](#container-factories)
   - [Threading](#threading)
     - [Threading guarantees](#threading-guarantees)
@@ -161,111 +157,29 @@ defines MVI flows (your business logic and Orbit operators to be invoked on the
 can be called by e.g. the UI.
 
 In a typical implementation you would subclass Android's `ViewModel` and
-implement [ContainerHost](src/main/java/com/babylon/orbit2/ContainerHost.kt) in
+implement
+[ContainerHost](src/main/java/com/babylon/orbit2/ContainerHost.kt) in
 order to create an Orbit-enabled Android `ViewModel`.
-
-## Syntax
-
-There are two orbit syntaxes to choose from.
-
-We recommend using the simple syntax if you're just starting out as it's the
-most up-to-date one. However, if you want to use Orbit in an existing project we
-recommend you read about both and make your choice based on what's more suitable.
-
-### Simple syntax
-
-This syntax integrates with the coroutine framework to bring you something that
-you will be very comfortable with if you already use coroutines for your
-project. On the other hand, it's slightly easier to make mistakes if you don't
-know how to use coroutines effectively. For example, blocking code in
-`intent` can block your `Container`.
-
-Pros:
-
-- Extremely light and flexible
-- Your MVI logic executes in a suspend function
-- Interoperability with e.g. RxJava achieved through standard Kotlin libraries
-  
-Cons:
-  
-- Your code has to conform to coroutine best practices
-
-``` kotlin
-class MyViewModel: ContainerHost<MyState, MySideEffect>, ViewModel() {
-
-    override val container = container<MyState, MySideEffect>(MyState())
-
-    fun loadDataForId(id: Int) = intent {
-        postSideEffect(MySideEffect.Toast("Loading data for $id!"))
-
-        val result = repository.loadData(id)
-
-        reduce {
-            state.copy(data = result)
-        }
-    }
-}
-
-```
-
-### Strict syntax
-
-The _classic_ orbit syntax is based on streams. It's close to how MVI is often
-portrayed - a reactive cycle. This syntax is great if you're in a legacy code
-base with lots of RxJava. Especially if you're thinking of migrating to
-coroutines, since you can mix and match both. However it's not as flexible as
-the simple syntax due to being stream-based. It's strictness can be an advantage
-in larger teams.
-
-Pros:
-
-- Relatively simple
-- Hard to make mistakes
-- Familiar if you use streams a lot
-- Great for code-bases where RxJava and coroutines are mixed
-  
-Cons:
-  
-- Control-flow logic (e.g. reducing conditionally) is awkward to create
-- Not as readable or flexible as the simple syntax
-- Interoperability with e.g. RxJava achieved through extra orbit modules
-
-``` kotlin
-class MyViewModel: ContainerHost<MyState, MySideEffect>, ViewModel() {
-
-    override val container = container<MyState, MySideEffect>(MyState())
-
-    fun loadDataForId(id: Int) = orbit {
-        sideEffect { post(MySideEffect.Toast("Loading data for $id!")) }
-            .transformSuspend { repository.loadData(id) }
-            .reduce {
-                state.copy(data = result)
-            }
-    }
-}
-
-```
 
 ## Core Orbit operators
 
 The Core module contains built-in Orbit operators:
 
-| Operation / Syntax | Strict                   | Simple              |   |   |
-|--------------------|--------------------------|---------------------|---|---|
-| block              | orbit { ... }            | intent { ... }      |   |   |
-| transformation     | transform { ... }        | -                   |   |   |
-| posted side effect | sideEffect { post(...) } | postSideEffect(...) |   |   |
-| reduction          | reduce { ... }           | reduce { ... }      |   |   |
+| Operation / Syntax | [Strict](../strict-syntax.md) | [Simple](../simple-syntax.md) |
+|--------------------|--------------------------|---------------------|
+| block              | `orbit { ... }`            | `intent { ... }`      |
+| transformation     | `transform { ... }`        | -                     |
+| posted side effect | `sideEffect { post(...) }` | `postSideEffect(...)` |
+| reduction          | `reduce { ... }`           | `reduce { ... }`      |
 
 Operators are invoked through the block function in a
 [ContainerHost](src/main/java/com/babylon/orbit2/ContainerHost.kt). For more
 information about which threads these operators run on please see
 [Threading](#threading).
 
-For the strict syntax, aside from the Orbit operators already mentioned, more
-are provided via modules with support for e.g. `RxJava2` or Kotlin `Coroutines`.
-In theory Orbit can work with any async and streaming framework - new modules
-can be created easily.
+For the [strict syntax](../strict-syntax.md), aside from the Orbit
+operators already mentioned, more are provided via modules with support
+for e.g. `RxJava2` or Kotlin `Coroutines`.
 
 ### Transformation
 
@@ -274,14 +188,13 @@ class Example : ContainerHost<ExampleState, ExampleSideEffect> {
     ...
 
     fun simpleExample() = intent {
-            anotherApiCall(apiCall()) // just call suspending functions
-        }
+        anotherApiCall(apiCall()) // just call suspending functions
     }
+    
 
     fun strictExample() = orbit {
-            transform { apiCall() }
-                .transform { anotherApiCall(event) } // "event" is the result of the first api call
-        }
+        transform { apiCall() }
+            .transform { anotherApiCall(event) } // "event" is the result of the first api call
     }
 }
 ```
@@ -290,10 +203,10 @@ Transformations change upstream data into a different type. Transformers can do
 a simple mapping or do something much more complex like call a backend API or
 subscribe to a stream of location updates.
 
-In the simple syntax the transformations are simply suspend function calls
-inlined into the block function.
+In the [simple syntax](../simple-syntax.md) the transformations are
+simply suspend function calls inlined into the block function.
 
-### Reduce
+### Reduction
 
 ``` kotlin
 class Example : ContainerHost<ExampleState, ExampleSideEffect> {
@@ -313,15 +226,12 @@ class Example : ContainerHost<ExampleState, ExampleSideEffect> {
 
 Reducers take incoming events and the current state to produce a new state.
 
-#### In the strict syntax
-
-Reducers are pass-through operators. This means that after applying
-a reducer, the upstream event is passed through unmodified to downstream
-operators. This helps avoid having to create intermediate objects to retain
-upstream events.
-
-Operators downstream of a reducer can expect to be called only after the
-upstream reduction has completed.
+**Note:** With the [strict syntax](../strict-syntax.md) reducers are
+pass-through operators. This means that after applying a reducer, the
+upstream event is passed through unmodified to downstream operators.
+This helps avoid having to create intermediate objects to retain
+upstream events. Operators downstream of a reducer can expect to be
+called only after the upstream reduction has completed.
 
 ### Side effect
 
@@ -353,14 +263,32 @@ You may post the side effect in order to send it to a
 [Container](src/main/java/com/babylon/orbit2/Container.kt)'s side effect flow.
 Use this for view-related side effects like Toasts, Navigation, etc.
 
-#### In the strict syntax
-
-Side effects are pass-through operators. This means that after applying
-a side effect, the upstream event is passed through unmodified to downstream
-operators. This helps avoid having to create intermediate objects to retain
+**Note:** With the [strict syntax](../strict-syntax.md) side effects are
+pass-through operators. This means that after applying a side effect,
+the upstream event is passed through unmodified to downstream operators.
+This helps avoid having to create intermediate objects to retain
 upstream events.
 
-### Operator context
+### Operator context in the simple syntax
+
+Each simple syntax operator lambda has a receiver that exposes the
+current state of the
+[Container](src/main/java/com/babylon/orbit2/Container.kt) as `state`
+
+``` kotlin
+perform("Toast the current state")
+class Example : ContainerHost<ExampleState, ExampleSideEffect> {
+    ...
+
+    fun anotherExample(number: Int) = intent {
+        val result = apiCall()
+        postSideEffect(ExampleSideEffect.Toast("state $state"))
+        reduce { state.copy(results = event.results) }
+    }
+}
+```
+
+### Operator context in the strict syntax
 
 Commonly in an operator you need two things:
 

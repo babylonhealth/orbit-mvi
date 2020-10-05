@@ -70,6 +70,8 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
      * sending many side effects and getting out of memory exceptions this can be turned down to suspend the container instead.
      * Unlimited by default.
      * @property idlingRegistry The registry used by the container for signalling idling for UI tests
+     * @property orbitDispatcher The dispatcher used for handling incoming [orbit] flows
+     * @property backgroundDispatcher The dispatcher used for background operations (depending on syntax)
      */
     class Settings(
         val sideEffectBufferSize: Int = Channel.UNLIMITED,
