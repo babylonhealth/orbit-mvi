@@ -21,7 +21,6 @@ import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.channels.sendBlocking
@@ -39,6 +38,8 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     private val settings: Container.Settings
 ) : Container<STATE, SIDE_EFFECT> {
     private val scope = parentScope + settings.orbitDispatcher
+    private val dispatchChannel = Channel<suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit>(Channel.BUFFERED)
+    private val mutex = Mutex()
 
     private val internalStateFlow = MutableStateFlow(initialState)
     override val currentState: STATE
@@ -47,7 +48,6 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
 
     private val sideEffectChannel = Channel<SIDE_EFFECT>(settings.sideEffectBufferSize)
     override val sideEffectFlow = sideEffectChannel.receiveAsFlow()
-    private val mutex = Mutex()
 
     protected val pluginContext = OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>(
         settings = settings,
@@ -68,15 +68,14 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                 settings.idlingRegistry.close()
             }
         }
+        scope.launch {
+            for (msg in dispatchChannel) {
+                launch(Dispatchers.Unconfined) { pluginContext.msg() }
+            }
+        }
     }
 
     override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
-        channel.sendBlocking(orbitFlow)
-    }
-
-    private val channel = scope.actor<suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit>(capacity = 64) {
-        for (msg in channel) {
-            launch(Dispatchers.Unconfined) { pluginContext.msg() }
-        }
+        dispatchChannel.sendBlocking(orbitFlow)
     }
 }
