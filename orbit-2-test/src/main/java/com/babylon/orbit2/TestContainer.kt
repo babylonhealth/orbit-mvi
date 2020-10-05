@@ -16,6 +16,7 @@
 
 package com.babylon.orbit2
 
+import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,11 +30,12 @@ class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     private val blocking: Boolean
 ) : RealContainer<STATE, SIDE_EFFECT>(
     initialState = initialState,
-    settings = Container.Settings(),
     parentScope = CoroutineScope(Dispatchers.Unconfined),
-    orbitDispatcher =
-    @Suppress("EXPERIMENTAL_API_USAGE") if (blocking) Dispatchers.Unconfined else newSingleThreadContext("orbit"),
-    backgroundDispatcher = Dispatchers.Unconfined
+    settings = Container.Settings(
+        orbitDispatcher =
+        @Suppress("EXPERIMENTAL_API_USAGE") if (blocking) Dispatchers.Unconfined else newSingleThreadContext("orbit"),
+        backgroundDispatcher = Dispatchers.Unconfined
+    )
 ) {
     private val dispatched = AtomicBoolean(false)
 

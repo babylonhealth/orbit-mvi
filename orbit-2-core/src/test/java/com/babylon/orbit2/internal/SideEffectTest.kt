@@ -14,11 +14,12 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.internal
 
 import com.appmattus.kotlinfixture.kotlinFixture
-import com.babylon.orbit2.syntax.strict.orbit
-import com.babylon.orbit2.syntax.strict.sideEffect
+import com.babylon.orbit2.Container
+import com.babylon.orbit2.container
+import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,19 +32,34 @@ internal class SideEffectTest {
     private val fixture = kotlinFixture()
 
     @Test
+    fun `side effects are emitted in order`() {
+        val container = CoroutineScope(Dispatchers.Unconfined).container<Unit, Int>(Unit)
+
+        val testSideEffectObserver1 = container.sideEffectFlow.test()
+
+        repeat(1000) {
+            container.someFlow(it)
+        }
+
+        testSideEffectObserver1.awaitCount(1000)
+
+        assertThat(testSideEffectObserver1.values).containsSequence(0..999)
+    }
+
+    @Test
     fun `side effects are not multicast`() {
         val action = fixture<Int>()
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
-        val middleware = Middleware()
+        val container = CoroutineScope(Dispatchers.Unconfined).container<Unit, Int>(Unit)
 
-        val testSideEffectObserver1 = middleware.container.sideEffectFlow.test()
-        val testSideEffectObserver2 = middleware.container.sideEffectFlow.test()
-        val testSideEffectObserver3 = middleware.container.sideEffectFlow.test()
+        val testSideEffectObserver1 = container.sideEffectFlow.test()
+        val testSideEffectObserver2 = container.sideEffectFlow.test()
+        val testSideEffectObserver3 = container.sideEffectFlow.test()
 
-        middleware.someFlow(action)
-        middleware.someFlow(action2)
-        middleware.someFlow(action3)
+        container.someFlow(action)
+        container.someFlow(action2)
+        container.someFlow(action3)
 
         val timeout = 500L
         testSideEffectObserver1.awaitCount(3, timeout)
@@ -60,13 +76,13 @@ internal class SideEffectTest {
         val action = fixture<Int>()
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
-        val middleware = Middleware()
+        val container = CoroutineScope(Dispatchers.Unconfined).container<Unit, Int>(Unit)
 
-        middleware.someFlow(action)
-        middleware.someFlow(action2)
-        middleware.someFlow(action3)
+        container.someFlow(action)
+        container.someFlow(action2)
+        container.someFlow(action3)
 
-        val testSideEffectObserver1 = middleware.container.sideEffectFlow.test()
+        val testSideEffectObserver1 = container.sideEffectFlow.test()
 
         testSideEffectObserver1.awaitCount(3)
 
@@ -78,16 +94,16 @@ internal class SideEffectTest {
         val action = fixture<Int>()
         val action2 = fixture<Int>()
         val action3 = fixture<Int>()
-        val middleware = Middleware()
-        val testSideEffectObserver1 = middleware.container.sideEffectFlow.test()
+        val container = CoroutineScope(Dispatchers.Unconfined).container<Unit, Int>(Unit)
+        val testSideEffectObserver1 = container.sideEffectFlow.test()
 
-        middleware.someFlow(action)
-        middleware.someFlow(action2)
-        middleware.someFlow(action3)
+        container.someFlow(action)
+        container.someFlow(action2)
+        container.someFlow(action3)
         testSideEffectObserver1.awaitCount(3)
         testSideEffectObserver1.close()
 
-        val testSideEffectObserver2 = middleware.container.sideEffectFlow.test()
+        val testSideEffectObserver2 = container.sideEffectFlow.test()
 
         testSideEffectObserver1.awaitCount(3, 10L)
 
@@ -97,37 +113,31 @@ internal class SideEffectTest {
     @Test
     fun `only new side effects are emitted when resubscribing`() {
         val action = fixture<Int>()
-        val middleware = Middleware()
+        val container = CoroutineScope(Dispatchers.Unconfined).container<Unit, Int>(Unit)
 
-        val testSideEffectObserver1 = middleware.container.sideEffectFlow.test()
+        val testSideEffectObserver1 = container.sideEffectFlow.test()
 
-        middleware.someFlow(action)
+        container.someFlow(action)
 
         testSideEffectObserver1.awaitCount(1)
         testSideEffectObserver1.close()
 
         GlobalScope.launch {
             repeat(1000) {
-                middleware.someFlow(it)
+                container.someFlow(it)
             }
         }
 
         Thread.sleep(200)
 
-        val testSideEffectObserver2 = middleware.container.sideEffectFlow.test()
+        val testSideEffectObserver2 = container.sideEffectFlow.test()
         testSideEffectObserver2.awaitCount(1000)
 
         assertThat(testSideEffectObserver1.values).containsExactly(action)
         assertThat(testSideEffectObserver2.values).containsExactlyElementsOf((0..999).toList())
     }
 
-    private class Middleware : ContainerHost<Unit, Int> {
-        override val container: Container<Unit, Int> = CoroutineScope(Dispatchers.Unconfined).container(Unit)
-
-        fun someFlow(action: Int) = orbit {
-            sideEffect {
-                post(action)
-            }
-        }
+    private fun Container<Unit, Int>.someFlow(action: Int) = orbit {
+        postSideEffect(action)
     }
 }

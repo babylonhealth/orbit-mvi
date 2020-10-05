@@ -14,13 +14,13 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.syntax.simple
 
 import com.appmattus.kotlinfixture.kotlinFixture
-import com.babylon.orbit2.syntax.strict.orbit
-import com.babylon.orbit2.syntax.strict.reduce
-import com.babylon.orbit2.syntax.strict.sideEffect
-import com.babylon.orbit2.syntax.strict.transform
+import com.babylon.orbit2.Container
+import com.babylon.orbit2.ContainerHost
+import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
@@ -50,7 +50,7 @@ internal class BaseDslPluginThreadingTest {
     }
 
     @Test
-    fun `transformer executes on background dispatcher`() {
+    fun `transformer executes on orbit dispatcher`() {
         val action = fixture<Int>()
         val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
@@ -58,30 +58,6 @@ internal class BaseDslPluginThreadingTest {
         middleware.transformer(action)
 
         testFlowObserver.awaitCount(2)
-        assertThat(middleware.threadName).startsWith(BACKGROUND_THREAD_PREFIX)
-    }
-
-    @Test
-    fun `posting side effects executes on orbit dispatcher`() {
-        val action = fixture<Int>()
-        val middleware = BaseDslMiddleware()
-        val testFlowObserver = middleware.container.sideEffectFlow.test()
-
-        middleware.postingSideEffect(action)
-
-        testFlowObserver.awaitCount(1)
-        assertThat(middleware.threadName).startsWith(ORBIT_THREAD_PREFIX)
-    }
-
-    @Test
-    fun `side effect executes on orbit dispatcher`() {
-        val action = fixture<Int>()
-        val middleware = BaseDslMiddleware()
-
-        middleware.sideEffect(action)
-
-        middleware.latch.await()
-
         assertThat(middleware.threadName).startsWith(ORBIT_THREAD_PREFIX)
     }
 
@@ -92,42 +68,28 @@ internal class BaseDslPluginThreadingTest {
         @Suppress("EXPERIMENTAL_API_USAGE")
         override val container = RealContainer<TestState, String>(
             initialState = TestState(42),
-            settings = Container.Settings(),
             parentScope = CoroutineScope(Dispatchers.Unconfined),
-            backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+            settings = Container.Settings(
+                orbitDispatcher = newSingleThreadContext(ORBIT_THREAD_PREFIX),
+                backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+            )
         )
         lateinit var threadName: String
         val latch = CountDownLatch(1)
 
-        fun reducer(action: Int) = orbit {
+        fun reducer(action: Int) = intent {
             reduce {
                 threadName = Thread.currentThread().name
                 state.copy(id = action)
             }
         }
 
-        fun transformer(action: Int) = orbit {
-            transform {
-                threadName = Thread.currentThread().name
-                action + 5
-            }
-                .reduce {
-                    state.copy(id = event)
-                }
-        }
+        fun transformer(action: Int) = intent {
+            threadName = Thread.currentThread().name
+            val newEvent = action + 5
 
-        fun postingSideEffect(action: Int) = orbit {
-            sideEffect {
-                threadName = Thread.currentThread().name
-                post(action.toString())
-            }
-        }
-
-        fun sideEffect(action: Int) = orbit {
-            sideEffect {
-                threadName = Thread.currentThread().name
-                latch.countDown()
-                action.toString()
+            reduce {
+                state.copy(id = newEvent)
             }
         }
     }

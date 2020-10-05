@@ -19,6 +19,8 @@ package com.babylon.orbit2
 import com.babylon.orbit2.idling.IdlingResource
 import com.babylon.orbit2.idling.NoopIdlingResource
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 
@@ -59,7 +61,7 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
      *
      * @param orbitFlow lambda returning the suspend function representing the flow
      */
-    fun orbit(orbitFlow: suspend (OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>) -> Unit)
+    fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit)
 
     /**
      * Represents additional settings to create the container with.
@@ -71,6 +73,8 @@ interface Container<STATE : Any, SIDE_EFFECT : Any> {
      */
     class Settings(
         val sideEffectBufferSize: Int = Channel.UNLIMITED,
-        val idlingRegistry: IdlingResource = NoopIdlingResource()
+        val idlingRegistry: IdlingResource = NoopIdlingResource(),
+        val orbitDispatcher: CoroutineDispatcher = Dispatchers.Default,
+        val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
     )
 }

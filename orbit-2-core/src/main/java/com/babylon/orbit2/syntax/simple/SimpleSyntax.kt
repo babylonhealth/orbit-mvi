@@ -38,10 +38,11 @@ class SimpleSyntax<S : Any, SE : Any>(internal val containerContext: OrbitDslPlu
 @Orbit2Dsl
 suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.reduce(reducer: suspend SimpleContext<S>.() -> S) {
     containerContext.apply {
-        state = object : SimpleContext<S> {
-            override val state: S
-                get() = this@reduce.state
-        }.reducer()
+        reduce { reducerState ->
+            object : SimpleContext<S> {
+                override val state: S = reducerState
+            }.reducer()
+        }
     }
 }
 
@@ -57,17 +58,17 @@ suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.reduce(reducer: suspend Simp
  * @param sideEffect the side effect to post through the side effect flow
  */
 @Orbit2Dsl
-fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: SE) {
+suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: SE) {
     containerContext.postSideEffect(sideEffect)
 }
 
 /**
- * Build and execute an orbit flow on [Container].
+ * Build and execute an intent on [Container].
  *
- * @param init lambda returning the operator chain that represents the flow
+ * @param transformer lambda representing the transformer
  */
 @Orbit2Dsl
-fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.orbit(init: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit) =
+fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.intent(transformer: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit) =
     container.orbit {
-        SimpleSyntax(it).init()
+        SimpleSyntax(this).transformer()
     }

@@ -10,7 +10,7 @@ import com.babylon.orbit2.syntax.Orbit2Dsl
 @Orbit2Dsl
 interface SideEffectContext<S : Any, SE : Any, E> : Context<S, E> {
     /**
-     * Posts a side effect to [Container.sideEffectStream].
+     * Posts a side effect to [Container.sideEffectFlow].
      */
-    fun post(event: SE)
+    suspend fun post(event: SE)
 }

@@ -14,52 +14,28 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.livedata
+package com.babylon.orbit2.internal
 
-import androidx.lifecycle.Lifecycle
 import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
+import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@Suppress("DEPRECATION")
-@ExperimentalCoroutinesApi
-@ExtendWith(InstantTaskExecutorExtension::class)
-internal class StateConnectionLiveDataPluginTest {
+internal class StateTest {
 
     private val fixture = kotlinFixture()
-    private val mockLifecycleOwner = MockLifecycleOwner().apply {
-        dispatchEvent(Lifecycle.Event.ON_CREATE)
-        dispatchEvent(Lifecycle.Event.ON_START)
-    }
-
-    @BeforeEach
-    fun beforeEach() {
-        Dispatchers.setMain(Dispatchers.Unconfined)
-    }
-
-    @AfterEach
-    fun afterEach() {
-        Dispatchers.resetMain()
-    }
 
     @Test
     fun `initial state is emitted on connection`() {
         val initialState = fixture<TestState>()
         val middleware = Middleware(initialState)
-        val testStateObserver =
-            middleware.container.state.test(mockLifecycleOwner)
+        val testStateObserver = middleware.container.stateFlow.test()
 
         testStateObserver.awaitCount(1)
 
@@ -67,41 +43,15 @@ internal class StateConnectionLiveDataPluginTest {
     }
 
     @Test
-    fun `latest state is emitted on connection to separate live datas`() {
+    fun `latest state is emitted on connection`() {
         val initialState = fixture<TestState>()
         val middleware = Middleware(initialState)
-        val testStateObserver =
-            middleware.container.state.test(mockLifecycleOwner)
+        val testStateObserver = middleware.container.stateFlow.test()
         val action = fixture<Int>()
         middleware.something(action)
         testStateObserver.awaitCount(2) // block until the state is updated
 
-        val testStateObserver2 =
-            middleware.container.state.test(mockLifecycleOwner)
-        testStateObserver2.awaitCount(1)
-
-        assertThat(testStateObserver.values).containsExactly(
-            initialState,
-            TestState(action)
-        )
-        assertThat(testStateObserver2.values).containsExactly(
-            TestState(
-                action
-            )
-        )
-    }
-
-    @Test
-    fun `latest state is emitted on connection to the same live data`() {
-        val initialState = fixture<TestState>()
-        val middleware = Middleware(initialState)
-        val liveData = middleware.container.state
-        val testStateObserver = liveData.test(mockLifecycleOwner)
-        val action = fixture<Int>()
-        middleware.something(action)
-        testStateObserver.awaitCount(2) // block until the state is updated
-
-        val testStateObserver2 = liveData.test(mockLifecycleOwner)
+        val testStateObserver2 = middleware.container.stateFlow.test()
         testStateObserver2.awaitCount(1)
 
         assertThat(testStateObserver.values).containsExactly(
@@ -118,8 +68,7 @@ internal class StateConnectionLiveDataPluginTest {
     @Test
     fun `current state is set to the initial state after instantiation`() {
         val initialState = fixture<TestState>()
-        val middleware =
-            Middleware(initialState)
+        val middleware = Middleware(initialState)
 
         assertThat(middleware.container.currentState).isEqualTo(initialState)
     }
@@ -127,11 +76,9 @@ internal class StateConnectionLiveDataPluginTest {
     @Test
     fun `current state is up to date after modification`() {
         val initialState = fixture<TestState>()
-        val middleware =
-            Middleware(initialState)
+        val middleware = Middleware(initialState)
         val action = fixture<Int>()
-        val testStateObserver =
-            middleware.container.state.test(mockLifecycleOwner)
+        val testStateObserver = middleware.container.stateFlow.test()
 
         middleware.something(action)
 
@@ -142,8 +89,7 @@ internal class StateConnectionLiveDataPluginTest {
 
     private data class TestState(val id: Int)
 
-    private class Middleware(initialState: TestState) :
-        ContainerHost<TestState, String> {
+    private class Middleware(initialState: TestState) : ContainerHost<TestState, String> {
         override val container =
             CoroutineScope(Dispatchers.Unconfined).container<TestState, String>(initialState)
 

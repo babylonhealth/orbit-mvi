@@ -14,11 +14,14 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.internal
 
 import com.appmattus.kotlinfixture.kotlinFixture
+import com.babylon.orbit2.ContainerHost
+import com.babylon.orbit2.container
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.sideEffect
+import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.assertj.core.api.Assertions.assertThat

@@ -45,14 +45,14 @@ object CoroutineDslPlugin : OrbitDslPlugin {
         return when (operator) {
             is TransformSuspend<*, *, *> -> flow.map {
                 containerContext.withIdling(operator as TransformSuspend<S, E, Any>) {
-                    withContext(containerContext.backgroundDispatcher) {
+                    withContext(containerContext.settings.backgroundDispatcher) {
                         createContext(it).block()
                     }
                 }
             }
             is TransformFlow<*, *, *> -> flow.flatMapConcat {
                 containerContext.withIdlingFlow(operator as TransformFlow<S, E, Any>) {
-                    createContext(it).block().flowOn(containerContext.backgroundDispatcher)
+                    createContext(it).block().flowOn(containerContext.settings.backgroundDispatcher)
                 }
             }
             else -> flow

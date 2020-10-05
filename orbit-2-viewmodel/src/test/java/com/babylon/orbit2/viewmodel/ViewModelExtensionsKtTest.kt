@@ -28,7 +28,6 @@ import kotlinx.android.parcel.Parcelize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-@Suppress("DEPRECATION")
 class ViewModelExtensionsKtTest {
     private val fixture = kotlinFixture()
 
@@ -51,23 +50,6 @@ class ViewModelExtensionsKtTest {
         val middleware = Middleware(savedStateHandle, initialState)
 
         assertThat(middleware.container.currentState).isEqualTo(initialState)
-    }
-
-    @Test
-    fun `Modified state is saved in the saved state handle for stateStream`() {
-        val initialState = fixture<TestState>()
-        val something = fixture<Int>()
-        val savedStateHandle = SavedStateHandle()
-        val middleware = Middleware(savedStateHandle, initialState)
-        val testStateObserver = middleware.container.stateFlow.test()
-
-        middleware.something(something)
-
-        testStateObserver.awaitCount(2)
-
-        assertThat(savedStateHandle.get<TestState?>(SAVED_STATE_KEY)).isEqualTo(
-            TestState(something)
-        )
     }
 
     @Test
