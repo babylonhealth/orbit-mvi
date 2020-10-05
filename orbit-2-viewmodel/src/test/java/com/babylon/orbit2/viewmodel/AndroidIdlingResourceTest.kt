@@ -65,7 +65,7 @@ class AndroidIdlingResourceTest {
 
             val idlingResource = IdlingRegistry.getInstance().resources.first()
 
-            withTimeout(100) {
+            withTimeout(ASSERT_TIMEOUT) {
                 mutex.withLock {
                     assertFalse(idlingResource.isIdleNow)
                 }
@@ -89,7 +89,7 @@ class AndroidIdlingResourceTest {
 
             val idlingResource = IdlingRegistry.getInstance().resources.first()
 
-            withTimeout(100) {
+            withTimeout(ASSERT_TIMEOUT) {
                 mutex.withLock {
                     assertTrue(idlingResource.isIdleNow)
                 }
@@ -112,7 +112,7 @@ class AndroidIdlingResourceTest {
 
             val idlingResource = IdlingRegistry.getInstance().resources.first()
 
-            withTimeout(100) {
+            withTimeout(ASSERT_TIMEOUT) {
                 mutex.withLock {
                     assertFalse(idlingResource.isIdleNow)
                 }
@@ -173,7 +173,7 @@ class AndroidIdlingResourceTest {
 
             val idlingResource = IdlingRegistry.getInstance().resources.first()
 
-            withTimeout(100) {
+            withTimeout(ASSERT_TIMEOUT) {
                 mutex1.withLock {
                     mutex2.withLock {
                         assertFalse(idlingResource.isIdleNow)
@@ -208,7 +208,7 @@ class AndroidIdlingResourceTest {
 
             val idlingResource = IdlingRegistry.getInstance().resources.first()
 
-            withTimeout(100) {
+            withTimeout(ASSERT_TIMEOUT) {
                 mutex1.withLock {
                     mutex2.withLock {
                         assertFalse(idlingResource.isIdleNow)
@@ -240,7 +240,7 @@ class AndroidIdlingResourceTest {
 
             val idlingResource = IdlingRegistry.getInstance().resources.first()
 
-            withTimeout(100) {
+            withTimeout(ASSERT_TIMEOUT) {
                 mutex1.withLock {
                     mutex2.withLock {
                         assertFalse(idlingResource.isIdleNow)
@@ -315,4 +315,8 @@ class AndroidIdlingResourceTest {
     }
 
     data class TestState(val value: Int)
+
+    private companion object {
+        const val ASSERT_TIMEOUT = 200L
+    }
 }

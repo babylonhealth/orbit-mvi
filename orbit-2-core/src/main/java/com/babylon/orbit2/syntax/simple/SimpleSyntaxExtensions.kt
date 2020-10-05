@@ -18,6 +18,7 @@ package com.babylon.orbit2.syntax.simple
 
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
+import com.babylon.orbit2.idling.withIdling
 import com.babylon.orbit2.syntax.Orbit2Dsl
 
 /**
@@ -51,10 +52,16 @@ suspend fun <S : Any, SE : Any> SimpleSyntax<S, SE>.postSideEffect(sideEffect: S
 /**
  * Build and execute an intent on [Container].
  *
+ * @param registerIdling whether to register an idling resource when executing this intent. Defaults to true.
  * @param transformer lambda representing the transformer
  */
 @Orbit2Dsl
-fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.intent(transformer: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit) =
+fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.intent(
+    registerIdling: Boolean = true,
+    transformer: suspend SimpleSyntax<STATE, SIDE_EFFECT>.() -> Unit
+) =
     container.orbit {
-        SimpleSyntax(this).transformer()
+        withIdling(registerIdling) {
+            SimpleSyntax(this).transformer()
+        }
     }
