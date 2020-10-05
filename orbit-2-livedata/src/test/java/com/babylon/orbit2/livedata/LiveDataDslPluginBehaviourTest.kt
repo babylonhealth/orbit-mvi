@@ -67,9 +67,9 @@ internal class LiveDataDslPluginBehaviourTest {
 
         runBlocking {
             liveData.value = emission
-            delay(150)
+            delay(300)
             liveData.value = emission2
-            delay(150)
+            delay(300)
             liveData.value = emission3
         }
 
