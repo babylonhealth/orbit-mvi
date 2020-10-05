@@ -190,7 +190,7 @@ class Example : ContainerHost<ExampleState, ExampleSideEffect> {
     fun simpleExample() = intent {
         anotherApiCall(apiCall()) // just call suspending functions
     }
-    
+
 
     fun strictExample() = orbit {
         transform { apiCall() }

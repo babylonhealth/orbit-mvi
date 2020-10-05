@@ -146,7 +146,7 @@ class CalculatorActivity: AppCompatActivity() {
 
 ## Syntax
 
-There are two orbit syntaxes to choose from.
+There are two Orbit syntaxes to choose from.
 
 We recommend using the [simple syntax](simple-syntax.md) if you're just
 starting out or using coroutines exclusively in your codebase. The
