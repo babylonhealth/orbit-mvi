@@ -293,7 +293,7 @@ class OrbitTestingTest {
             testSubject.something(action3)
             testStateObserver.awaitCount(4)
 
-            testSubject.assert(timeoutMillis = 1000L) {
+            testSubject.assert(timeoutMillis = 2000L) {
                 states(
                     { copy(count = action) },
                     { copy(count = action2) },
