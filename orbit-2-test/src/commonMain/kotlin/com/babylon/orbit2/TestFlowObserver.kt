@@ -36,9 +36,9 @@ public class TestFlowObserver<T>(flow: Flow<T>) {
      * @param condition The awaited condition
      */
     public suspend fun awaitFor(timeout: Long = 5000L, condition: TestFlowObserver<T>.() -> Boolean) {
-        val start = System.currentTimeMillis()
+        val start = getSystemTimeInMillis()
         while (!this.condition()) {
-            if (System.currentTimeMillis() - start > timeout) {
+            if (getSystemTimeInMillis() - start > timeout) {
                 break
             }
             delay(AWAIT_TIMEOUT_MS)
@@ -78,6 +78,7 @@ public class TestFlowObserver<T>(flow: Flow<T>) {
     }
 }
 
+internal expect fun getSystemTimeInMillis(): Long
 /**
  * Allows you to put a [Flow] into test mode.
  */

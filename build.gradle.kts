@@ -31,6 +31,7 @@ buildscript {
         classpath(PluginDependencies.android)
         classpath(PluginDependencies.kotlin)
         classpath(PluginDependencies.safeargs)
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.4")
     }
 }
 

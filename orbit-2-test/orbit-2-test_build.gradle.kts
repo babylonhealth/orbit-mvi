@@ -13,30 +13,50 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 plugins {
-    id("java-library")
-    kotlin("jvm")
+    kotlin("multiplatform")
 }
+apply<kotlinx.atomicfu.plugin.gradle.AtomicFUGradlePlugin>()
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(ProjectDependencies.kotlinCoroutines)
-    implementation(ProjectDependencies.kotlinTest)
-    implementation(ProjectDependencies.mockitoKotlin)
+kotlin {
+    jvm()
+    ios()
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                kotlin("stdlib-native")
+                implementation(ProjectDependencies.kotlinTest)
 
-    api(project(":orbit-2-core"))
+                api(project(":orbit-2-core"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+                implementation("io.kotest:kotest-assertions-core:4.2.3")
+            }
+        }
 
-    // Testing
-    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
-    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
-}
+        val iosMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.4.10")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
+            }
+        }
 
-// Fix lack of source code when publishing pure Kotlin projects
-// See https://github.com/novoda/bintray-release/issues/262
-tasks.whenTaskAdded {
-    if (name == "generateSourcesJarForMavenPublication") {
-        this as Jar
-        from(sourceSets.main.get().allSource)
+        val jvmMain by getting {
+            dependencies {
+                implementation(ProjectDependencies.mockitoKotlin)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                GroupedDependencies.testsImplementation.forEach { implementation(it) }
+                runtimeOnly(ProjectDependencies.junitJupiterEngine)
+            }
+        }
     }
 }

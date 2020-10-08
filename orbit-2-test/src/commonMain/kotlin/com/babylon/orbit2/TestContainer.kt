@@ -20,9 +20,8 @@ import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.atomic
 
 internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
@@ -33,14 +32,14 @@ internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(
     parentScope = CoroutineScope(Dispatchers.Unconfined),
     settings = Container.Settings(
         orbitDispatcher =
-        @Suppress("EXPERIMENTAL_API_USAGE") if (blocking) Dispatchers.Unconfined else newSingleThreadContext("orbit"),
+        @Suppress("EXPERIMENTAL_API_USAGE") if (blocking) Dispatchers.Unconfined else Dispatchers.Default,
         backgroundDispatcher = Dispatchers.Unconfined
     )
 ) {
-    private val dispatched = AtomicBoolean(false)
+    private val dispatched = atomic<Int>(0)
 
     override fun orbit(orbitFlow: suspend OrbitDslPlugin.ContainerContext<STATE, SIDE_EFFECT>.() -> Unit) {
-        if (!isolateFlow || dispatched.compareAndSet(false, true)) {
+        if (!isolateFlow || dispatched.compareAndSet(0, 1)) {
             if (blocking) {
                 runBlocking {
                     orbitFlow(pluginContext)

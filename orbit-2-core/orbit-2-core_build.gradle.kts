@@ -17,6 +17,7 @@
 plugins {
     kotlin("multiplatform")
 }
+apply<kotlinx.atomicfu.plugin.gradle.AtomicFUGradlePlugin>()
 
 kotlin {
     jvm()
@@ -26,6 +27,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
                 kotlin("stdlib-native")
+//                implementation("org.jetbrains.kotlinx:atomicfu-common:0.14.4")
             }
         }
         commonTest {
@@ -45,6 +47,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-junit"))
                 implementation("io.kotest:kotest-assertions-core-jvm:4.2.3")
+//                implementation("org.jetbrains.kotlinx:atomicfu-native:0.14.4")
 
                 implementation(project(":orbit-2-test"))
                 implementation(ProjectDependencies.kotlinCoroutinesTest)

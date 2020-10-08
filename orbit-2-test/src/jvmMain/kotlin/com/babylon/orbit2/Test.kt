@@ -148,13 +148,3 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
         ).f()
     }
 }
-
-private class TestFixtures<STATE : Any, SIDE_EFFECT : Any>(
-    val stateObserver: TestFlowObserver<STATE>,
-    val sideEffectObserver: TestFlowObserver<SIDE_EFFECT>,
-    val blocking: Boolean
-)
-
-private object TestHarness {
-    val FIXTURES: MutableMap<ContainerHost<*, *>, TestFixtures<*, *>> = WeakHashMap()
-}

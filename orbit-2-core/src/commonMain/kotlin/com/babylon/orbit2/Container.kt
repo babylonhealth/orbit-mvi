@@ -18,6 +18,7 @@ package com.babylon.orbit2
 
 import com.babylon.orbit2.idling.IdlingResource
 import com.babylon.orbit2.idling.NoopIdlingResource
+import com.babylon.orbit2.internal.defaultBackgroundDispatcher
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,6 @@ public interface Container<STATE : Any, SIDE_EFFECT : Any> {
         public val sideEffectBufferSize: Int = Channel.UNLIMITED,
         public val idlingRegistry: IdlingResource = NoopIdlingResource(),
         public val orbitDispatcher: CoroutineDispatcher = Dispatchers.Default,
-        public val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        public val backgroundDispatcher: CoroutineDispatcher = defaultBackgroundDispatcher,
     )
 }
