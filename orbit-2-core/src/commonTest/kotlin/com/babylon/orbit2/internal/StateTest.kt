@@ -16,7 +16,6 @@
 
 package com.babylon.orbit2.internal
 
-import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.syntax.strict.orbit
@@ -24,67 +23,71 @@ import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
+import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class StateTest {
 
-    private val fixture = kotlinFixture()
-
     @Test
     fun `initial state is emitted on connection`() {
-        val initialState = fixture<TestState>()
+        val initialState = TestState(Random.nextInt())
         val middleware = Middleware(initialState)
         val testStateObserver = middleware.container.stateFlow.test()
 
         testStateObserver.awaitCount(1)
 
-        assertThat(testStateObserver.values).containsExactly(initialState)
+        assertEquals(listOf(initialState), testStateObserver.values)
     }
 
     @Test
     fun `latest state is emitted on connection`() {
-        val initialState = fixture<TestState>()
+        val initialState = TestState(Random.nextInt())
         val middleware = Middleware(initialState)
         val testStateObserver = middleware.container.stateFlow.test()
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         middleware.something(action)
         testStateObserver.awaitCount(2) // block until the state is updated
 
         val testStateObserver2 = middleware.container.stateFlow.test()
         testStateObserver2.awaitCount(1)
 
-        assertThat(testStateObserver.values).containsExactly(
-            initialState,
-            TestState(action)
+
+        assertEquals(
+            listOf(
+                initialState,
+                TestState(action)
+            ),
+            testStateObserver.values
         )
-        assertThat(testStateObserver2.values).containsExactly(
-            TestState(
-                action
-            )
+        assertEquals(
+            listOf(
+                TestState(action)
+            ),
+            testStateObserver2.values
         )
     }
 
     @Test
     fun `current state is set to the initial state after instantiation`() {
-        val initialState = fixture<TestState>()
+        val initialState = TestState(Random.nextInt())
         val middleware = Middleware(initialState)
 
-        assertThat(middleware.container.currentState).isEqualTo(initialState)
+        assertEquals(initialState, middleware.container.currentState)
     }
 
     @Test
     fun `current state is up to date after modification`() {
-        val initialState = fixture<TestState>()
+        val initialState = TestState(Random.nextInt())
         val middleware = Middleware(initialState)
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val testStateObserver = middleware.container.stateFlow.test()
 
         middleware.something(action)
 
         testStateObserver.awaitCount(2)
 
-        assertThat(middleware.container.currentState).isEqualTo(testStateObserver.values.last())
+        assertEquals(testStateObserver.values.last(), middleware.container.currentState)
     }
 
     private data class TestState(val id: Int)

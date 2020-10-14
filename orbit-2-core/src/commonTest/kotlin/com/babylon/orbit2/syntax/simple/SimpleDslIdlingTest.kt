@@ -20,26 +20,26 @@ import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.idling.IdlingResource
+import com.babylon.orbit2.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class SimpleDslIdlingTest {
 
     private val scope = CoroutineScope(Dispatchers.Unconfined)
     private val testIdlingResource = TestIdlingResource()
 
-    @AfterEach
+    @AfterTest
     fun after() {
         scope.cancel()
     }

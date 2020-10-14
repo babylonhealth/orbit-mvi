@@ -20,7 +20,6 @@ import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.OrbitDslPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.atomicfu.atomic
 
 internal class TestContainer<STATE : Any, SIDE_EFFECT : Any>(

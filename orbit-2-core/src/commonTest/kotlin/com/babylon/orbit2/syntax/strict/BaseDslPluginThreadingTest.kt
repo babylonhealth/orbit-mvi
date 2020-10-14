@@ -16,17 +16,18 @@
 
 package com.babylon.orbit2.syntax.strict
 
-import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
+import com.babylon.orbit2.internal.CountDownLatch
 import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.runBlocking
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newSingleThreadContext
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
-import java.util.concurrent.CountDownLatch
+import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 internal class BaseDslPluginThreadingTest {
 
@@ -35,54 +36,62 @@ internal class BaseDslPluginThreadingTest {
         const val BACKGROUND_THREAD_PREFIX = "IO"
     }
 
-    private val fixture = kotlinFixture()
-
     @Test
     fun `reducer executes on orbit dispatcher`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.reducer(action)
 
         testFlowObserver.awaitCount(2)
-        assertThat(middleware.threadName).startsWith(ORBIT_THREAD_PREFIX)
+        assertTrue {
+            middleware.threadName.startsWith(ORBIT_THREAD_PREFIX)
+        }
     }
 
     @Test
     fun `transformer executes on background dispatcher`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.transformer(action)
 
         testFlowObserver.awaitCount(2)
-        assertThat(middleware.threadName).startsWith(BACKGROUND_THREAD_PREFIX)
+        assertTrue {
+            middleware.threadName.startsWith(BACKGROUND_THREAD_PREFIX)
+        }
     }
 
     @Test
     fun `posting side effects executes on orbit dispatcher`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.sideEffectFlow.test()
 
         middleware.postingSideEffect(action)
 
         testFlowObserver.awaitCount(1)
-        assertThat(middleware.threadName).startsWith(ORBIT_THREAD_PREFIX)
+        assertTrue {
+            middleware.threadName.startsWith(ORBIT_THREAD_PREFIX)
+        }
     }
 
     @Test
     fun `side effect executes on orbit dispatcher`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
 
         middleware.sideEffect(action)
 
-        middleware.latch.await()
+        runBlocking {
+            middleware.latch.await()
+        }
 
-        assertThat(middleware.threadName).startsWith(ORBIT_THREAD_PREFIX)
+        assertTrue {
+            middleware.threadName.startsWith(ORBIT_THREAD_PREFIX)
+        }
     }
 
     private data class TestState(val id: Int)

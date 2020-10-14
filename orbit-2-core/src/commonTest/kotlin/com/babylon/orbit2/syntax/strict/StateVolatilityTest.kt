@@ -19,23 +19,23 @@ package com.babylon.orbit2.syntax.strict
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
+import com.babylon.orbit2.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class StateVolatilityTest {
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.Default)
 
-    @AfterEach
+    @AfterTest
     fun after() {
         scope.cancel()
     }

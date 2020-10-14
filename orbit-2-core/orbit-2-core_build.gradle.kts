@@ -25,7 +25,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt-2")
                 kotlin("stdlib-native")
 //                implementation("org.jetbrains.kotlinx:atomicfu-common:0.14.4")
             }
@@ -34,32 +34,42 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-                implementation("io.kotest:kotest-assertions-core:4.2.3")
+//                implementation("io.kotest:kotest-assertions-core:4.2.3")
+//                implementation(ProjectDependencies.kotlinCoroutinesTest)
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib-jdk8"))
+//                implementation(kotlin("stdlib-jdk7"))
             }
         }
         val jvmTest by getting {
+            dependsOn(commonTest.get())
             dependencies {
-                implementation(kotlin("test-junit"))
-                implementation("io.kotest:kotest-assertions-core-jvm:4.2.3")
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit5"))
+//                implementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 //                implementation("org.jetbrains.kotlinx:atomicfu-native:0.14.4")
+                implementation(ProjectDependencies.mockitoInline)
+                implementation(ProjectDependencies.mockitoKotlin)
 
                 implementation(project(":orbit-2-test"))
-                implementation(ProjectDependencies.kotlinCoroutinesTest)
-                GroupedDependencies.testsImplementation.forEach { implementation(it) }
-                runtimeOnly(ProjectDependencies.junitJupiterEngine)
+//                implementation(ProjectDependencies.kotlinCoroutinesTest)
+//                GroupedDependencies.testsImplementation.forEach { implementation(it) }
+//                runtimeOnly(ProjectDependencies.junitJupiterEngine)
             }
         }
 
         val iosMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt-2")
             }
+        }
+
+        val iosTest by getting {
+
         }
     }
 }

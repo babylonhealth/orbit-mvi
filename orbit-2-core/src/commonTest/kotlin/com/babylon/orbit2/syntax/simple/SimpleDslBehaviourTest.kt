@@ -16,7 +16,6 @@
 
 package com.babylon.orbit2.syntax.simple
 
-import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.assert
 import com.babylon.orbit2.container
@@ -24,16 +23,16 @@ import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import org.junit.jupiter.api.Test
+import kotlin.random.Random
+import kotlin.test.Test
 
 internal class SimpleDslBehaviourTest {
 
-    private val fixture = kotlinFixture()
-    private val initialState = fixture<TestState>()
+    private val initialState = TestState(Random.nextInt())
 
     @Test
     fun `reducer produces new states`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware().test(initialState)
 
         middleware.reducer(action)
@@ -47,7 +46,7 @@ internal class SimpleDslBehaviourTest {
 
     @Test
     fun `transformer maps values`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware().test(initialState)
 
         middleware.transformer(action)
@@ -61,7 +60,7 @@ internal class SimpleDslBehaviourTest {
 
     @Test
     fun `posting side effects emit side effects`() {
-        val action = fixture<Int>()
+        val action = Random.nextInt()
         val middleware = BaseDslMiddleware().test(initialState)
 
         middleware.postingSideEffect(action)

@@ -17,17 +17,16 @@
 package com.babylon.orbit2.internal
 
 import com.babylon.orbit2.Container
+import com.babylon.orbit2.runBlocking
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
-import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class ReducerThreadingTest {
 
@@ -62,7 +61,7 @@ internal class ReducerThreadingTest {
 
             testStateObserver.awaitFor { values.last().ids.size == ITEM_COUNT }
 
-            assertThat(testStateObserver.values.last()).isEqualTo(expectedStates.last())
+            assertEquals(expectedStates.last(), testStateObserver.values.last())
         }
     }
 
@@ -99,8 +98,9 @@ internal class ReducerThreadingTest {
 
             testStateObserver.awaitFor { values.last().ids.size == ITEM_COUNT }
 
-            assertThat(testStateObserver.values.last().ids.count { it == 1 }).isEqualTo(ITEM_COUNT / 3)
-            assertThat(testStateObserver.values.last().ids.count { it == 2 }).isEqualTo(ITEM_COUNT / 3)
+            assertEquals(ITEM_COUNT, testStateObserver.values.last().ids.size)
+            assertEquals(ITEM_COUNT / 3, testStateObserver.values.last().ids.count { it == 1 })
+            assertEquals(ITEM_COUNT / 3, testStateObserver.values.last().ids.count { it == 2 })
         }
     }
 

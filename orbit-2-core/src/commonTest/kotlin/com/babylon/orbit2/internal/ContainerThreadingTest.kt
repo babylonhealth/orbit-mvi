@@ -16,24 +16,22 @@
 
 package com.babylon.orbit2.internal
 
-import com.appmattus.kotlinfixture.kotlinFixture
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
+import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class ContainerThreadingTest {
 
-    private val fixture = kotlinFixture()
-
     @Test
     fun `container can process a second action while the first is suspended`() {
-        val container = RealContainer<Int, Nothing>(fixture(), CoroutineScope(Dispatchers.Default), Container.Settings())
+        val container = RealContainer<Int, Nothing>(Random.nextInt(), CoroutineScope(Dispatchers.Default), Container.Settings())
         val observer = container.stateFlow.test()
-        val newState = fixture<Int>()
+        val newState = Random.nextInt()
 
         container.orbit {
             delay(Long.MAX_VALUE)
@@ -43,6 +41,6 @@ internal class ContainerThreadingTest {
         }
 
         observer.awaitCount(2)
-        assertThat(container.currentState).isEqualTo(newState)
+        assertEquals(newState, container.currentState)
     }
 }

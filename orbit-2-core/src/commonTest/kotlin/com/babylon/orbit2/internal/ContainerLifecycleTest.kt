@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.random.Random
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 internal class ContainerLifecycleTest {
 
@@ -38,8 +39,12 @@ internal class ContainerLifecycleTest {
         testStateObserver.awaitCount(1)
         testSideEffectObserver.awaitCount(1)
 
-        assertThat(testStateObserver.values).containsExactly(initialState)
-        assertThat(testSideEffectObserver.values).containsExactly(initialState.id.toString())
+        assertTrue {
+            testStateObserver.values == listOf(initialState)
+        }
+        assertTrue {
+            testSideEffectObserver.values == listOf(initialState.id.toString())
+        }
     }
 
     private data class TestState(val id: Int)
