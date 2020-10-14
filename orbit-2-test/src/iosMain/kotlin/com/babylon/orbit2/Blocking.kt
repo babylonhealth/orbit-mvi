@@ -16,4 +16,6 @@
 
 package com.babylon.orbit2
 
-internal actual fun <T> runBlocking(block: suspend () -> T): T = kotlinx.coroutines.runBlocking { block() }
+import kotlinx.coroutines.CoroutineScope
+
+internal actual fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T = kotlinx.coroutines.runBlocking { block() }

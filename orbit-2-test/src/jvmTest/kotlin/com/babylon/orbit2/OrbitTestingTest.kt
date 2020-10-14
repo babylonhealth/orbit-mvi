@@ -435,51 +435,6 @@ class OrbitTestingTest {
             )
         }
 
-        @ParameterizedTest
-        @EnumSource(BlockingModeTests::class)
-        fun `succeeds if loopbacks match`(testCase: BlockingModeTests) {
-            val testSubject = SideEffectTestMiddleware().test(
-                initialState = initialState,
-                isolateFlow = false,
-                blocking = testCase.blocking
-            )
-            val sideEffects = fixture<List<Int>>()
-
-            sideEffects.forEach { testSubject.something(it) }
-
-            testSubject.assert(initialState, timeoutMillis = TIMEOUT) {
-                postedSideEffects(sideEffects)
-
-                sideEffects.forEach {
-                    loopBack { somethingElse(it.toString()) }
-                }
-            }
-        }
-
-        @ParameterizedTest
-        @EnumSource(BlockingModeTests::class)
-        fun `fails if loopbacks do not match`(testCase: BlockingModeTests) {
-            val testSubject = SideEffectTestMiddleware().test(
-                initialState = initialState,
-                isolateFlow = false,
-                blocking = testCase.blocking
-            )
-            val sideEffects = fixture<List<Int>>()
-            val sideEffects2 = fixture<List<Int>>()
-
-            sideEffects.forEach { testSubject.something(it) }
-
-            assertThrows<AssertionError> {
-                testSubject.assert(initialState, timeoutMillis = TIMEOUT) {
-                    postedSideEffects(sideEffects)
-
-                    sideEffects2.forEach {
-                        loopBack { somethingElse(it.toString()) }
-                    }
-                }
-            }
-        }
-
         private inner class SideEffectTestMiddleware :
             ContainerHost<State, Int> {
             override val container = CoroutineScope(Dispatchers.Unconfined).container<State, Int>(initialState)

@@ -17,15 +17,12 @@
 package com.babylon.orbit2
 
 import com.babylon.orbit2.internal.LazyCreateContainerDecorator
-import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import org.mockito.Mockito
-import java.util.WeakHashMap
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 import kotlin.test.assertEquals
 
 /**
@@ -40,6 +37,7 @@ import kotlin.test.assertEquals
  * @param runOnCreate Whether to run the container's create lambda
  * @return Your [ContainerHost] in test mode.
  */
+@Suppress("UNUSED_PARAMETER")
 public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT>> T.test(
     initialState: STATE,
     isolateFlow: Boolean = true,
@@ -50,32 +48,35 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
     val onCreate = container.findOnCreate()
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    val testContainer = TestContainer<STATE, SIDE_EFFECT>(
-        initialState,
-        isolateFlow,
-        blocking
-    )
+//    val testContainer = TestContainer<STATE, SIDE_EFFECT>(
+//        initialState,
+//        isolateFlow,
+//        blocking
+//    )
+
+    this::class.members.firstOrNull { it.name == "container" }?.apply {
+        @Suppress("UNCHECKED_CAST")
+        println(this::class)
+        (this as? KProperty1<ContainerHost<STATE, SIDE_EFFECT>, Container<STATE, SIDE_EFFECT>>)?.setter.call(testContainer)
+    }
 
     this.javaClass.declaredFields.firstOrNull { it.name == "container" }?.apply {
         isAccessible = true
         set(this@test, testContainer)
     }
 
-    val spy = spy(this)
-
-    TestHarness.FIXTURES[spy] = TestFixtures(
-        spy.container.stateFlow.test(),
-        spy.container.sideEffectFlow.test(),
+    TestHarness.FIXTURES[this] = TestFixtures(
+        initialState,
+        this.container.stateFlow.test(),
+        this.container.sideEffectFlow.test(),
         blocking
     )
-
-    Mockito.clearInvocations(spy)
 
     if (runOnCreate) {
         onCreate(initialState)
     }
 
-    return spy
+    return this
 }
 
 private fun <STATE : Any, SIDE_EFFECT : Any> Container<STATE, SIDE_EFFECT>.findOnCreate(): (STATE) -> Unit {
@@ -97,12 +98,6 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
     timeoutMillis: Long = 5000L,
     block: OrbitVerification<T, STATE, SIDE_EFFECT>.() -> Unit = {}
 ) {
-    val mockingDetails = Mockito.mockingDetails(this)
-    if (!mockingDetails.isSpy) {
-        throw IllegalArgumentException(
-            "The container is not in test mode! Please call [ContainerHost.test()] first!"
-        )
-    }
     val verification = OrbitVerification<T, STATE, SIDE_EFFECT>()
         .apply(block)
 
@@ -113,10 +108,10 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
         // With non-blocking mode await for expected states
         runBlocking {
             joinAll(
-                launch(Dispatchers.IO) {
+                launch(Dispatchers.Default) {
                     testFixtures.stateObserver.awaitCountSuspending(verification.expectedStateChanges.size + 1, timeoutMillis)
                 },
-                launch(Dispatchers.IO) {
+                launch(Dispatchers.Default) {
                     testFixtures.sideEffectObserver.awaitCountSuspending(verification.expectedSideEffects.size, timeoutMillis)
                 }
             )
@@ -139,12 +134,4 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
         verification.expectedSideEffects,
         testFixtures.sideEffectObserver.values
     )
-
-    verification.expectedLoopBacks.forEach {
-        val f = it.invocation
-        verify(
-            this,
-            times(it.times)
-        ).f()
-    }
 }

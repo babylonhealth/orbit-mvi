@@ -16,4 +16,6 @@
 
 package com.babylon.orbit2
 
-internal expect fun <T> runBlocking(block: suspend () -> T): T
+import kotlinx.coroutines.CoroutineScope
+
+internal expect fun <T> runBlocking(block: suspend CoroutineScope.() -> T): T

@@ -24,9 +24,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
-                kotlin("stdlib-native")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt-2")
                 implementation(ProjectDependencies.kotlinTest)
+                implementation(kotlin("reflect"))
 
                 api(project(":orbit-2-core"))
             }
@@ -42,14 +42,14 @@ kotlin {
         val iosMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:1.4.10")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt-2")
             }
         }
 
         val jvmMain by getting {
             dependencies {
                 implementation(ProjectDependencies.mockitoKotlin)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt-2")
             }
         }
         val jvmTest by getting {

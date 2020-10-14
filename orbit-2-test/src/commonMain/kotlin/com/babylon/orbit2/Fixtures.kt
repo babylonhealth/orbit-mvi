@@ -16,8 +16,6 @@
 
 package com.babylon.orbit2
 
-import java.util.WeakHashMap
-
 class TestFixtures<STATE : Any, SIDE_EFFECT : Any>(
     val initialState: STATE,
     val stateObserver: TestFlowObserver<STATE>,
@@ -25,5 +23,5 @@ class TestFixtures<STATE : Any, SIDE_EFFECT : Any>(
 )
 
 object TestHarness {
-    val FIXTURES: MutableMap<ContainerHost<*, *>, TestFixtures<*, *>> = WeakHashMap()
+    val FIXTURES: MutableMap<ContainerHost<*, *>, TestFixtures<*, *>> = mutableMapOf()
 }
