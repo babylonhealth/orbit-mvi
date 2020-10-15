@@ -61,6 +61,7 @@ internal class ReducerThreadingTest {
             }
 
             latch.await()
+            Thread.sleep(100)
 
             assertThat(testStateObserver.values.last()).isEqualTo(expectedStates.last())
         }
@@ -98,6 +99,7 @@ internal class ReducerThreadingTest {
             }
 
             latch.await()
+            Thread.sleep(100)
 
             assertThat(testStateObserver.values.last().ids.size).isEqualTo(ITEM_COUNT)
             assertThat(testStateObserver.values.last().ids.count { it == 1 }).isEqualTo(ITEM_COUNT / 3)
