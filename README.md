@@ -48,6 +48,7 @@ And more!...
 ```kotlin
 implementation("com.babylon.orbit2:orbit-viewmodel:<latest-version>")
 ```
+
 [![Download](https://api.bintray.com/packages/babylonpartners/maven/orbit-core/images/download.svg)](https://bintray.com/babylonpartners/maven/orbit-core/_latestVersion)
 
 ### Define the contract
