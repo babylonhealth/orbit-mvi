@@ -82,7 +82,7 @@ class PostDetailsViewModelTest {
             runOnCreate = true
         )
 
-        // then the view model does nothing
+        // then the view model only emits initial state
         viewModel.assert(initialState)
         verifyZeroInteractions(repository)
     }
