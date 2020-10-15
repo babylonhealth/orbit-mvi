@@ -1,7 +1,8 @@
 package com.babylon.orbit2
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -14,12 +15,12 @@ import kotlinx.coroutines.launch
  */
 class TestFlowObserver<T>(flow: Flow<T>) {
     private val _values = mutableListOf<T>()
-    private val closeable: Job
+    private val scope = CoroutineScope(Dispatchers.Unconfined)
     val values: List<T>
         get() = _values
 
     init {
-        closeable = GlobalScope.launch {
+        scope.launch {
             flow.collect {
                 _values.add(it)
             }
@@ -62,7 +63,7 @@ class TestFlowObserver<T>(flow: Flow<T>) {
      * Closes the subscription on the underlying stream. No further values will be received after
      * this call.
      */
-    fun close(): Unit = closeable.cancel()
+    fun close(): Unit = scope.cancel()
 
     companion object {
         private const val AWAIT_TIMEOUT_MS = 10L
