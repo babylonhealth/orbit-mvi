@@ -36,6 +36,7 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
 //                implementation("io.kotest:kotest-assertions-core:4.2.3")
 //                implementation(ProjectDependencies.kotlinCoroutinesTest)
+                implementation(project(":orbit-2-test"))
             }
         }
 
@@ -55,7 +56,6 @@ kotlin {
                 implementation(ProjectDependencies.mockitoInline)
                 implementation(ProjectDependencies.mockitoKotlin)
 
-                implementation(project(":orbit-2-test"))
 //                implementation(ProjectDependencies.kotlinCoroutinesTest)
 //                GroupedDependencies.testsImplementation.forEach { implementation(it) }
 //                runtimeOnly(ProjectDependencies.junitJupiterEngine)

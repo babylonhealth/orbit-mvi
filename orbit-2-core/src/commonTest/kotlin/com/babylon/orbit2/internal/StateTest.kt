@@ -93,7 +93,7 @@ internal class StateTest {
     private data class TestState(val id: Int)
 
     private class Middleware(initialState: TestState) : ContainerHost<TestState, String> {
-        override val container =
+        override var container =
             CoroutineScope(Dispatchers.Unconfined).container<TestState, String>(initialState)
 
         fun something(action: Int) = orbit {

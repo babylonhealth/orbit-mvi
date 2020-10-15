@@ -51,7 +51,7 @@ internal class ContainerLifecycleTest {
 
     private class Middleware(initialState: TestState) : ContainerHost<TestState, String> {
 
-        override val container =
+        override var container =
             CoroutineScope(Dispatchers.Unconfined).container<TestState, String>(initialState) {
                 onCreate(it)
             }

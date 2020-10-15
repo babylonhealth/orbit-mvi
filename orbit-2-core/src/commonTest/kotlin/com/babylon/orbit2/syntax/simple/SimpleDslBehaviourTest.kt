@@ -73,7 +73,7 @@ internal class SimpleDslBehaviourTest {
     private data class TestState(val id: Int)
 
     private class BaseDslMiddleware : ContainerHost<TestState, String> {
-        override val container = CoroutineScope(Dispatchers.Unconfined).container<TestState, String>(
+        override var container = CoroutineScope(Dispatchers.Unconfined).container<TestState, String>(
             TestState(42)
         )
 

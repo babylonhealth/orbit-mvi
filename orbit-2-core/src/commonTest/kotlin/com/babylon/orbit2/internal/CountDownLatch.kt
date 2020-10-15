@@ -18,15 +18,16 @@ package com.babylon.orbit2.internal
 
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 
 /**
  * Equivalent of [java.util.concurrent.CountDownLatch] for coroutines.
  */
+@ExperimentalStdlibApi
 interface CountDownLatch {
     /**
      * Decrements the count of the latch, resuming all suspended coroutines if
@@ -119,6 +120,7 @@ interface CountDownLatch {
     }
 }
 
+@ExperimentalStdlibApi
 internal class CountDownLatchImpl(initialCount: Int) : CountDownLatch {
     private var count = initialCount
 
@@ -148,10 +150,10 @@ internal class CountDownLatchImpl(initialCount: Int) : CountDownLatch {
 
     override fun getCount() = lock.withLock { count.toLong() }
 
-    suspend override fun await(time: Long): Boolean =
+    override suspend fun await(time: Long): Boolean =
         withTimeoutOrNull(time) { await() } != null
 
-    suspend override fun await() {
+    override suspend fun await() {
         var locked = true
         lock.lock()
 

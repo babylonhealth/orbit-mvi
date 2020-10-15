@@ -20,11 +20,13 @@ import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.internal.CountDownLatch
 import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.runBlocking
 import com.babylon.orbit2.test
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.newSingleThreadContext
-import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -69,7 +71,7 @@ internal class SimpleDslThreadingTest {
     private class BaseDslMiddleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        override val container = RealContainer<TestState, String>(
+        override var container: Container<TestState, String> = RealContainer(
             initialState = TestState(42),
             parentScope = CoroutineScope(Dispatchers.Unconfined),
             settings = Container.Settings(
@@ -78,17 +80,18 @@ internal class SimpleDslThreadingTest {
             )
         )
         lateinit var threadName: String
+        @ExperimentalStdlibApi
         val latch = CountDownLatch(1)
 
         fun reducer(action: Int) = intent {
             reduce {
-                threadName = Thread.currentThread().name
+                threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
                 state.copy(id = action)
             }
         }
 
         fun transformer(action: Int) = intent {
-            threadName = Thread.currentThread().name
+            threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
             val newEvent = action + 5
 
             reduce {

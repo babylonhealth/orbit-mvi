@@ -48,22 +48,24 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
     val onCreate = container.findOnCreate()
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-//    val testContainer = TestContainer<STATE, SIDE_EFFECT>(
-//        initialState,
-//        isolateFlow,
-//        blocking
-//    )
+    val testContainer = TestContainer<STATE, SIDE_EFFECT>(
+        initialState,
+        isolateFlow,
+        blocking
+    )
+//
+//    this::class.members.firstOrNull { it.name == "container" }?.apply {
+//        @Suppress("UNCHECKED_CAST")
+//        println(this::class)
+//        (this as? KProperty1<ContainerHost<STATE, SIDE_EFFECT>, Container<STATE, SIDE_EFFECT>>)?.setter.call(testContainer)
+//    }
+//
+//    this.javaClass.declaredFields.firstOrNull { it.name == "container" }?.apply {
+//        isAccessible = true
+//        set(this@test, testContainer)
+//    }
 
-    this::class.members.firstOrNull { it.name == "container" }?.apply {
-        @Suppress("UNCHECKED_CAST")
-        println(this::class)
-        (this as? KProperty1<ContainerHost<STATE, SIDE_EFFECT>, Container<STATE, SIDE_EFFECT>>)?.setter.call(testContainer)
-    }
-
-    this.javaClass.declaredFields.firstOrNull { it.name == "container" }?.apply {
-        isAccessible = true
-        set(this@test, testContainer)
-    }
+    this.container = testContainer
 
     TestHarness.FIXTURES[this] = TestFixtures(
         initialState,
