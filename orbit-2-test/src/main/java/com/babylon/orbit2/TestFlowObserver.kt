@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * Allows you to record all observed values of a flow for easy testing.
@@ -28,18 +29,18 @@ class TestFlowObserver<T>(flow: Flow<T>) {
     }
 
     /**
-     * Awaits until the specified count of elements has been received or the timeout is hit.
+     * Awaits until the specified condition is fulfilled or the timeout is hit.
      *
-     * @param count The awaited element count.
      * @param timeout How long to wait for in milliseconds
+     * @param condition The awaited condition
      */
-    fun awaitCount(count: Int, timeout: Long = 5000L) {
+    suspend fun awaitFor(timeout: Long = 5000L, condition: TestFlowObserver<T>.() -> Boolean) {
         val start = System.currentTimeMillis()
-        while (values.count() < count) {
+        while (!this.condition()) {
             if (System.currentTimeMillis() - start > timeout) {
                 break
             }
-            Thread.sleep(AWAIT_TIMEOUT_MS)
+            delay(AWAIT_TIMEOUT_MS)
         }
     }
 
@@ -49,15 +50,19 @@ class TestFlowObserver<T>(flow: Flow<T>) {
      * @param count The awaited element count.
      * @param timeout How long to wait for in milliseconds
      */
-    suspend fun awaitCountSuspending(count: Int, timeout: Long = 5000L) {
-        val start = System.currentTimeMillis()
-        while (values.count() < count) {
-            if (System.currentTimeMillis() - start > timeout) {
-                break
-            }
-            delay(AWAIT_TIMEOUT_MS)
+    fun awaitCount(count: Int, timeout: Long = 5000L) {
+        runBlocking {
+            awaitFor(timeout) { values.size == count }
         }
     }
+
+    /**
+     * Awaits until the specified count of elements has been received or the timeout is hit.
+     *
+     * @param count The awaited element count.
+     * @param timeout How long to wait for in milliseconds
+     */
+    suspend fun awaitCountSuspending(count: Int, timeout: Long = 5000L) = awaitFor(timeout) { values.size == count }
 
     /**
      * Closes the subscription on the underlying stream. No further values will be received after
