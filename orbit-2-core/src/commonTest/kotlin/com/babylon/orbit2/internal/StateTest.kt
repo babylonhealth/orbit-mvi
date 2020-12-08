@@ -23,6 +23,7 @@ import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,6 +46,7 @@ internal class StateTest {
         val initialState = TestState(Random.nextInt())
         val middleware = Middleware(initialState)
         val testStateObserver = middleware.container.stateFlow.test()
+
         val action = Random.nextInt()
         middleware.something(action)
         testStateObserver.awaitCount(2) // block until the state is updated

@@ -14,6 +14,6 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.internal
 
 internal expect fun <T> runBlocking(block: suspend () -> T): T

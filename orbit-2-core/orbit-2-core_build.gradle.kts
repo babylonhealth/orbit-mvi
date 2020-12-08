@@ -46,7 +46,7 @@ kotlin {
             }
         }
         val jvmTest by getting {
-            dependsOn(commonTest.get())
+//            dependsOn(commonTest.get())
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit5"))

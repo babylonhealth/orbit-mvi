@@ -16,12 +16,14 @@
 
 package com.babylon.orbit2
 
+import kotlinx.atomicfu.atomic
+
 class TestFixtures<STATE : Any, SIDE_EFFECT : Any>(
     val initialState: STATE,
     val stateObserver: TestFlowObserver<STATE>,
     val sideEffectObserver: TestFlowObserver<SIDE_EFFECT>
 )
 
-object TestHarness {
-    val FIXTURES: MutableMap<ContainerHost<*, *>, TestFixtures<*, *>> = mutableMapOf()
+class TestHarness {
+    val fixtures = atomic<Map<ContainerHost<*, *>, TestFixtures<*, *>>>(mapOf())
 }

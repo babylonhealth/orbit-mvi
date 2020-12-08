@@ -20,7 +20,7 @@ import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.internal.CountDownLatch
 import com.babylon.orbit2.internal.RealContainer
-import com.babylon.orbit2.runBlocking
+import com.babylon.orbit2.internal.runBlocking
 import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -115,14 +115,14 @@ internal class BaseDslPluginThreadingTest {
 
         fun reducer(action: Int) = orbit {
             reduce {
-                threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
+                threadName = currentCoroutineContext()[CoroutineName]?.name.orEmpty()
                 state.copy(id = action)
             }
         }
 
         fun transformer(action: Int) = orbit {
             transform {
-                threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
+                threadName = "currentCoroutineContext()[CoroutineName]?.name.orEmpty()"
                 action + 5
             }
                 .reduce {
@@ -132,14 +132,14 @@ internal class BaseDslPluginThreadingTest {
 
         fun postingSideEffect(action: Int) = orbit {
             sideEffect {
-                threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
+                threadName = currentCoroutineContext()[CoroutineName]?.name.orEmpty()
                 post(action.toString())
             }
         }
 
         fun sideEffect(action: Int) = orbit {
             sideEffect {
-                threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
+                threadName = currentCoroutineContext()[CoroutineName]?.name.orEmpty()
                 latch.countDown()
                 action.toString()
             }

@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlin.coroutines.CoroutineContext
 
 /**
  * The heart of the Orbit MVI system. Represents an MVI container with its input and outputs.
@@ -77,7 +78,7 @@ public interface Container<STATE : Any, SIDE_EFFECT : Any> {
     public class Settings(
         public val sideEffectBufferSize: Int = Channel.UNLIMITED,
         public val idlingRegistry: IdlingResource = NoopIdlingResource(),
-        public val orbitDispatcher: CoroutineDispatcher = Dispatchers.Default,
-        public val backgroundDispatcher: CoroutineDispatcher = defaultBackgroundDispatcher,
+        public val orbitDispatcher: CoroutineContext = Dispatchers.Default,
+        public val backgroundDispatcher: CoroutineContext = defaultBackgroundDispatcher,
     )
 }

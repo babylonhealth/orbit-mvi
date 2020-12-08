@@ -22,6 +22,7 @@ import com.babylon.orbit2.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.test.Test
@@ -68,9 +69,18 @@ internal class SideEffectTest {
         testSideEffectObserver2.awaitCount(3, timeout)
         testSideEffectObserver3.awaitCount(3, timeout)
 
-        assertNotEquals(listOf(action, action2, action3), testSideEffectObserver1.values)
-        assertNotEquals(listOf(action, action2, action3), testSideEffectObserver2.values)
-        assertNotEquals(listOf(action, action2, action3), testSideEffectObserver3.values)
+        println(testSideEffectObserver1.values)
+        println(testSideEffectObserver2.values)
+        println(testSideEffectObserver3.values)
+
+        assertNotEquals(testSideEffectObserver2.values, testSideEffectObserver1.values)
+        assertNotEquals(testSideEffectObserver2.values, testSideEffectObserver3.values)
+        assertNotEquals(testSideEffectObserver1.values, testSideEffectObserver3.values)
+
+        assertEquals(
+            listOf(action, action2, action3),
+            testSideEffectObserver1.values + testSideEffectObserver2.values + testSideEffectObserver3.values
+        )
     }
 
     @Test
@@ -83,6 +93,8 @@ internal class SideEffectTest {
         container.someFlow(action)
         container.someFlow(action2)
         container.someFlow(action3)
+
+        runBlocking { delay(20) }
 
         val testSideEffectObserver1 = container.sideEffectFlow.test()
 
@@ -131,8 +143,6 @@ internal class SideEffectTest {
                 container.someFlow(it)
             }
         }
-
-//        Thread.sleep(200)
 
         val testSideEffectObserver2 = container.sideEffectFlow.test()
         testSideEffectObserver2.awaitCount(1000)

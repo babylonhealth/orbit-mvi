@@ -31,16 +31,21 @@ internal class BaseDslPluginBehaviourTest {
 
     @Test
     fun `reducer produces new states`() {
+        println("MINUS ONE")
         val action = Random.nextInt()
+        println("ZERO")
         val middleware = BaseDslMiddleware().test(initialState)
+        println("ONE")
 
         middleware.reducer(action)
+        println("TWO")
 
         middleware.assert(initialState) {
             states(
                 { TestState(action) }
             )
         }
+        println("THREE")
     }
 
     @Test

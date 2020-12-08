@@ -17,12 +17,14 @@
 package com.babylon.orbit2.internal
 
 import com.babylon.orbit2.Container
-import com.babylon.orbit2.runBlocking
 import com.babylon.orbit2.test
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.Test
@@ -34,80 +36,86 @@ internal class ReducerThreadingTest {
     @Test
     fun `reductions are applied in order if called from single thread`() {
         // This scenario is meant to simulate calling only reducers from the UI thread
-        runBlocking {
-            val container = RealContainer<TestState, Nothing>(
-                initialState = TestState(),
-                parentScope = CoroutineScope(EmptyCoroutineContext),
-                settings = Container.Settings()
+        val container = RealContainer<TestState, Nothing>(
+            initialState = TestState(),
+            parentScope = CoroutineScope(EmptyCoroutineContext),
+            settings = Container.Settings()
+        )
+        val testStateObserver = container.stateFlow.test()
+        val expectedStates = mutableListOf(
+            TestState(
+                emptyList()
             )
-            val testStateObserver = container.stateFlow.test()
-            val expectedStates = mutableListOf(
-                TestState(
-                    emptyList()
-                )
+        )
+        for (i in 0 until ITEM_COUNT) {
+            val value = (i % 3)
+            expectedStates.add(
+                expectedStates.last().copy(ids = expectedStates.last().ids + (value + 1))
             )
-            for (i in 0 until ITEM_COUNT) {
-                val value = (i % 3)
-                expectedStates.add(
-                    expectedStates.last().copy(ids = expectedStates.last().ids + (value + 1))
-                )
 
-                when (value) {
-                    0 -> container.one()
-                    1 -> container.two()
-                    2 -> container.three()
-                    else -> throw IllegalStateException("misconfigured test")
-                }
+            when (value) {
+                0 -> container.one()
+                1 -> container.two()
+                2 -> container.three()
+                else -> throw IllegalStateException("misconfigured test")
             }
-
-            testStateObserver.awaitFor { values.last().ids.size == ITEM_COUNT }
-
-            assertEquals(expectedStates.last(), testStateObserver.values.last())
         }
+
+        runBlocking {
+            while(countDown.value > 0) {
+                yield()
+            }
+            delay(20)
+        }
+
+        assertEquals(expectedStates.last(), testStateObserver.values.last())
     }
 
     @Test
     fun `reductions do not clobber each other when executed from multiple threads`() {
         // This scenario is meant to simulate calling only reducers from the UI thread
-        runBlocking {
-            val container = RealContainer<TestState, Nothing>(
-                initialState = TestState(),
-                parentScope = CoroutineScope(EmptyCoroutineContext),
-                settings = Container.Settings()
-            )
-            val testStateObserver = container.stateFlow.test()
-            val expectedStates = mutableListOf(
-                TestState(
-                    emptyList()
-                )
-            )
-            for (i in 0 until ITEM_COUNT) {
-                val value = (i % 3)
-                expectedStates.add(
-                    expectedStates.last().copy(ids = expectedStates.last().ids + (value + 1))
-                )
 
-                GlobalScope.launch {
-                    when (value) {
-                        0 -> container.one(true)
-                        1 -> container.two(true)
-                        2 -> container.three(true)
-                        else -> throw IllegalStateException("misconfigured test")
-                    }
+        val container = RealContainer<TestState, Nothing>(
+            initialState = TestState(),
+            parentScope = CoroutineScope(EmptyCoroutineContext),
+            settings = Container.Settings()
+        )
+        val testStateObserver = container.stateFlow.test()
+        val expectedStates = mutableListOf(
+            TestState(
+                emptyList()
+            )
+        )
+        for (i in 0 until ITEM_COUNT) {
+            val value = (i % 3)
+            expectedStates.add(
+                expectedStates.last().copy(ids = expectedStates.last().ids + (value + 1))
+            )
+
+            GlobalScope.launch {
+                when (value) {
+                    0 -> container.one(true)
+                    1 -> container.two(true)
+                    2 -> container.three(true)
+                    else -> throw IllegalStateException("misconfigured test")
                 }
             }
-
-            testStateObserver.awaitFor { values.last().ids.size == ITEM_COUNT }
-
-            assertEquals(ITEM_COUNT, testStateObserver.values.last().ids.size)
-            assertEquals(ITEM_COUNT / 3, testStateObserver.values.last().ids.count { it == 1 })
-            assertEquals(ITEM_COUNT / 3, testStateObserver.values.last().ids.count { it == 2 })
         }
+        runBlocking {
+            while(countDown.value > 0) {
+                yield()
+            }
+            delay(20)
+        }
+
+        assertEquals(ITEM_COUNT, testStateObserver.values.last().ids.size)
+        assertEquals(ITEM_COUNT / 3, testStateObserver.values.last().ids.count { it == 1 })
+        assertEquals(ITEM_COUNT / 3, testStateObserver.values.last().ids.count { it == 2 })
     }
 
     private data class TestState(val ids: List<Int> = emptyList())
 
-    private val latch = CountDownLatch(ITEM_COUNT)
+    private val countDown = atomic(ITEM_COUNT)
     private fun Container<TestState, Nothing>.one(delay: Boolean = false) = orbit {
         if (delay) {
             delay(Random.nextLong(20))
@@ -115,7 +123,9 @@ internal class ReducerThreadingTest {
         reduce {
             it.copy(ids = state.ids + 1)
         }
-        latch.countDown()
+        countDown.update {
+            it-1
+        }
     }
 
     private fun Container<TestState, Nothing>.two(delay: Boolean = false) = orbit {
@@ -125,7 +135,9 @@ internal class ReducerThreadingTest {
         reduce {
             it.copy(ids = state.ids + 2)
         }
-        latch.countDown()
+        countDown.update {
+            it-1
+        }
     }
 
     private fun Container<TestState, Nothing>.three(delay: Boolean = false) = orbit {
@@ -135,7 +147,9 @@ internal class ReducerThreadingTest {
         reduce {
             it.copy(ids = state.ids + 3)
         }
-        latch.countDown()
+        countDown.update {
+            it-1
+        }
     }
 
     private companion object {

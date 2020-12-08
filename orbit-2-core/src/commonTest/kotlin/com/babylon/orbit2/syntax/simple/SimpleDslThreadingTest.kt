@@ -20,8 +20,10 @@ import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.internal.CountDownLatch
 import com.babylon.orbit2.internal.RealContainer
-import com.babylon.orbit2.runBlocking
 import com.babylon.orbit2.test
+import kotlinx.atomicfu.AtomicRef
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +50,7 @@ internal class SimpleDslThreadingTest {
 
         testFlowObserver.awaitCount(2)
         assertTrue {
-            middleware.threadName.startsWith(ORBIT_THREAD_PREFIX)
+            middleware.threadName.value.startsWith(ORBIT_THREAD_PREFIX)
         }
     }
 
@@ -61,8 +63,9 @@ internal class SimpleDslThreadingTest {
         middleware.transformer(action)
 
         testFlowObserver.awaitCount(2)
+
         assertTrue {
-            middleware.threadName.startsWith(ORBIT_THREAD_PREFIX)
+            middleware.threadName.value.startsWith(ORBIT_THREAD_PREFIX)
         }
     }
 
@@ -75,23 +78,24 @@ internal class SimpleDslThreadingTest {
             initialState = TestState(42),
             parentScope = CoroutineScope(Dispatchers.Unconfined),
             settings = Container.Settings(
-                orbitDispatcher = newSingleThreadContext(ORBIT_THREAD_PREFIX),
-                backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
+                orbitDispatcher = Dispatchers.Default + CoroutineName(ORBIT_THREAD_PREFIX),
+                backgroundDispatcher = Dispatchers.Default + CoroutineName(BACKGROUND_THREAD_PREFIX)
             )
         )
-        lateinit var threadName: String
+        val threadName = atomic("")
+
         @ExperimentalStdlibApi
         val latch = CountDownLatch(1)
 
         fun reducer(action: Int) = intent {
             reduce {
-                threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
+                threadName.update { currentCoroutineContext()[CoroutineName]?.name.orEmpty() }
                 state.copy(id = action)
             }
         }
 
         fun transformer(action: Int) = intent {
-            threadName = runBlocking { currentCoroutineContext()[CoroutineName.Key]?.name }.orEmpty()
+            threadName.update { currentCoroutineContext()[CoroutineName]?.name.orEmpty() }
             val newEvent = action + 5
 
             reduce {

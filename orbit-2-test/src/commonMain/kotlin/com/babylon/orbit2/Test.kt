@@ -17,13 +17,13 @@
 package com.babylon.orbit2
 
 import com.babylon.orbit2.internal.LazyCreateContainerDecorator
+import kotlinx.atomicfu.update
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
 import kotlin.test.assertEquals
+
+private val testHarness = TestHarness()
 
 /**
  *  Switches your [ContainerHost] into test mode. Allows you to isolate the flow to the next one
@@ -66,13 +66,18 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
 //    }
 
     this.container = testContainer
+    val testStateObserver = this.container.stateFlow.test()
 
-    TestHarness.FIXTURES[this] = TestFixtures(
-        initialState,
-        this.container.stateFlow.test(),
-        this.container.sideEffectFlow.test(),
+    testHarness.fixtures.update {
+        it + (this@test to TestFixtures(
+            initialState,
+            testStateObserver,
+            this.container.sideEffectFlow.test(),
         blocking
-    )
+    ))
+    }
+
+    testStateObserver.awaitCount(1) // Let it settle
 
     if (runOnCreate) {
         onCreate(initialState)
@@ -104,7 +109,7 @@ public fun <STATE : Any, SIDE_EFFECT : Any, T : ContainerHost<STATE, SIDE_EFFECT
         .apply(block)
 
     @Suppress("UNCHECKED_CAST")
-    val testFixtures = TestHarness.FIXTURES[this] as TestFixtures<STATE, SIDE_EFFECT>
+    val testFixtures = testHarness.fixtures.value[this] as TestFixtures<STATE, SIDE_EFFECT>
 
     if (!testFixtures.blocking) {
         // With non-blocking mode await for expected states

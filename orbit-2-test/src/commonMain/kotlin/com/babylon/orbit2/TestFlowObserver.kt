@@ -1,5 +1,7 @@
 package com.babylon.orbit2
 
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.getAndUpdate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -14,16 +16,17 @@ import kotlinx.coroutines.withContext
  *
  * @param flow The flow to observe.
  */
-public class TestFlowObserver<T>(flow: Flow<T>) {
-    private val _values = mutableListOf<T>()
-    private val scope = CoroutineScope(Dispatchers.Unconfined)
+@Suppress("EXPERIMENTAL_API_USAGE")
+class TestFlowObserver<T>(flow: Flow<T>) {
+    private val _values = atomic(emptyList<T>())
+    private val closeable = Job()
     public val values: List<T>
-        get() = _values
+        get() = _values.value
 
     init {
-        scope.launch {
-            flow.collect {
-                _values.add(it)
+        GlobalScope.launch(closeable) {
+            flow.collect { emission ->
+                _values.getAndUpdate { it + emission }
             }
         }
     }
