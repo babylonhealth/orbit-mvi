@@ -115,7 +115,7 @@ internal class BaseDslPluginThreadingTest {
 
         fun reducer(action: Int) = orbit {
             reduce {
-                threadName = currentCoroutineContext()[CoroutineName]?.name.orEmpty()
+//                threadName = currentCoroutineContext()[CoroutineName]?.name.orEmpty()
                 state.copy(id = action)
             }
         }

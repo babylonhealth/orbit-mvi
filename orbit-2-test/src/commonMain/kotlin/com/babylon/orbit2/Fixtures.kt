@@ -21,7 +21,8 @@ import kotlinx.atomicfu.atomic
 class TestFixtures<STATE : Any, SIDE_EFFECT : Any>(
     val initialState: STATE,
     val stateObserver: TestFlowObserver<STATE>,
-    val sideEffectObserver: TestFlowObserver<SIDE_EFFECT>
+    val sideEffectObserver: TestFlowObserver<SIDE_EFFECT>,
+    val blocking: Boolean
 )
 
 class TestHarness {

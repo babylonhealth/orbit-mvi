@@ -4,6 +4,8 @@ import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.getAndUpdate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -73,7 +75,7 @@ class TestFlowObserver<T>(flow: Flow<T>) {
      * Closes the subscription on the underlying stream. No further values will be received after
      * this call.
      */
-    public fun close(): Unit = scope.cancel()
+    public fun close(): Unit = closeable.cancel()
 
     public companion object {
         private const val AWAIT_TIMEOUT_MS = 10L

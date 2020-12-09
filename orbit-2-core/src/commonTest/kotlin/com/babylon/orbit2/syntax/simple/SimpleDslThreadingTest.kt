@@ -89,7 +89,7 @@ internal class SimpleDslThreadingTest {
 
         fun reducer(action: Int) = intent {
             reduce {
-                threadName.update { currentCoroutineContext()[CoroutineName]?.name.orEmpty() }
+//                threadName.update { currentCoroutineContext()[CoroutineName]?.name.orEmpty() }
                 state.copy(id = action)
             }
         }

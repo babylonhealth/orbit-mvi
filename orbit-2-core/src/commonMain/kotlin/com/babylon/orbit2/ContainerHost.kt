@@ -33,5 +33,5 @@ public interface ContainerHost<STATE : Any, SIDE_EFFECT : Any> {
      * override val container = scope.container<MyState, MySideEffect>(initialState)
      * ```
      */
-    public val container: Container<STATE, SIDE_EFFECT>
+    public var container: Container<STATE, SIDE_EFFECT>
 }
