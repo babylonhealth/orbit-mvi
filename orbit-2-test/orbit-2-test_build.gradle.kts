@@ -30,7 +30,6 @@ dependencies {
     // Testing
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
-    testImplementation(kotlin("reflect"))
     testImplementation(ProjectDependencies.kotestAssertions)
 }
 

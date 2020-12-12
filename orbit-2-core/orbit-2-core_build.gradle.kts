@@ -30,7 +30,6 @@ dependencies {
     testImplementation(project(":orbit-2-test"))
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
-    testImplementation(kotlin("reflect"))
     testImplementation(ProjectDependencies.kotlinCoroutinesTest)
     testImplementation(ProjectDependencies.kotestAssertions)
 }
