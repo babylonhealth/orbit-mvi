@@ -23,12 +23,16 @@ apply<kotlinx.atomicfu.plugin.gradle.AtomicFUGradlePlugin>()
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(ProjectDependencies.kotlinCoroutines)
-    implementation(ProjectDependencies.kotlinTest)
+    implementation(kotlin("test"))
 
     api(project(":orbit-2-core"))
 
     // Testing
-    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit5"))
+    testImplementation(kotlin("reflect"))
+    testImplementation(ProjectDependencies.kotlinTestJunit5Runner)
+    testImplementation(ProjectDependencies.kotestAssertions)
     testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
 }
 
