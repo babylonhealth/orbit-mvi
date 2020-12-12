@@ -56,9 +56,8 @@ class ParameterisedStateTest(blocking: Boolean) {
             testSubject.assert(someRandomState)
         }
 
-        println(throwable.message)
         throwable.message.shouldContain(
-            "expected: <$someRandomState> but was: <$initialState>"
+            "expected:<$someRandomState> but was:<$initialState>"
         )
     }
 
@@ -181,8 +180,8 @@ class ParameterisedStateTest(blocking: Boolean) {
         }
 
         throwable.message.shouldContain(
-            "Failed assertion at index 0 ==> " +
-                    "expected: <State(count=$action2)> but was: <State(count=$action)>"
+            "Failed assertion at index 0 " +
+                    "expected:<State(count=$action2)> but was:<State(count=$action)>"
         )
     }
 
@@ -206,9 +205,8 @@ class ParameterisedStateTest(blocking: Boolean) {
             }
         }
 
-        println(throwable.message)
         throwable.shouldHaveMessage(
-            "Failed assertion at index 0 ==> expected: <State(count=$action2)> but was: <State(count=$action)>"
+            "Failed assertion at index 0 expected:<State(count=$action2)> but was:<State(count=$action)>"
         )
     }
 
@@ -232,8 +230,8 @@ class ParameterisedStateTest(blocking: Boolean) {
         }
 
         throwable.message.shouldContain(
-            "Failed assertion at index 0 ==> " +
-                    "expected: <State(count=$action2)> but was: <State(count=$action)>"
+            "Failed assertion at index 0 " +
+                    "expected:<State(count=$action2)> but was:<State(count=$action)>"
         )
     }
 

@@ -59,7 +59,7 @@ class ParameterisedSideEffectTest(blocking: Boolean) {
         }
 
         throwable.shouldHaveMessage(
-            "expected: <$sideEffects2> but was: <$sideEffects>"
+            "expected:<$sideEffects2> but was:<$sideEffects>"
         )
     }
 

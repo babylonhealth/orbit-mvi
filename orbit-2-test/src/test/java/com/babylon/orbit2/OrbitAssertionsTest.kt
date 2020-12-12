@@ -170,12 +170,11 @@ class OrbitAssertionsTest {
             assertStatesInOrder(stateList, assertions, TestState())
         }
 
-        println(throwable.message)
         // Then The failure message points us to the failed assertion
         throwable.shouldHaveMessage(
-            "Failed assertion at index 0 ==> " +
-                    "expected: <TestState(label=foobaz, index=1)> " +
-                    "but was: <TestState(label=foobar, index=1)>"
+            "Failed assertion at index 0 " +
+                    "expected:<TestState(label=foobaz, index=1)> " +
+                    "but was:<TestState(label=foobar, index=1)>"
         )
     }
 

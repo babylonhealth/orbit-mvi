@@ -29,11 +29,9 @@ dependencies {
 
     // Testing
     testImplementation(kotlin("test"))
-    testImplementation(kotlin("test-junit5"))
+    testImplementation(kotlin("test-junit"))
     testImplementation(kotlin("reflect"))
-    testImplementation(ProjectDependencies.kotlinTestJunit5Runner)
     testImplementation(ProjectDependencies.kotestAssertions)
-    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
 }
 
 // Fix lack of source code when publishing pure Kotlin projects

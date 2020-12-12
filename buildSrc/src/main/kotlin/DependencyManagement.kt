@@ -44,7 +44,6 @@ object Versions {
     const val jacoco = "0.8.5"
     const val robolectric = "4.4"
     const val kotest = "4.3.1"
-    const val kotestJunit5Runner = "3.4.2"
 }
 
 object ProjectDependencies {
@@ -80,7 +79,6 @@ object ProjectDependencies {
     const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitRuntime}"
     const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitRuntime}"
     const val junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junitRuntime}"
-    const val kotlinTestJunit5Runner = "io.kotlintest:kotlintest-runner-junit5:${Versions.kotestJunit5Runner}"
     const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
 }
 
