@@ -73,7 +73,7 @@ class StateVolatilityTest {
                 }
             }
 
-            withTimeout(500) {
+            withTimeout(1000) {
                 completionMutex.withLock { }
             }
         }
@@ -112,7 +112,7 @@ class StateVolatilityTest {
                 }
             }
 
-            withTimeout(500) {
+            withTimeout(1000) {
                 completionMutex.withLock { }
             }
         }
