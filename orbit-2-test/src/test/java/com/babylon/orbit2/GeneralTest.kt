@@ -25,10 +25,6 @@ import kotlin.random.Random
 import kotlin.test.Test
 
 class GeneralTest {
-    companion object {
-        const val TIMEOUT = 5000L
-    }
-
     private val initialState = State()
 
     @Test
