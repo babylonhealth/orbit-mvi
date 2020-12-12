@@ -33,6 +33,10 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 
 class StateVolatilityTest {
+    companion object {
+        private const val TIMEOUT = 5000L
+    }
+
     private val scope = CoroutineScope(Dispatchers.IO)
 
     @AfterTest
@@ -73,7 +77,7 @@ class StateVolatilityTest {
                 }
             }
 
-            withTimeout(1000) {
+            withTimeout(TIMEOUT) {
                 completionMutex.withLock { }
             }
         }
@@ -112,7 +116,7 @@ class StateVolatilityTest {
                 }
             }
 
-            withTimeout(1000) {
+            withTimeout(TIMEOUT) {
                 completionMutex.withLock { }
             }
         }
