@@ -19,6 +19,8 @@ package com.babylon.orbit2.syntax.strict
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -27,15 +29,13 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
+import kotlin.test.Test
 
 class StateVolatilityTest {
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    @AfterEach
+    @AfterTest
     fun after() {
         scope.cancel()
     }
@@ -55,7 +55,7 @@ class StateVolatilityTest {
 
                         stateChangedMutex.withLock {
                             delay(10)
-                            assertEquals(initialState, state)
+                            state.shouldBe(initialState)
                             completionMutex.unlock()
                         }
                     }
@@ -94,7 +94,7 @@ class StateVolatilityTest {
 
                         stateChangedMutex.withLock {
                             delay(10)
-                            assertNotEquals(initialState, volatileState())
+                            volatileState().shouldNotBe(initialState)
                             completionMutex.unlock()
                         }
                     }

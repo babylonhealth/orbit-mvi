@@ -28,9 +28,11 @@ dependencies {
 
     // Testing
     testImplementation(project(":orbit-2-test"))
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit"))
+    testImplementation(kotlin("reflect"))
     testImplementation(ProjectDependencies.kotlinCoroutinesTest)
-    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
-    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
+    testImplementation(ProjectDependencies.kotestAssertions)
 }
 
 // Fix lack of source code when publishing pure Kotlin projects
