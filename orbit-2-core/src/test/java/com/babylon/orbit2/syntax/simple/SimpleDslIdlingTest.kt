@@ -23,25 +23,26 @@ import com.babylon.orbit2.idling.IdlingResource
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
-class SimpleDslIdlingTest {
+@ExperimentalCoroutinesApi
+internal class SimpleDslIdlingTest {
 
-    private val scope = CoroutineScope(Dispatchers.Unconfined)
+    private val scope = TestCoroutineScope()
     private val testIdlingResource = TestIdlingResource()
 
     @AfterTest
     fun after() {
-        scope.cancel()
+        scope.cleanupTestCoroutines()
     }
 
     @Test
@@ -130,8 +131,7 @@ class SimpleDslIdlingTest {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = container(
                 initialState = TestState(0),
-                settings = Container.Settings(idlingRegistry = testIdlingResource)
-
+                settings = Container.Settings(idlingRegistry = testIdlingResource),
             )
         }
     }

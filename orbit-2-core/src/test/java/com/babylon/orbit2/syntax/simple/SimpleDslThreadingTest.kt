@@ -16,25 +16,35 @@
 
 package com.babylon.orbit2.syntax.simple
 
-import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.container
 import com.babylon.orbit2.test
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import kotlin.random.Random
+import kotlin.test.AfterTest
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 internal class SimpleDslThreadingTest {
+
+    private val scope = TestCoroutineScope()
+
+    @AfterTest
+    fun afterTest() {
+        scope.cleanupTestCoroutines()
+    }
 
     @Test
     fun `blocking intent with context switch does not block the reducer`() {
@@ -56,25 +66,6 @@ internal class SimpleDslThreadingTest {
     }
 
     @Test
-    fun `blocking intent without context switch blocks the reducer`() {
-        val action = Random.nextInt()
-        val middleware = BaseDslMiddleware()
-        val testFlowObserver = middleware.container.stateFlow.test()
-
-        middleware.blockingIntent()
-        runBlocking {
-            withTimeout(1000L) {
-                middleware.intentMutex.withLock {}
-            }
-        }
-
-        middleware.reducer(action)
-
-        testFlowObserver.awaitCount(2, 100L)
-        testFlowObserver.values.shouldContainExactly(TestState(42))
-    }
-
-    @Test
     fun `suspending intent does not block the reducer`() {
         val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
@@ -91,6 +82,27 @@ internal class SimpleDslThreadingTest {
 
         testFlowObserver.awaitCount(2)
         testFlowObserver.values.shouldContainExactly(TestState(42), TestState(action))
+    }
+
+    @Test
+    fun `blocking intent without context switch blocks the reducer`() {
+        val action = Random.nextInt()
+        val middleware = BaseDslMiddleware()
+        val testFlowObserver = middleware.container.stateFlow.test()
+
+        middleware.blockingIntent()
+
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.intentMutex.withLock {
+                }
+            }
+        }
+
+        middleware.reducer(action)
+
+        testFlowObserver.awaitCount(2, 100L)
+        testFlowObserver.values.shouldContainExactly(TestState(42))
     }
 
     @Test
@@ -119,14 +131,10 @@ internal class SimpleDslThreadingTest {
     private data class TestState(val id: Int)
 
     @Suppress("ControlFlowWithEmptyBody", "EmptyWhileBlock")
-    private class BaseDslMiddleware : ContainerHost<TestState, String> {
+    private inner class BaseDslMiddleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        override val container = RealContainer<TestState, String>(
-            initialState = TestState(42),
-            parentScope = CoroutineScope(Dispatchers.Unconfined),
-            settings = Container.Settings()
-        )
+        override val container = scope.container<TestState, String>(TestState(42))
 
         val intentMutex = Mutex(locked = true)
         val reducerMutex = Mutex(locked = true)
@@ -142,6 +150,7 @@ internal class SimpleDslThreadingTest {
             reduce {
                 reducerMutex.unlock()
                 while (true) {
+                    Thread.yield()
                 }
                 state.copy(id = 123)
             }
@@ -151,6 +160,7 @@ internal class SimpleDslThreadingTest {
             intentMutex.unlock()
             withContext(Dispatchers.Default) {
                 while (true) {
+                    yield()
                 }
             }
         }
@@ -158,6 +168,7 @@ internal class SimpleDslThreadingTest {
         fun blockingIntent() = intent {
             intentMutex.unlock()
             while (true) {
+                yield()
             }
         }
 

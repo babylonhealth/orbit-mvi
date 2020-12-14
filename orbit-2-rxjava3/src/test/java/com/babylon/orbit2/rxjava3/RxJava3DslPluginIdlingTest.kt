@@ -12,25 +12,26 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-class RxJava3DslPluginIdlingTest {
+@ExperimentalCoroutinesApi
+internal class RxJava3DslPluginIdlingTest {
 
-    private val scope = CoroutineScope(Dispatchers.Unconfined)
+    private val scope = TestCoroutineScope()
     private val testIdlingResource = TestIdlingResource()
 
     @AfterEach
     fun after() {
-        scope.cancel()
+        scope.cleanupTestCoroutines()
     }
 
     @Test
@@ -381,6 +382,6 @@ class RxJava3DslPluginIdlingTest {
     }
 
     companion object {
-        private const val TIMEOUT = 500L
+        private const val TIMEOUT = 2000L
     }
 }

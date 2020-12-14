@@ -23,25 +23,26 @@ import com.babylon.orbit2.idling.IdlingResource
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
-class BaseDslPluginIdlingTest {
+@ExperimentalCoroutinesApi
+internal class BaseDslPluginIdlingTest {
 
-    private val scope = CoroutineScope(Dispatchers.Unconfined)
     private val testIdlingResource = TestIdlingResource()
+    private val scope = TestCoroutineScope()
 
     @AfterTest
-    fun after() {
-        scope.cancel()
+    fun afterTest() {
+        scope.cleanupTestCoroutines()
     }
 
     @Test

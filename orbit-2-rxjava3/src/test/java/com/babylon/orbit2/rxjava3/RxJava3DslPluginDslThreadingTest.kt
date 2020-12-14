@@ -16,9 +16,8 @@
 
 package com.babylon.orbit2.rxjava3
 
-import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.container
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
@@ -27,17 +26,25 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
+@ExperimentalCoroutinesApi
 internal class RxJava3DslPluginDslThreadingTest {
+    private val scope = TestCoroutineScope()
+
+    @AfterEach
+    fun afterEach() {
+        scope.cleanupTestCoroutines()
+    }
 
     @Test
     fun `blocking single does not block the container from receiving further intents`() {
@@ -152,14 +159,10 @@ internal class RxJava3DslPluginDslThreadingTest {
     private data class TestState(val id: Int)
 
     @Suppress("ControlFlowWithEmptyBody", "UNREACHABLE_CODE", "EmptyWhileBlock")
-    private class Middleware : ContainerHost<TestState, String> {
+    private inner class Middleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        override val container = RealContainer<TestState, String>(
-            initialState = TestState(42),
-            parentScope = CoroutineScope(Dispatchers.Unconfined),
-            settings = Container.Settings()
-        )
+        override val container = scope.container<TestState, String>(TestState(42))
         val singleMutex = Mutex(locked = true)
         val maybeMutex = Mutex(locked = true)
         val completableMutex = Mutex(locked = true)

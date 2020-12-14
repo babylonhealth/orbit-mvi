@@ -17,24 +17,33 @@
 package com.babylon.orbit2.internal
 
 import com.babylon.orbit2.Container
+import com.babylon.orbit2.container
 import com.babylon.orbit2.test
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineScope
 import java.util.concurrent.CountDownLatch
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
+import kotlin.test.AfterTest
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 internal class ContainerThreadingTest {
+
+    private val scope = TestCoroutineScope()
+
+    @AfterTest
+    fun afterTest() {
+        scope.cleanupTestCoroutines()
+    }
 
     @Test
     fun `container can process a second action while the first is suspended`() {
-        val container = RealContainer<Int, Nothing>(Random.nextInt(), CoroutineScope(Dispatchers.Default), Container.Settings())
+        val container = scope.container<Int, Nothing>(Random.nextInt())
         val observer = container.stateFlow.test()
         val newState = Random.nextInt()
 
@@ -53,11 +62,7 @@ internal class ContainerThreadingTest {
     fun `reductions are applied in order if called from single thread`() {
         // This scenario is meant to simulate calling only reducers from the UI thread
         runBlocking {
-            val container = RealContainer<TestState, Nothing>(
-                initialState = TestState(),
-                parentScope = CoroutineScope(EmptyCoroutineContext),
-                settings = Container.Settings()
-            )
+            val container = scope.container<TestState, Nothing>(TestState())
             val testStateObserver = container.stateFlow.test()
             val expectedStates = mutableListOf(
                 TestState(
@@ -88,11 +93,7 @@ internal class ContainerThreadingTest {
     fun `reductions run in sequence but in an undefined order when executed from multiple threads`() {
         // This scenario is meant to simulate calling only reducers from the UI thread
         runBlocking {
-            val container = RealContainer<TestState, Nothing>(
-                initialState = TestState(),
-                parentScope = CoroutineScope(EmptyCoroutineContext),
-                settings = Container.Settings()
-            )
+            val container = scope.container<TestState, Nothing>(TestState())
             val testStateObserver = container.stateFlow.test()
             val expectedStates = mutableListOf(
                 TestState(

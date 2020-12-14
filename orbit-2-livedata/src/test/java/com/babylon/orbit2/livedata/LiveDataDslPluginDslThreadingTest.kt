@@ -28,11 +28,11 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeout
@@ -46,7 +46,7 @@ import kotlin.random.Random
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class LiveDataDslPluginDslThreadingTest {
 
-    private val scope = CoroutineScope(Dispatchers.Unconfined)
+    private val scope = TestCoroutineScope()
 
     @BeforeEach
     fun beforeEach() {
@@ -55,7 +55,7 @@ internal class LiveDataDslPluginDslThreadingTest {
 
     @AfterEach
     fun after() {
-        scope.cancel()
+        scope.cleanupTestCoroutines()
         Dispatchers.resetMain()
     }
 

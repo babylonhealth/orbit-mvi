@@ -16,22 +16,30 @@
 
 package com.babylon.orbit2.syntax.strict
 
-import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.container
 import com.babylon.orbit2.test
 import io.kotest.matchers.collections.shouldContainExactly
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlin.random.Random
+import kotlin.test.AfterTest
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 internal class BaseDslPluginThreadingTest {
+
+    private val scope = TestCoroutineScope()
+
+    @AfterTest
+    fun afterTest() {
+        scope.cleanupTestCoroutines()
+    }
 
     @Test
     fun `blocking transformer does not block the container from receiving further intents`() {
@@ -152,14 +160,10 @@ internal class BaseDslPluginThreadingTest {
     private data class TestState(val id: Int)
 
     @Suppress("ControlFlowWithEmptyBody", "UNREACHABLE_CODE", "EmptyWhileBlock")
-    private class Middleware : ContainerHost<TestState, String> {
+    private inner class Middleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        override val container = RealContainer<TestState, String>(
-            initialState = TestState(42),
-            parentScope = CoroutineScope(Dispatchers.Unconfined),
-            settings = Container.Settings()
-        )
+        override val container = scope.container<TestState, String>(TestState(42))
 
         val reducerMutex = Mutex(locked = true)
         val transformerMutex = Mutex(locked = true)

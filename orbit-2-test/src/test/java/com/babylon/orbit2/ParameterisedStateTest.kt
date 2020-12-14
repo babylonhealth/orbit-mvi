@@ -22,22 +22,30 @@ import com.babylon.orbit2.syntax.strict.transform
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.throwable.shouldHaveMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlin.random.Random
+import kotlin.test.AfterTest
 
-class ParameterisedStateTest(blocking: Boolean) {
+@ExperimentalCoroutinesApi
+internal class ParameterisedStateTest(blocking: Boolean) {
     companion object {
         const val TIMEOUT = 1000L
     }
 
     private val initialState = State()
 
+    private val scope = TestCoroutineScope()
     private val testSubject = StateTestMiddleware().test(
         initialState = initialState,
         isolateFlow = false,
         blocking = blocking
     )
+
+    @AfterTest
+    fun afterTest() {
+        scope.cleanupTestCoroutines()
+    }
 
     fun `succeeds if initial state matches expected state`() {
         val testStateObserver = testSubject.container.stateFlow.test()
@@ -287,8 +295,7 @@ class ParameterisedStateTest(blocking: Boolean) {
 
     private inner class StateTestMiddleware :
         ContainerHost<State, Nothing> {
-        override val container =
-            CoroutineScope(Dispatchers.Unconfined).container<State, Nothing>(initialState)
+        override val container = scope.container<State, Nothing>(initialState)
 
         fun something(action: Int): Unit = orbit {
             transform {

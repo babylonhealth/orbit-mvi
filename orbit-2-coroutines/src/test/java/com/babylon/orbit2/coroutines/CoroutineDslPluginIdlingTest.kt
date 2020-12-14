@@ -8,27 +8,28 @@ import com.babylon.orbit2.syntax.strict.orbit
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-class CoroutineDslPluginIdlingTest {
+@ExperimentalCoroutinesApi
+internal class CoroutineDslPluginIdlingTest {
 
-    private val scope = CoroutineScope(Dispatchers.Unconfined)
+    private val scope = TestCoroutineScope()
     private val testIdlingResource = TestIdlingResource()
 
     @AfterEach
     fun after() {
         runBlocking {
-            scope.cancel()
+            scope.cleanupTestCoroutines()
             delay(50)
         }
     }

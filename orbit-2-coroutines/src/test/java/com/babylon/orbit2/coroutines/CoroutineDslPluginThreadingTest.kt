@@ -16,24 +16,31 @@
 
 package com.babylon.orbit2.coroutines
 
-import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
-import com.babylon.orbit2.internal.RealContainer
+import com.babylon.orbit2.container
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import io.kotest.matchers.collections.shouldContainExactly
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
+@ExperimentalCoroutinesApi
 internal class CoroutineDslPluginThreadingTest {
+    private val scope = TestCoroutineScope()
+
+    @AfterEach
+    fun afterEach() {
+        scope.cleanupTestCoroutines()
+    }
 
     @Test
     fun `blocking suspend does not block the container from receiving further intents`() {
@@ -116,14 +123,10 @@ internal class CoroutineDslPluginThreadingTest {
     private data class TestState(val id: Int)
 
     @Suppress("UNREACHABLE_CODE", "ControlFlowWithEmptyBody", "EmptyWhileBlock")
-    private class Middleware : ContainerHost<TestState, String> {
+    private inner class Middleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        override val container = RealContainer<TestState, String>(
-            initialState = TestState(42),
-            parentScope = CoroutineScope(Dispatchers.Unconfined),
-            settings = Container.Settings()
-        )
+        override val container = scope.container<TestState, String>(TestState(42))
         val suspendMutex = Mutex(locked = true)
         val flowMutex = Mutex(locked = true)
 
