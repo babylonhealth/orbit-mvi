@@ -20,75 +20,154 @@ import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.test
-import io.kotest.matchers.string.shouldStartWith
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.newSingleThreadContext
-import java.util.concurrent.CountDownLatch
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlin.random.Random
 import kotlin.test.Test
 
 internal class SimpleDslThreadingTest {
 
-    companion object {
-        const val ORBIT_THREAD_PREFIX = "orbit"
-        const val BACKGROUND_THREAD_PREFIX = "IO"
-    }
-
     @Test
-    fun `reducer executes on orbit dispatcher`() {
+    fun `blocking intent with context switch does not block the reducer`() {
         val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
+
+        middleware.backgroundIntent()
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.intentMutex.withLock {}
+            }
+        }
 
         middleware.reducer(action)
 
         testFlowObserver.awaitCount(2)
-        middleware.threadName.shouldStartWith(ORBIT_THREAD_PREFIX)
+        testFlowObserver.values.shouldContainExactly(TestState(42), TestState(action))
     }
 
     @Test
-    fun `transformer executes on orbit dispatcher`() {
+    fun `blocking intent without context switch blocks the reducer`() {
         val action = Random.nextInt()
         val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
-        middleware.transformer(action)
+        middleware.blockingIntent()
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.intentMutex.withLock {}
+            }
+        }
+
+        middleware.reducer(action)
+
+        testFlowObserver.awaitCount(2, 100L)
+        testFlowObserver.values.shouldContainExactly(TestState(42))
+    }
+
+    @Test
+    fun `suspending intent does not block the reducer`() {
+        val action = Random.nextInt()
+        val middleware = BaseDslMiddleware()
+        val testFlowObserver = middleware.container.stateFlow.test()
+
+        middleware.suspendingIntent()
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.intentMutex.withLock {}
+            }
+        }
+
+        middleware.reducer(action)
 
         testFlowObserver.awaitCount(2)
-        middleware.threadName.shouldStartWith(ORBIT_THREAD_PREFIX)
+        testFlowObserver.values.shouldContainExactly(TestState(42), TestState(action))
+    }
+
+    @Test
+    fun `blocking reducer blocks an intent`() {
+        val middleware = BaseDslMiddleware()
+        middleware.container.stateFlow.test()
+
+        middleware.blockingReducer()
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.reducerMutex.withLock {}
+            }
+        }
+
+        middleware.simpleIntent()
+
+        shouldThrow<TimeoutCancellationException> {
+            runBlocking {
+                withTimeout(500L) {
+                    middleware.intentMutex.withLock {}
+                }
+            }
+        }
     }
 
     private data class TestState(val id: Int)
 
+    @Suppress("ControlFlowWithEmptyBody", "EmptyWhileBlock")
     private class BaseDslMiddleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
         override val container = RealContainer<TestState, String>(
             initialState = TestState(42),
             parentScope = CoroutineScope(Dispatchers.Unconfined),
-            settings = Container.Settings(
-                orbitDispatcher = newSingleThreadContext(ORBIT_THREAD_PREFIX),
-                backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
-            )
+            settings = Container.Settings()
         )
-        lateinit var threadName: String
-        val latch = CountDownLatch(1)
+
+        val intentMutex = Mutex(locked = true)
+        val reducerMutex = Mutex(locked = true)
 
         fun reducer(action: Int) = intent {
             reduce {
-                threadName = Thread.currentThread().name
                 state.copy(id = action)
             }
         }
 
-        fun transformer(action: Int) = intent {
-            threadName = Thread.currentThread().name
-            val newEvent = action + 5
-
+        @Suppress("UNREACHABLE_CODE")
+        fun blockingReducer() = intent {
             reduce {
-                state.copy(id = newEvent)
+                reducerMutex.unlock()
+                while (true) {
+                }
+                state.copy(id = 123)
             }
+        }
+
+        fun backgroundIntent() = intent {
+            intentMutex.unlock()
+            withContext(Dispatchers.Default) {
+                while (true) {
+                }
+            }
+        }
+
+        fun blockingIntent() = intent {
+            intentMutex.unlock()
+            while (true) {
+            }
+        }
+
+        fun suspendingIntent() = intent {
+            intentMutex.unlock()
+            delay(Int.MAX_VALUE.toLong())
+        }
+
+        fun simpleIntent() = intent {
+            intentMutex.unlock()
         }
     }
 }

@@ -21,28 +21,30 @@ import com.babylon.orbit2.Container
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.syntax.strict.sideEffect
 import com.babylon.orbit2.test
-import io.kotest.matchers.string.shouldStartWith
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.random.Random
 
-@Suppress("EXPERIMENTAL_API_USAGE")
+@Suppress("EXPERIMENTAL_API_USAGE", "ControlFlowWithEmptyBody", "UNREACHABLE_CODE", "EmptyWhileBlock")
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class LiveDataDslPluginDslThreadingTest {
-
-    companion object {
-        const val BACKGROUND_THREAD_PREFIX = "IO"
-    }
 
     private val scope = CoroutineScope(Dispatchers.Unconfined)
 
@@ -58,26 +60,73 @@ internal class LiveDataDslPluginDslThreadingTest {
     }
 
     @Test
-    fun `livedata transformation runs on IO dispatcher`() {
+    fun `livedata dsl function does not block the container from receiving further intents`() {
         val action = Random.nextInt()
 
         val containerHost = scope.createContainerHost()
         val sideEffects = containerHost.container.sideEffectFlow.test()
-        var threadName = ""
+        val mutex = Mutex(locked = true)
 
         containerHost.orbit {
             transformLiveData {
                 liveData {
-                    threadName = Thread.currentThread().name
+                    mutex.unlock()
+                    while (true) {
+                    }
                     emit(action)
                 }
             }
                 .sideEffect { post(event) }
         }
 
-        sideEffects.awaitCount(1)
+        runBlocking {
+            withTimeout(1000L) {
+                mutex.withLock { }
+                delay(20)
+            }
+        }
+        containerHost.orbit {
+            sideEffect { post(action) }
+        }
 
-        threadName.shouldStartWith(BACKGROUND_THREAD_PREFIX)
+        sideEffects.awaitCount(1)
+        sideEffects.values.shouldContainExactly(action)
+    }
+
+    @Test
+    fun `livedata dsl function does not block the reducer`() {
+        val action = Random.nextInt()
+
+        val containerHost = scope.createContainerHost()
+        val sideEffects = containerHost.container.sideEffectFlow.test()
+        val states = containerHost.container.stateFlow.test()
+        val mutex = Mutex(locked = true)
+
+        containerHost.orbit {
+            transformLiveData {
+                liveData {
+                    mutex.unlock()
+                    while (true) {
+                    }
+                    emit(action)
+                }
+            }
+                .sideEffect { post(event) }
+        }
+
+        runBlocking {
+            withTimeout(1000L) {
+                mutex.withLock { }
+                delay(20)
+            }
+        }
+        containerHost.orbit {
+            reduce { TestState(action) }
+        }
+
+        states.awaitCount(2)
+        sideEffects.values.shouldBeEmpty()
+        states.values.shouldContainExactly(TestState(42), TestState(action))
     }
 
     private data class TestState(val id: Int)
@@ -85,11 +134,9 @@ internal class LiveDataDslPluginDslThreadingTest {
     private fun CoroutineScope.createContainerHost(): ContainerHost<TestState, Int> {
         return object : ContainerHost<TestState, Int> {
             override val container: Container<TestState, Int> = RealContainer(
-                initialState = TestState(0),
+                initialState = TestState(42),
                 parentScope = this@createContainerHost,
-                settings = Container.Settings(
-                    backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
-                )
+                settings = Container.Settings()
             )
         }
     }

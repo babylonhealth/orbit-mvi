@@ -27,7 +27,10 @@ class CoroutineDslPluginIdlingTest {
 
     @AfterEach
     fun after() {
-        scope.cancel()
+        runBlocking {
+            scope.cancel()
+            delay(50)
+        }
     }
 
     @Test
@@ -217,6 +220,6 @@ class CoroutineDslPluginIdlingTest {
     }
 
     companion object {
-        private const val TIMEOUT = 500L
+        private const val TIMEOUT = 2000L
     }
 }

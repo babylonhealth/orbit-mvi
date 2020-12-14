@@ -22,10 +22,14 @@ import com.babylon.orbit2.internal.RealContainer
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
-import io.kotest.matchers.string.shouldStartWith
+import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import rx.Completable
 import rx.Observable
@@ -34,87 +38,167 @@ import kotlin.random.Random
 
 internal class RxJava1DslPluginDslThreadingTest {
 
-    companion object {
-        const val BACKGROUND_THREAD_PREFIX = "IO"
+    @Test
+    fun `blocking single does not block the container from receiving further intents`() {
+        `blocking dsl function does not block the container from receiving further intents`(
+            call = { blockingSingle() },
+            mutex = { singleMutex }
+        )
     }
 
     @Test
-    fun `single transformation runs on IO dispatcher`() {
-        val action = Random.nextInt()
+    fun `blocking single does not block the reducer`() {
+        `blocking dsl function does not block the reducer`(
+            call = { blockingSingle() },
+            mutex = { singleMutex }
+        )
+    }
 
+    @Test
+    fun `blocking completable does not block the container from receiving further intents`() {
+        `blocking dsl function does not block the container from receiving further intents`(
+            call = { blockingCompletable() },
+            mutex = { completableMutex }
+        )
+    }
+
+    @Test
+    fun `blocking completable does not block the reducer`() {
+        `blocking dsl function does not block the reducer`(
+            call = { blockingCompletable() },
+            mutex = { completableMutex }
+        )
+    }
+
+    @Test
+    fun `blocking observable does not block the container from receiving further intents`() {
+        `blocking dsl function does not block the container from receiving further intents`(
+            call = { blockingObservable() },
+            mutex = { observableMutex }
+        )
+    }
+
+    @Test
+    fun `blocking observable does not block the reducer`() {
+        `blocking dsl function does not block the reducer`(
+            call = { blockingObservable() },
+            mutex = { observableMutex }
+        )
+    }
+
+    private fun `blocking dsl function does not block the container from receiving further intents`(
+        call: Middleware.() -> Unit,
+        mutex: Middleware.() -> Mutex
+    ) {
+        val action = Random.nextInt()
         val middleware = Middleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
+        middleware.call()
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.mutex().withLock { }
+                delay(20)
+            }
+        }
         middleware.single(action)
 
         testFlowObserver.awaitCount(2)
-        middleware.threadName.shouldStartWith(BACKGROUND_THREAD_PREFIX)
+        testFlowObserver.values.shouldContainExactly(
+            TestState(42),
+            TestState(action + 5)
+        )
     }
 
-    @Test
-    fun `completable transformation runs on IO dispatcher`() {
+    private fun `blocking dsl function does not block the reducer`(
+        call: Middleware.() -> Unit,
+        mutex: Middleware.() -> Mutex
+    ) {
         val action = Random.nextInt()
-
         val middleware = Middleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
-        middleware.completable(action)
+        middleware.call()
+        runBlocking {
+            withTimeout(1000L) {
+                middleware.mutex().withLock { }
+                delay(20)
+            }
+        }
+
+        middleware.reducer(action)
 
         testFlowObserver.awaitCount(2)
-        middleware.threadName.shouldStartWith(BACKGROUND_THREAD_PREFIX)
-    }
-
-    @Test
-    fun `observable transformation runs on IO dispatcher`() {
-        val action = Random.nextInt()
-
-        val middleware = Middleware()
-        val testFlowObserver = middleware.container.stateFlow.test()
-
-        middleware.observable(action)
-
-        testFlowObserver.awaitCount(5)
-        middleware.threadName.shouldStartWith(BACKGROUND_THREAD_PREFIX)
+        testFlowObserver.values.shouldContainExactly(TestState(42), TestState(action))
     }
 
     private data class TestState(val id: Int)
 
+    @Suppress("ControlFlowWithEmptyBody", "UNREACHABLE_CODE", "EmptyWhileBlock")
     private class Middleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
         override val container = RealContainer<TestState, String>(
             initialState = TestState(42),
             parentScope = CoroutineScope(Dispatchers.Unconfined),
-            settings = Container.Settings(
-                backgroundDispatcher = newSingleThreadContext(BACKGROUND_THREAD_PREFIX)
-            )
+            settings = Container.Settings()
         )
-        lateinit var threadName: String
+        val singleMutex = Mutex(locked = true)
+        val maybeMutex = Mutex(locked = true)
+        val completableMutex = Mutex(locked = true)
+        val observableMutex = Mutex(locked = true)
+
+        fun reducer(action: Int) = orbit {
+            reduce {
+                state.copy(id = action)
+            }
+        }
 
         fun single(action: Int) = orbit {
             transformRx1Single {
                 Single.just(action + 5)
-                    .doOnSubscribe { threadName = Thread.currentThread().name }
             }
                 .reduce {
                     state.copy(id = event)
                 }
         }
 
-        fun completable(action: Int) = orbit {
-            transformRx1Completable {
-                Completable.complete()
-                    .doOnSubscribe { threadName = Thread.currentThread().name }
+        fun blockingSingle() = orbit {
+            transformRx1Single {
+                Single.fromCallable {
+                    singleMutex.unlock()
+                    while (true) {
+                    }
+                    1
+                }
             }
                 .reduce {
-                    state.copy(id = action)
+                    state.copy(id = event)
                 }
         }
 
-        fun observable(action: Int) = orbit {
+        fun blockingCompletable() = orbit {
+            transformRx1Completable {
+                Completable.fromCallable {
+                    completableMutex.unlock()
+                    while (true) {
+                    }
+                    1
+                }
+            }
+                .reduce {
+                    state.copy(id = 123)
+                }
+        }
+
+        fun blockingObservable() = orbit {
             transformRx1Observable {
-                Observable.just(action, action + 1, action + 2, action + 3)
-                    .doOnSubscribe { threadName = Thread.currentThread().name }
+                Observable.fromCallable {
+                    observableMutex.unlock()
+                    while (true) {
+                    }
+                    1
+                }
             }
                 .reduce {
                     state.copy(id = event)
