@@ -21,6 +21,8 @@ import com.babylon.orbit2.syntax.strict.sideEffect
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.throwable.shouldHaveMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlin.random.Random
 import kotlin.test.AfterTest
@@ -32,7 +34,7 @@ internal class ParameterisedSideEffectTest(blocking: Boolean) {
     }
 
     private val initialState = State()
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
     private val testSubject = SideEffectTestMiddleware().test(
         initialState = initialState,
         isolateFlow = false,
@@ -42,6 +44,7 @@ internal class ParameterisedSideEffectTest(blocking: Boolean) {
     @AfterTest
     fun afterTest() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     fun `succeeds if posted side effects match expected side effects`() {

@@ -25,6 +25,8 @@ import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.syntax.strict.sideEffect
 import com.babylon.orbit2.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -37,7 +39,7 @@ import kotlin.random.Random
 @ExperimentalCoroutinesApi
 internal class RxJava1DslPluginBehaviourTest {
     private val initialState = TestState()
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @BeforeEach
     fun beforeEach() {
@@ -47,6 +49,7 @@ internal class RxJava1DslPluginBehaviourTest {
     @AfterEach
     fun afterEach() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

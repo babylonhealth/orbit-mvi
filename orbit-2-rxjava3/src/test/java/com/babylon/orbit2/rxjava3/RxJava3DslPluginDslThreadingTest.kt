@@ -27,6 +27,8 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -39,11 +41,12 @@ import kotlin.random.Random
 
 @ExperimentalCoroutinesApi
 internal class RxJava3DslPluginDslThreadingTest {
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterEach
     fun afterEach() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

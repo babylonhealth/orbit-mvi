@@ -29,6 +29,8 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -38,7 +40,7 @@ import kotlin.random.Random
 @ExperimentalCoroutinesApi
 internal class RxJava3DslPluginBehaviourTest {
     private val initialState = TestState()
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @BeforeEach
     fun beforeEach() {
@@ -48,6 +50,7 @@ internal class RxJava3DslPluginBehaviourTest {
     @AfterEach
     fun afterEach() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

@@ -23,6 +23,8 @@ import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -38,11 +40,12 @@ import kotlin.random.Random
 
 @ExperimentalCoroutinesApi
 internal class RxJava1DslPluginDslThreadingTest {
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterEach
     fun afterEach() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

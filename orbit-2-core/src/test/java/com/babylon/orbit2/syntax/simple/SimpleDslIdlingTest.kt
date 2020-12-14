@@ -24,6 +24,8 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -37,12 +39,13 @@ import kotlin.test.Test
 @ExperimentalCoroutinesApi
 internal class SimpleDslIdlingTest {
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
     private val testIdlingResource = TestIdlingResource()
 
     @AfterTest
     fun after() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

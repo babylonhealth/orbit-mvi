@@ -22,6 +22,8 @@ import com.babylon.orbit2.test
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -34,11 +36,12 @@ import kotlin.test.Test
 @ExperimentalCoroutinesApi
 internal class ContainerThreadingTest {
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterTest
     fun afterTest() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

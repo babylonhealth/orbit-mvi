@@ -23,6 +23,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.throwable.shouldHaveMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlin.random.Random
 import kotlin.test.AfterTest
@@ -35,7 +37,7 @@ internal class ParameterisedStateTest(blocking: Boolean) {
 
     private val initialState = State()
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
     private val testSubject = StateTestMiddleware().test(
         initialState = initialState,
         isolateFlow = false,
@@ -45,6 +47,7 @@ internal class ParameterisedStateTest(blocking: Boolean) {
     @AfterTest
     fun afterTest() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     fun `succeeds if initial state matches expected state`() {

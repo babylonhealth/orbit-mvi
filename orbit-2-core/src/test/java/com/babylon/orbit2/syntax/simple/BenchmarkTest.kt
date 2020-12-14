@@ -21,6 +21,8 @@ import com.babylon.orbit2.container
 import com.babylon.orbit2.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
 import java.util.concurrent.CountDownLatch
@@ -33,11 +35,12 @@ import kotlin.test.Test
 @ExperimentalCoroutinesApi
 internal class BenchmarkTest {
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterTest
     fun afterTest() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

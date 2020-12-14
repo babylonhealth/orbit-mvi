@@ -24,6 +24,8 @@ import com.babylon.orbit2.test
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlin.random.Random
 import kotlin.test.AfterTest
@@ -32,11 +34,12 @@ import kotlin.test.Test
 @ExperimentalCoroutinesApi
 internal class StateTest {
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterTest
     fun afterTest() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

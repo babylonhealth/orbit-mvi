@@ -25,6 +25,8 @@ import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.syntax.strict.sideEffect
 import com.babylon.orbit2.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
@@ -42,11 +44,12 @@ import kotlin.random.Random
 @ExperimentalCoroutinesApi
 internal class CoroutineDslPluginBehaviourTest {
     private val initialState = TestState()
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterEach
     fun afterEach() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @BeforeEach

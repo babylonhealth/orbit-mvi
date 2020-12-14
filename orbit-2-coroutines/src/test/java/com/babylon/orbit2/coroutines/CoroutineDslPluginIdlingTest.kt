@@ -9,6 +9,8 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
@@ -23,13 +25,14 @@ import org.junit.jupiter.api.Test
 @ExperimentalCoroutinesApi
 internal class CoroutineDslPluginIdlingTest {
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
     private val testIdlingResource = TestIdlingResource()
 
     @AfterEach
     fun after() {
         runBlocking {
             scope.cleanupTestCoroutines()
+            scope.cancel()
             delay(50)
         }
     }

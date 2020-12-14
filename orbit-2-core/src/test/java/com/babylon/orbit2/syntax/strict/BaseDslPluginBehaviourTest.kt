@@ -21,6 +21,8 @@ import com.babylon.orbit2.assert
 import com.babylon.orbit2.container
 import com.babylon.orbit2.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlin.random.Random
 import kotlin.test.AfterTest
@@ -30,11 +32,12 @@ import kotlin.test.Test
 internal class BaseDslPluginBehaviourTest {
 
     private val initialState = TestState()
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @AfterTest
     fun afterTest() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test

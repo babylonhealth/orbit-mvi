@@ -27,6 +27,8 @@ import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.resetMain
@@ -41,7 +43,7 @@ import kotlin.random.Random
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class LiveDataDslPluginBehaviourTest {
     private val initialState = TestState()
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
 
     @BeforeEach
     fun beforeEach() {
@@ -52,6 +54,7 @@ internal class LiveDataDslPluginBehaviourTest {
     @AfterEach
     fun afterEach() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
         Dispatchers.resetMain()
     }
 

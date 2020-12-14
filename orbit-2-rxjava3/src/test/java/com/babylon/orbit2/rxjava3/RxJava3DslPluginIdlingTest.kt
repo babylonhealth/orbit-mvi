@@ -13,6 +13,8 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -26,12 +28,13 @@ import org.junit.jupiter.api.Test
 @ExperimentalCoroutinesApi
 internal class RxJava3DslPluginIdlingTest {
 
-    private val scope = TestCoroutineScope()
+    private val scope = TestCoroutineScope(Job())
     private val testIdlingResource = TestIdlingResource()
 
     @AfterEach
     fun after() {
         scope.cleanupTestCoroutines()
+        scope.cancel()
     }
 
     @Test
