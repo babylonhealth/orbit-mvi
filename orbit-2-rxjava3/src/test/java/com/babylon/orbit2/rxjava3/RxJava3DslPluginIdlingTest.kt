@@ -5,6 +5,7 @@ import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.idling.IdlingResource
 import com.babylon.orbit2.syntax.strict.orbit
+import com.babylon.orbit2.test.assertEventually
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.reactivex.rxjava3.core.Completable
@@ -21,7 +22,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -339,19 +339,6 @@ internal class RxJava3DslPluginIdlingTest {
             mutex.withLock {
                 assertEventually {
                     testIdlingResource.isIdle().shouldBeTrue()
-                }
-            }
-        }
-    }
-
-    private suspend fun assertEventually(block: suspend () -> Unit) {
-        withTimeout(TIMEOUT) {
-            while (true) {
-                try {
-                    block()
-                    break
-                } catch (ignored: Throwable) {
-                    yield()
                 }
             }
         }

@@ -38,6 +38,7 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -57,15 +58,14 @@ internal class LiveDataDslPluginDslThreadingTest {
 
     @AfterEach
     fun after() {
-        scope.cleanupTestCoroutines()
         scope.cancel()
+        scope.cleanupTestCoroutines()
         Dispatchers.resetMain()
     }
 
     @Test
     fun `livedata dsl function does not block the container from receiving further intents`() {
         val action = Random.nextInt()
-
         val containerHost = scope.createContainerHost()
         val sideEffects = containerHost.container.sideEffectFlow.test()
         val mutex = Mutex(locked = true)
@@ -75,15 +75,16 @@ internal class LiveDataDslPluginDslThreadingTest {
                 liveData {
                     mutex.unlock()
                     while (true) {
+                        yield()
                     }
-                    emit(action)
+                    emit(1)
                 }
             }
                 .sideEffect { post(event) }
         }
 
         runBlocking {
-            withTimeout(1000L) {
+            withTimeout(TIMEOUT) {
                 mutex.withLock { }
                 delay(20)
             }
@@ -99,7 +100,6 @@ internal class LiveDataDslPluginDslThreadingTest {
     @Test
     fun `livedata dsl function does not block the reducer`() {
         val action = Random.nextInt()
-
         val containerHost = scope.createContainerHost()
         val sideEffects = containerHost.container.sideEffectFlow.test()
         val states = containerHost.container.stateFlow.test()
@@ -110,15 +110,17 @@ internal class LiveDataDslPluginDslThreadingTest {
                 liveData {
                     mutex.unlock()
                     while (true) {
+                        yield()
                     }
-                    emit(action)
+
+                    emit(1)
                 }
             }
                 .sideEffect { post(event) }
         }
 
         runBlocking {
-            withTimeout(1000L) {
+            withTimeout(TIMEOUT) {
                 mutex.withLock { }
                 delay(20)
             }
@@ -142,5 +144,9 @@ internal class LiveDataDslPluginDslThreadingTest {
                 settings = Container.Settings()
             )
         }
+    }
+
+    companion object {
+        const val TIMEOUT = 3000L
     }
 }

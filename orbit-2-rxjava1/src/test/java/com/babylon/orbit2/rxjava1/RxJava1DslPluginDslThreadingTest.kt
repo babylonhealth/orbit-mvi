@@ -21,6 +21,7 @@ import com.babylon.orbit2.container
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.test
+import com.babylon.orbit2.test.ScopedBlockingWorkSimulator
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -44,8 +45,8 @@ internal class RxJava1DslPluginDslThreadingTest {
 
     @AfterEach
     fun afterEach() {
-        scope.cleanupTestCoroutines()
         scope.cancel()
+        scope.cleanupTestCoroutines()
     }
 
     @Test
@@ -151,6 +152,7 @@ internal class RxJava1DslPluginDslThreadingTest {
         val singleMutex = Mutex(locked = true)
         val completableMutex = Mutex(locked = true)
         val observableMutex = Mutex(locked = true)
+        val workSimulator = ScopedBlockingWorkSimulator(scope)
 
         fun reducer(action: Int) = orbit {
             reduce {
@@ -171,8 +173,7 @@ internal class RxJava1DslPluginDslThreadingTest {
             transformRx1Single {
                 Single.fromCallable {
                     singleMutex.unlock()
-                    while (true) {
-                    }
+                    workSimulator.simulateWork()
                     1
                 }
             }
@@ -185,8 +186,7 @@ internal class RxJava1DslPluginDslThreadingTest {
             transformRx1Completable {
                 Completable.fromCallable {
                     completableMutex.unlock()
-                    while (true) {
-                    }
+                    workSimulator.simulateWork()
                     1
                 }
             }
@@ -199,8 +199,7 @@ internal class RxJava1DslPluginDslThreadingTest {
             transformRx1Observable {
                 Observable.fromCallable {
                     observableMutex.unlock()
-                    while (true) {
-                    }
+                    workSimulator.simulateWork()
                     1
                 }
             }

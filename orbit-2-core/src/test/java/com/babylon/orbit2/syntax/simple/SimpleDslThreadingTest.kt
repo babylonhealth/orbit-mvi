@@ -19,6 +19,7 @@ package com.babylon.orbit2.syntax.simple
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.test
+import com.babylon.orbit2.test.ScopedBlockingWorkSimulator
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.Dispatchers
@@ -42,17 +43,17 @@ import kotlin.test.Test
 internal class SimpleDslThreadingTest {
 
     private val scope = TestCoroutineScope(Job())
+    private val middleware = BaseDslMiddleware()
 
     @AfterTest
     fun afterTest() {
-        scope.cleanupTestCoroutines()
         scope.cancel()
+        scope.cleanupTestCoroutines()
     }
 
     @Test
     fun `blocking intent with context switch does not block the reducer`() {
         val action = Random.nextInt()
-        val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.backgroundIntent()
@@ -71,7 +72,6 @@ internal class SimpleDslThreadingTest {
     @Test
     fun `suspending intent does not block the reducer`() {
         val action = Random.nextInt()
-        val middleware = BaseDslMiddleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.suspendingIntent()
@@ -141,6 +141,7 @@ internal class SimpleDslThreadingTest {
 
         val intentMutex = Mutex(locked = true)
         val reducerMutex = Mutex(locked = true)
+        val workSimulator = ScopedBlockingWorkSimulator(scope)
 
         fun reducer(action: Int) = intent {
             reduce {
@@ -152,9 +153,7 @@ internal class SimpleDslThreadingTest {
         fun blockingReducer() = intent {
             reduce {
                 reducerMutex.unlock()
-                while (true) {
-                    Thread.yield()
-                }
+                workSimulator.simulateWork()
                 state.copy(id = 123)
             }
         }

@@ -31,6 +31,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -153,6 +154,7 @@ internal class CoroutineDslPluginThreadingTest {
             transformSuspend {
                 suspendMutex.unlock()
                 while (true) {
+                    yield()
                 }
                 1
             }
@@ -166,6 +168,7 @@ internal class CoroutineDslPluginThreadingTest {
                 kotlinx.coroutines.flow.flow {
                     flowMutex.unlock()
                     while (true) {
+                        yield()
                     }
                     emit(1)
                 }

@@ -19,6 +19,7 @@ package com.babylon.orbit2.syntax.strict
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.container
 import com.babylon.orbit2.test
+import com.babylon.orbit2.test.ScopedBlockingWorkSimulator
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -37,24 +38,24 @@ import kotlin.test.Test
 internal class BaseDslPluginThreadingTest {
 
     private val scope = TestCoroutineScope(Job())
+    private val middleware = Middleware()
 
     @AfterTest
     fun afterTest() {
-        scope.cleanupTestCoroutines()
         scope.cancel()
+        scope.cleanupTestCoroutines()
     }
 
     @Test
     fun `blocking transformer does not block the container from receiving further intents`() {
         val action = Random.nextInt()
-        val middleware = Middleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.blockingTransformer()
         runBlocking {
             withTimeout(1000L) {
                 middleware.transformerMutex.withLock { }
-                delay(20)
+                delay(50)
             }
         }
         middleware.transformer(action)
@@ -66,7 +67,6 @@ internal class BaseDslPluginThreadingTest {
     @Test
     fun `blocking transformer does not block the reducer`() {
         val action = Random.nextInt()
-        val middleware = Middleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.blockingTransformer()
@@ -120,7 +120,6 @@ internal class BaseDslPluginThreadingTest {
         mutex: Middleware.() -> Mutex
     ) {
         val action = Random.nextInt()
-        val middleware = Middleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.call()
@@ -132,7 +131,7 @@ internal class BaseDslPluginThreadingTest {
         }
         middleware.transformer(action)
 
-        testFlowObserver.awaitCount(2)
+        testFlowObserver.awaitCount(2, 100L)
         testFlowObserver.values.shouldContainExactly(
             TestState(42),
         )
@@ -143,7 +142,6 @@ internal class BaseDslPluginThreadingTest {
         mutex: Middleware.() -> Mutex
     ) {
         val action = Random.nextInt()
-        val middleware = Middleware()
         val testFlowObserver = middleware.container.stateFlow.test()
 
         middleware.call()
@@ -156,7 +154,7 @@ internal class BaseDslPluginThreadingTest {
 
         middleware.reducer(action)
 
-        testFlowObserver.awaitCount(2)
+        testFlowObserver.awaitCount(2, 100L)
         testFlowObserver.values.shouldContainExactly(TestState(42))
     }
 
@@ -171,12 +169,12 @@ internal class BaseDslPluginThreadingTest {
         val reducerMutex = Mutex(locked = true)
         val transformerMutex = Mutex(locked = true)
         val sideEffectMutex = Mutex(locked = true)
+        val workSimulator = ScopedBlockingWorkSimulator(scope)
 
         fun blockingReducer() = orbit {
             reduce {
                 reducerMutex.unlock()
-                while (true) {
-                }
+                workSimulator.simulateWork()
                 state.copy(id = 123)
             }
         }
@@ -199,8 +197,7 @@ internal class BaseDslPluginThreadingTest {
         fun blockingTransformer() = orbit {
             transform {
                 transformerMutex.unlock()
-                while (true) {
-                }
+                workSimulator.simulateWork()
                 1
             }
                 .reduce {
@@ -211,8 +208,7 @@ internal class BaseDslPluginThreadingTest {
         fun blockingSideEffect() = orbit {
             sideEffect {
                 sideEffectMutex.unlock()
-                while (true) {
-                }
+                workSimulator.simulateWork()
             }
         }
     }
