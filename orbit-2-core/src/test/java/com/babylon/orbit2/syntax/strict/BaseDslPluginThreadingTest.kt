@@ -160,7 +160,6 @@ internal class BaseDslPluginThreadingTest {
 
     private data class TestState(val id: Int)
 
-    @Suppress("ControlFlowWithEmptyBody", "UNREACHABLE_CODE", "EmptyWhileBlock")
     private inner class Middleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")

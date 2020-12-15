@@ -145,7 +145,6 @@ internal class RxJava1DslPluginDslThreadingTest {
 
     private data class TestState(val id: Int)
 
-    @Suppress("ControlFlowWithEmptyBody", "UNREACHABLE_CODE", "EmptyWhileBlock")
     private inner class Middleware : ContainerHost<TestState, String> {
 
         override val container = scope.container<TestState, String>(TestState(42))

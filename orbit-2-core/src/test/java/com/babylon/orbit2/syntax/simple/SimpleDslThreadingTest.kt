@@ -133,7 +133,6 @@ internal class SimpleDslThreadingTest {
 
     private data class TestState(val id: Int)
 
-    @Suppress("ControlFlowWithEmptyBody", "EmptyWhileBlock")
     private inner class BaseDslMiddleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
@@ -149,7 +148,6 @@ internal class SimpleDslThreadingTest {
             }
         }
 
-        @Suppress("UNREACHABLE_CODE")
         fun blockingReducer() = intent {
             reduce {
                 reducerMutex.unlock()

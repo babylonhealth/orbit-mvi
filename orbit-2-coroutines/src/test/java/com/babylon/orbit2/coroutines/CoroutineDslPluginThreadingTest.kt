@@ -126,7 +126,7 @@ internal class CoroutineDslPluginThreadingTest {
 
     private data class TestState(val id: Int)
 
-    @Suppress("UNREACHABLE_CODE", "ControlFlowWithEmptyBody", "EmptyWhileBlock")
+    @Suppress("UNREACHABLE_CODE")
     private inner class Middleware : ContainerHost<TestState, String> {
 
         @Suppress("EXPERIMENTAL_API_USAGE")
