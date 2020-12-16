@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.random.Random
 
-@Suppress("EXPERIMENTAL_API_USAGE", "UNREACHABLE_CODE")
+@Suppress("EXPERIMENTAL_API_USAGE", "UNREACHABLE_CODE", "ControlFlowWithEmptyBody", "EmptyWhileBlock")
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class LiveDataDslPluginDslThreadingTest {
 

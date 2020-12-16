@@ -39,7 +39,7 @@ public class ScopedBlockingWorkSimulator(private val scope: CoroutineScope) {
         }
     }
 
-    @Suppress("ControlFlowWithEmptyBody")
+    @Suppress("ControlFlowWithEmptyBody", "EmptyWhileBlock")
     public fun simulateWork() {
         if (job != null) {
             throw IllegalStateException("Can be invoked only once")
