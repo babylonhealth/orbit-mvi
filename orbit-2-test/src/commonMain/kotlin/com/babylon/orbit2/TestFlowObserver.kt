@@ -11,7 +11,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Allows you to record all observed values of a flow for easy testing.
@@ -56,9 +55,7 @@ public class TestFlowObserver<T>(flow: Flow<T>) {
      */
     public fun awaitCount(count: Int, timeout: Long = 5000L) {
         runBlocking {
-            withContext(Dispatchers.Default) {
-                awaitFor(timeout) { values.size == count }
-            }
+            awaitFor(timeout) { values.size == count }
         }
     }
 

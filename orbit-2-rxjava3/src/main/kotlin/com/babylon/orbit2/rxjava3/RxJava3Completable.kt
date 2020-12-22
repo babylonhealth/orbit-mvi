@@ -19,7 +19,7 @@ package com.babylon.orbit2.rxjava3
 import com.babylon.orbit2.syntax.strict.Builder
 import com.babylon.orbit2.syntax.Operator
 import com.babylon.orbit2.syntax.Orbit2Dsl
-import com.babylon.orbit2.syntax.strict.OrbitDslPlugins
+import com.babylon.orbit2.syntax.strict.orbitDslPlugins
 import com.babylon.orbit2.syntax.strict.VolatileContext
 import io.reactivex.rxjava3.core.Completable
 
@@ -42,6 +42,6 @@ public fun <S : Any, SE : Any, E : Any> Builder<S, SE, E>.transformRx3Completabl
     registerIdling: Boolean = true,
     block: VolatileContext<S, E>.() -> Completable
 ): Builder<S, SE, E> {
-    OrbitDslPlugins.register(RxJava3DslPlugin)
+    orbitDslPlugins.register(RxJava3DslPlugin)
     return add(RxJava3Completable(registerIdling, block))
 }

@@ -14,20 +14,10 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2.syntax.strict
+package com.babylon.orbit2.test
 
-import com.babylon.orbit2.syntax.Operator
-import com.babylon.orbit2.syntax.Orbit2Dsl
-import kotlin.native.concurrent.SharedImmutable
+import kotlin.coroutines.CoroutineContext
 
-/**
- * Represents the current context in which an [Operator] is executing.
- *
- * @property state The state captured at the point when the operator is executed
- * @property event The current event being processed
- */
-@Orbit2Dsl
-public interface Context<STATE : Any, EVENT> {
-    public val state: STATE
-    public val event: EVENT
-}
+public actual fun <T> runBlocking(block: suspend () -> T): T = kotlinx.coroutines.runBlocking { block() }
+public actual fun <T> runBlocking(coroutineContext: CoroutineContext, block: suspend () -> T): T =
+    kotlinx.coroutines.runBlocking(coroutineContext) { block() }

@@ -39,6 +39,7 @@ internal class BaseDslPluginThreadingTest {
 
     private val scope = CoroutineScope(Job())
     private val middleware = Middleware()
+    private val timeout = 10000L
 
     @AfterTest
     fun afterTest() {
@@ -52,7 +53,7 @@ internal class BaseDslPluginThreadingTest {
 
         middleware.blockingTransformer()
         runBlocking {
-            withTimeout(1000L) {
+            withTimeout(timeout) {
                 middleware.transformerMutex.withLock { }
                 delay(50)
             }
@@ -70,7 +71,7 @@ internal class BaseDslPluginThreadingTest {
 
         middleware.blockingTransformer()
         runBlocking {
-            withTimeout(1000L) {
+            withTimeout(timeout) {
                 middleware.transformerMutex.withLock { }
                 delay(20)
             }
@@ -123,7 +124,7 @@ internal class BaseDslPluginThreadingTest {
 
         middleware.call()
         runBlocking {
-            withTimeout(1000L) {
+            withTimeout(timeout) {
                 middleware.mutex().withLock { }
                 delay(20)
             }
@@ -145,7 +146,7 @@ internal class BaseDslPluginThreadingTest {
 
         middleware.call()
         runBlocking {
-            withTimeout(1000L) {
+            withTimeout(timeout) {
                 middleware.mutex().withLock { }
                 delay(20)
             }

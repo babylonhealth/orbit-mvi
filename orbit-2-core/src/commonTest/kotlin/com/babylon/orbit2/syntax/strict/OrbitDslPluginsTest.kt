@@ -22,24 +22,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
-internal class OrbitDslPluginsTest {
+internal class orbitDslPluginsTest {
 
     @AfterTest
     fun afterEach() {
-        OrbitDslPlugins.reset()
+        orbitDslPlugins.reset()
     }
 
     @Test
     fun `base plugin is present by default`() {
-        OrbitDslPlugins.plugins.shouldContainExactly(BaseDslPlugin)
+        orbitDslPlugins.plugins.shouldContainExactly(BaseDslPlugin)
     }
 
     @Test
     fun `base plugin is present after another plugin has been added`() {
 
-        OrbitDslPlugins.register(TestPlugin)
+        orbitDslPlugins.register(TestPlugin)
 
-        OrbitDslPlugins.plugins.shouldContainExactly(BaseDslPlugin, TestPlugin)
+        orbitDslPlugins.plugins.shouldContainExactly(BaseDslPlugin, TestPlugin)
     }
 
     private object TestPlugin : OrbitDslPlugin {

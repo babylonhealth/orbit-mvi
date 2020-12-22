@@ -19,7 +19,7 @@ package com.babylon.orbit2.coroutines
 import com.babylon.orbit2.ContainerHost
 import com.babylon.orbit2.assert
 import com.babylon.orbit2.container
-import com.babylon.orbit2.syntax.strict.OrbitDslPlugins
+import com.babylon.orbit2.syntax.strict.orbitDslPlugins
 import com.babylon.orbit2.syntax.strict.orbit
 import com.babylon.orbit2.syntax.strict.reduce
 import com.babylon.orbit2.syntax.strict.sideEffect
@@ -54,7 +54,7 @@ internal class CoroutineDslPluginBehaviourTest {
 
     @BeforeEach
     fun beforeEach() {
-        OrbitDslPlugins.reset() // Test for proper registration
+        orbitDslPlugins.reset() // Test for proper registration
     }
 
     @Test

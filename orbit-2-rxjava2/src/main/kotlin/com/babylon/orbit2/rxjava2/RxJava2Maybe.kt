@@ -19,7 +19,7 @@ package com.babylon.orbit2.rxjava2
 import com.babylon.orbit2.syntax.strict.Builder
 import com.babylon.orbit2.syntax.Operator
 import com.babylon.orbit2.syntax.Orbit2Dsl
-import com.babylon.orbit2.syntax.strict.OrbitDslPlugins
+import com.babylon.orbit2.syntax.strict.orbitDslPlugins
 import com.babylon.orbit2.syntax.strict.VolatileContext
 import io.reactivex.Maybe
 
@@ -42,6 +42,6 @@ public fun <S : Any, SE : Any, E : Any, E2 : Any> Builder<S, SE, E>.transformRx2
     registerIdling: Boolean = true,
     block: VolatileContext<S, E>.() -> Maybe<E2>
 ): Builder<S, SE, E2> {
-    OrbitDslPlugins.register(RxJava2DslPlugin)
+    orbitDslPlugins.register(RxJava2DslPlugin)
     return add(RxJava2Maybe(registerIdling, block))
 }

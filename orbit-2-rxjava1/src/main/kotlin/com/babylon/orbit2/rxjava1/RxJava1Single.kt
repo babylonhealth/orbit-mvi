@@ -19,7 +19,7 @@ package com.babylon.orbit2.rxjava1
 import com.babylon.orbit2.syntax.Operator
 import com.babylon.orbit2.syntax.Orbit2Dsl
 import com.babylon.orbit2.syntax.strict.Builder
-import com.babylon.orbit2.syntax.strict.OrbitDslPlugins
+import com.babylon.orbit2.syntax.strict.orbitDslPlugins
 import com.babylon.orbit2.syntax.strict.VolatileContext
 import rx.Single
 
@@ -42,6 +42,6 @@ public fun <S : Any, SE : Any, E, E2> Builder<S, SE, E>.transformRx1Single(
     registerIdling: Boolean = true,
     block: VolatileContext<S, E>.() -> Single<E2>
 ): Builder<S, SE, E2> {
-    OrbitDslPlugins.register(RxJava1DslPlugin)
+    orbitDslPlugins.register(RxJava1DslPlugin)
     return add(RxJava1Single(registerIdling, block))
 }

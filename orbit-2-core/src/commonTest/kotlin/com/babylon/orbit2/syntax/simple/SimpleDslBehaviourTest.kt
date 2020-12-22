@@ -43,8 +43,8 @@ internal class SimpleDslBehaviourTest {
 
     @Test
     fun `reducer produces new states`() {
-        val action = Random.nextInt()
-        val middleware = BaseDslMiddleware().test(initialState)
+        val action: Int = Random.nextInt()
+        val middleware: BaseDslMiddleware = BaseDslMiddleware().test(initialState)
 
         middleware.reducer(action)
 
